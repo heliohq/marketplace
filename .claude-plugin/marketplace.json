@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "heliohq",
+  "description": "Helio's public Claude Code plugin marketplace",
+  "owner": {
+    "name": "Helio",
+    "email": "dev@helio.im"
+  },
+  "plugins": [
+    {
+      "name": "heliox",
+      "source": "./heliox",
+      "description": "Built-in Heliox agent-facing CLI plugin, organized as domain skills"
+    },
+    {
+      "name": "skill-creator",
+      "source": "./skill-creator",
+      "description": "Create new skills, modify and improve existing skills, and measure skill performance",
+      "version": "0.1.0",
+      "skills": ["./"]
+    }
+  ]
+}
