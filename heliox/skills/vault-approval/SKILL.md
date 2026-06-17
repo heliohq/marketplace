@@ -1,6 +1,6 @@
 ---
 name: vault-approval
-description: "Use `heliox vault ...` and `heliox approval ...` for credentials, API tokens, passwords, secret delegation, approval polling, and owner/grantee flows. Trigger whenever the assistant needs to store, fetch, rotate, request, share, revoke, or inspect credentials, or when an approval id/status appears."
+description: "Use whenever credentials, API tokens, passwords, private keys, vault delegation, requestable credential search, approval polling, or owner/grantee credential flows require `heliox vault ...` or `heliox approval ...`."
 user-invocable: false
 metadata:
   requires:
@@ -12,94 +12,193 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-The vault holds secrets. You own credentials you create and can use credentials delegated to you.
+Use Helio vault for secret material. Use Helio approvals when a credential owner must decide whether to delegate a requestable credential. Vault discovery is org-scoped; plaintext access is still limited to owners and active delegates.
 
-## Safety
+## Operating Rules
 
-- Never print plaintext secrets in chat or logs.
-- Prefer `vault show` for metadata. Use `vault get` only when plaintext is required for the immediate operation.
-- Store structured data as JSON or `@file`.
-- Treat `delete`, `rotate`, `share`, and `unshare` as sensitive.
+- Never print plaintext secrets in chat, logs, task comments, memory, wiki, or final summaries.
+- Prefer metadata commands (`vault list`, `vault show`, `vault search`) before `vault get`.
+- Use `vault get` only when plaintext is required for the immediate provider/tool call.
+- Keep plaintext in the current process or shell for the shortest useful time.
+- Use `request_ref` (`vcr_...`) for requestable credentials.
+- Do not create duplicate requests while one is already pending for the same credential and purpose.
+- Treat `delete`, `rotate`, `share`, and `unshare` as sensitive state-changing actions.
 
-## Own and delegated credentials
+## Credential Shapes
+
+Pass secret data as repeated `--data key=value` flags. Pass metadata as repeated `--metadata key=value` flags.
+
+| Type | Required `--data` keys | Optional keys |
+| --- | --- | --- |
+| `password` | `username`, `password` | `email` |
+| `token` | `access_token` | `refresh_token`, `id_token`, `token_type`, `expiry` |
+| `keypair` | `private_key` | `public_key` |
+| `multi_field` | at least one key/value | any useful key |
+
+For token credentials, store the token value as `access_token`, not `token`.
+
+## Credential Access Flow
+
+Follow this order when a task needs a credential.
+
+1. **Check credentials already available to the caller.**
+   ```bash
+   heliox vault list --role grantee --name <provider-or-purpose> --type token --json
+   heliox vault list --role owner --name <provider-or-purpose> --type token --json
+   heliox vault show <credential_id> --json
+   ```
+   Choose an active row whose name, type, owner, and safe metadata fit the current task. When several rows match, inspect metadata with `vault show`. Metadata filtering is not a `vault list` feature today.
+
+2. **Search requestable previews when access is not already available.**
+   ```bash
+   heliox vault search --requestable <provider-or-purpose> --type token --json
+   ```
+   Search returns safe preview fields only: `request_ref`, `type`, `owner`, `display_name`, and `description`. It does not expose credential ids, private labels, metadata, timestamps, or plaintext.
+
+3. **Request a matching credential by `request_ref`.**
+   ```bash
+   heliox vault request <request_ref> --policy trust --reason "<reason>" --json
+   heliox vault request <request_ref> --policy trust --reason "<reason>" --wait 5m --json
+   heliox vault request <request_ref> --policy onetime --reason "<reason>" --wait infinite --json
+   heliox vault request <request_ref> --policy onetime --reason "<reason>" --expires "<rfc3339>" --json
+   ```
+   Without `--wait`, the command returns `status=pending` and an `approval_id`. With `--wait`, exit code `0` means approved; inspect JSON/status before continuing on any nonzero exit.
+
+4. **Resolve the credential id after approval.**
+   ```bash
+   heliox approval get <approval_id> --json
+   heliox vault list --role grantee --name <provider-or-purpose> --type token --json
+   ```
+   Use `credential.id` directly when an approved wait response includes it. Otherwise poll the approval or list delegated credentials after the owner approves.
+
+5. **Fetch plaintext only for the immediate operation.**
+   ```bash
+   heliox vault get <credential_id> --json
+   ```
+   Redact the returned `data` object from user-visible output.
+
+## Loading A Token For A Provider Tool
+
+Map vault data to the env var expected by the provider tool. Confirm the native tool exists before relying on it.
 
 ```bash
-heliox vault list --json
-heliox vault list --source delegated --json
-heliox vault list --name <substring> --type password|token|keypair|multi_field --json
-heliox vault list --include-invalid --json
-heliox vault show <credential_id> --json
-heliox vault get <credential_id> --json
+credential_id=<credential_id>
+export GITHUB_TOKEN="$(heliox vault get "$credential_id" --json | node -e 'let s="";process.stdin.on("data",c=>s+=c);process.stdin.on("end",()=>{const d=JSON.parse(s).data||{};if(!d.access_token)process.exit(1);process.stdout.write(d.access_token);})')"
+export GH_TOKEN="$GITHUB_TOKEN"
+command -v gh >/dev/null && gh auth status
 ```
 
-`vault get` returns plaintext. Redact it from user-visible summaries.
+Provider examples:
 
-## Store and update
+- GitHub CLI/API: `GITHUB_TOKEN` or `GH_TOKEN`.
+- Slack API clients: usually `SLACK_TOKEN`.
+- Other providers: use the provider's documented env/header name.
+
+Never embed tokens in URLs unless the provider has no safer option. Prefer env vars, stdin, or documented auth headers.
+
+## Storing Credentials
+
+Store a credential when a token/account was created, secret material was rotated outside vault, or the user directly supplied secret material to preserve.
 
 ```bash
-heliox vault store --name <label> --type token --data '{"access_token":"..."}' --json
-heliox vault store --name <label> --type multi_field --data @secret.json --description "<text>" --metadata '{"service":"github"}' --expires-at "<iso8601>" --json
-heliox vault update <credential_id> --name <new_label> --json
-heliox vault update <credential_id> --description "<text>" --metadata '{"key":"value"}' --expires-at "<iso8601>" --json
-heliox vault update <credential_id> --clear-expires-at --json
-heliox vault rotate <credential_id> --data '{"access_token":"new"}' --json
-heliox vault delete <credential_id> --json
+heliox vault store --name <private_label> --type token --data "access_token=<value>" --json
+heliox vault store --name <private_label> --type password --data "username=<u>" --data "password=<p>" --json
+heliox vault store --name <private_label> --type multi_field --data "api_key=<v>" --data "endpoint=<url>" --metadata "service=<provider>" --json
 ```
 
-`vault update` changes metadata only. `vault rotate` merges a partial payload into credential data.
-
-## Request someone else's credential
+Treat `--name` as the private owner-side label. It is not the requestable search label. Add safe preview text only when future same-org agents should be able to discover and request this credential:
 
 ```bash
-heliox vault request --owner <user_id> --name <label> --policy trust|always|onetime --reason "<why>" --json
-heliox vault request --owner <user_id> --name <label> --policy trust|always|onetime --wait 5m --json
-heliox vault request --owner <user_id> --name <label> --policy trust|always|onetime --wait infinite --json
+heliox vault store --name <private_label> --type token \
+  --data "access_token=<value>" \
+  --metadata "service=<provider>" \
+  --metadata "username=<provider-username>" \
+  --metadata "scopes=<scope-list>" \
+  --requestable-name "<safe display name>" \
+  --requestable-description "<safe usage description>" \
+  --json
 ```
 
-Optional delegation expiry:
+Share at creation when the grantee is already known:
 
 ```bash
-heliox vault request --owner <user_id> --name <label> --policy onetime --expires "<rfc3339>" --json
+heliox vault store --name <private_label> --type token \
+  --data "access_token=<value>" \
+  --share-with @<handle> \
+  --policy trust \
+  --share-reason "<reason>" \
+  --json
 ```
 
-No `--wait`: returns `status=pending` and an `approval_id`. Do not create duplicate requests for the same credential while one is pending.
+## Updating, Rotating, And Deleting
 
-Exit codes for wait:
+Use `vault update` for metadata only. Use `vault rotate` to rewrite secret data.
+
+```bash
+heliox vault update <credential_id> --name <new_private_label> --json
+heliox vault update <credential_id> --description "<safe description>" --metadata "service=<provider>" --json
+heliox vault update <credential_id> --clear-expires --json
+heliox vault rotate <credential_id> --data "access_token=<new_value>" --json
+heliox vault delete <credential_id> --yes --json
+```
+
+When passing `--metadata`, include every metadata key that should remain. The metadata map is replaced when set.
+
+## Sharing And Revoking
+
+Share only credentials owned by the caller. Policies are `trust` or `onetime`.
+
+```bash
+heliox vault share <credential_id> --grantee @<handle> --policy trust --reason "<reason>" --json
+heliox vault share <credential_id> --grantee @<handle> --policy onetime --expires "<rfc3339>" --reason "<reason>" --json
+heliox vault shares <credential_id> --json
+heliox vault outgoing-shares --json
+heliox vault outgoing-shares --credential-id <credential_id> --json
+heliox vault outgoing-shares --grantee @<handle> --json
+heliox vault unshare <credential_id> <delegation_id> --reason "<reason>" --json
+```
+
+Use `vault shares <credential_id>` for delegations on one credential. Use `vault outgoing-shares` for delegations granted across credentials. Use `vault unshare` with both ids positionally.
+
+## Approval Inspection
+
+Inspect approvals when `vault request` returns pending, when a known approval id needs polling, or when the caller owns credentials and needs to review incoming requests.
+
+```bash
+heliox approval list --role asker --status pending --limit 20 --json
+heliox approval list --role approver --status pending --limit 20 --json
+heliox approval list --role approver --cursor <opaque> --json
+heliox approval get <approval_id> --json
+```
+
+`--role` is required: `asker` or `approver`. Filters are `--status pending|decided`, `--limit`, and `--cursor`. Owner-side decisions happen through the desktop approval card today; the CLI surface creates domain requests and inspects/polls approvals.
+
+Wait outcome codes for `vault request --wait`:
 
 | Code | Meaning |
 | --- | --- |
 | 0 | approved |
 | 1 | denied |
-| 2 | expired |
+| 2 | expired or wait-flag parse error |
 | 3 | cancelled |
-| 124 | wait timed out |
-| 130 | interrupted |
+| 4 | unknown terminal outcome |
+| 124 | wait duration exhausted while approval remains pending |
+| 130 | interrupted while waiting |
 
-After approval, list delegated credentials and fetch the needed credential:
+## External-Service Credential Ladder
 
-```bash
-heliox vault list --source delegated --json
-heliox vault get <credential_id> --json
-```
+Follow this ladder for GitHub, Slack, Linear, OpenAI, and similar providers:
 
-## Share and revoke credentials you own
+1. Name the provider, credential type, needed scope, and risk level.
+2. Check owned/delegated vault rows.
+3. Search requestable previews when access is not already available.
+4. Request by `request_ref` with a specific reason.
+5. Resolve the credential id after approval.
+6. Fetch plaintext only for the provider call.
+7. Create a new provider account/token only when no suitable credential is available or requestable.
+8. Store new provider tokens as `type=token` with `access_token=<value>`.
+9. Publish safe requestable preview text only when future agents should discover the credential.
+10. Ask a human in DM/channel if signup blocks on CAPTCHA, missing invite permission, verification trouble, or unclear provider forms.
+11. Gate destructive provider actions with a product-supported approval flow when one exists; otherwise ask a human before acting.
 
-```bash
-heliox vault share <credential_id> --with <user_id> --policy trust|always|onetime --reason "<why>" --json
-heliox vault share <credential_id> --with <user_id> --policy onetime --expires "<rfc3339>" --json
-heliox vault shares --json
-heliox vault shares <credential_id> --json
-heliox vault shares --credential-id <credential_id> --json
-heliox vault shares --grantee <user_id> --json
-heliox vault unshare <credential_id> --delegation <delegation_id> --reason "<why>" --json
-```
-
-## Approval inspection
-
-```bash
-heliox approval list --role asker --json
-heliox approval list --role approver --status pending --limit 20 --json
-heliox approval get <approval_id> --json
-```
-
-Use `approval get` when a domain command tells you to poll an approval later.
+Routine reads, clone, branch push, PR creation, issue comments, and non-destructive API calls usually do not need a separate approval after credential access is granted. Destructive or authority-changing actions do: repo deletion, org settings, admin-scope token creation, force-pushing protected branches, billing changes, access grants, and secret rotation.

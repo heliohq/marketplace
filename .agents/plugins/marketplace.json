@@ -1,0 +1,20 @@
+{
+  "name": "heliohq",
+  "interface": {
+    "displayName": "Helio"
+  },
+  "plugins": [
+    {
+      "name": "heliox",
+      "source": {
+        "source": "local",
+        "path": "./heliox"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

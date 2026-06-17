@@ -1,0 +1,20 @@
+{
+  "name": "heliox",
+  "version": "0.1.0",
+  "description": "Built-in Heliox agent-facing CLI plugin, organized as domain skills",
+  "author": {
+    "name": "Helio",
+    "email": "dev@helio.im"
+  },
+  "homepage": "https://helio.im",
+  "repository": "https://github.com/sheet0/helio",
+  "license": "Apache-2.0",
+  "keywords": [
+    "helio",
+    "heliox",
+    "cli",
+    "skills",
+    "assistant"
+  ],
+  "skills": "./skills/"
+}

@@ -1,6 +1,6 @@
 ---
 name: shared
-description: "Shared Heliox CLI rules for AI agents: routing replies from message_json, choosing native channel versus Lark/Slack/WeChat integration sends, using --json, handling errors, attachments, safety checks, and looking up command help instead of guessing flags. Trigger before issuing any `heliox ...` command in a turn so the routing, freshness, attachment, and safety rules are loaded first — every other heliox skill assumes you have already read this one."
+description: "Shared Heliox CLI rules for AI agents: routing replies from message, choosing native channel versus Lark/Slack/WeChat integration sends, using --json, handling errors, attachments, safety checks, and looking up command help instead of guessing flags. Trigger before issuing any `heliox ...` command in a turn so the routing, freshness, attachment, and safety rules are loaded first — every other heliox skill assumes you have already read this one."
 user-invocable: false
 metadata:
   requires:
@@ -20,90 +20,144 @@ Use this skill as the baseline for every `heliox ...` action.
 - Do not retry the same failing command unchanged.
 - Do not print secrets, tokens, passwords, or raw credential payloads.
 - Treat delete, revoke, rotate, disconnect, uninstall, and restart as sensitive operations. Confirm user intent unless the current instruction already explicitly asked for that operation.
+- Never splice user-written, AI-generated, copied, or tool-produced prose into a shell command string. This covers every text-bearing Heliox argument: message bodies, task comments, schedule names/descriptions, cede reasons, memory text, email replies, and any `--description` / `-d` value. Backticks, `$()`, newlines, quotes, and `#` are parsed by the shell before `heliox` sees the argument. For nontrivial text values, call `heliox` with an argv list through a non-shell subprocess path. Do not route around this with body files, body-stdin flags, heredoc body transport, or `bash -c`; a Python heredoc is fine when it only runs `subprocess.run([...], shell=False)` with Heliox text as argv elements.
 
-## Routing from message_json
+Safe pattern for generated text:
 
-Read `message_json` from the incoming system-reminder. Use `message_json.channel.id` as the Helio channel id for replies and command routing.
+```python
+import subprocess
 
-Choose the send path from `message_json.sender.interface`:
+subprocess.run([
+    "heliox", "message", "send", "@ada",
+    "Here is the `channel_id` field and TaskView.tsx note.",
+    "--seen", "94", "--json",
+], check=True, shell=False)
+
+subprocess.run([
+    "heliox", "task", "comments", "add", "HEL-123",
+    "The reminder mentioned `channel_id`, $(...) text, and #notes.",
+    "--json",
+], check=True, shell=False)
+
+subprocess.run([
+    "heliox", "schedule", "create", "daily tracking report",
+    "--cron", "0 9 * * *", "--channel", "#daily-tracking",
+    "-d", "Run the pipeline and include failures from `TaskView.tsx`.",
+    "--json",
+], check=True, shell=False)
+```
+
+## Routing from message
+
+Read `message` from the incoming system-reminder. Address the destination by the resolved name, not the raw id: `'#<channel-name>'` for group channels, `@<handle>` for DMs. Bare strings and 24-hex ids are rejected at the CLI boundary.
+
+Choose the send path from `message.sender.interface`:
 
 | Interface | Reply command |
 | --- | --- |
-| native Helio or missing | `heliox channel send <channel_id> "<text>" --json` |
-| `lark` | `heliox integration lark send --channel <channel_id> --text "<text>"` |
-| `slack` | `heliox integration slack send --channel <channel_id> --text "<text>"` |
-| `wechat` | `heliox integration wechat send --channel <channel_id> --text "<text>"` |
+| native Helio or missing | `heliox message send '#<channel-name>' "<short literal text>" --seen "$LATEST_SEQ" --json` (or `@<handle>` for DM); use the argv-safe pattern above for generated text |
+| `lark` | No supported heliox provider-send command yet |
+| `slack` | No supported heliox provider-send command yet |
+| `wechat` | No supported heliox provider-send command yet |
 
-For Lark only, when `message_json.external.message_id` exists, preserve provider context:
-
-```bash
-heliox integration lark send --channel "$CHANNEL_ID" --reply-to "$EXTERNAL_MESSAGE_ID" --text "message"
-```
-
-Slack and WeChat do not support `--reply-to` through heliox. Send a top-level provider message.
+For external provider messages, do not guess a CLI command or route through `heliox assistant`. Use `heliox message send` only when the user explicitly wants a native Helio-channel post; otherwise explain that provider sends need a supported integration surface.
 
 ## Native threads
 
-When `message_json.reply_target.kind == "thread"`, reply to
-`message_json.reply_target.message_id`. If `message_json.reply_target.thread_id`
-is present, include it as the root thread:
+Native message thread flags take per-channel seqs, not Mongo ids. When
+`message.reply_target.kind == "thread"`, reply to the parent seq from the
+runtime reminder. If a root thread seq is present, include it as the root
+thread:
 
 ```bash
-heliox channel send "$CHANNEL_ID" "message" --thread "$THREAD_ID" --in-reply-to "$PARENT_MESSAGE_ID" --json
+heliox message send '#<channel-name>' "message" --seen "$LATEST_SEQ" --thread "$THREAD_SEQ" --in-reply-to "$PARENT_SEQ" --json
 ```
 
-Use `message_json.reply_target.thread_id` as `THREAD_ID` and
-`message_json.reply_target.message_id` as `PARENT_MESSAGE_ID`. Do not use any
-other ids unless the reminder says they are the reply target. Do not invent a
-thread id or pass an empty `--thread`.
+Use the `id:` seqs shown in the system reminder or message-list output. Do not
+use raw 24-hex message ids for `--thread`, `--in-reply-to`, or `--seen`. Do not
+invent a thread seq or pass an empty `--thread`.
 
-If the reminder does not include `reply_target.thread_id`, use the legacy-safe
-form:
+If the reminder does not include `reply_target.thread_id`, use
+the parent seq as both the thread root and direct reply target:
 
 ```bash
-heliox channel send "$CHANNEL_ID" "message" --in-reply-to "$PARENT_MESSAGE_ID" --json
+heliox message send '#<channel-name>' "message" --seen "$LATEST_SEQ" --thread "$PARENT_SEQ" --in-reply-to "$PARENT_SEQ" --json
 ```
+
+`--in-reply-to` alone is a quote reply in the current channel scroll. It
+does not enter a native thread.
 
 ## Group-channel freshness check
 
 Before sending into a busy group channel, fetch newer messages:
 
 ```bash
-heliox channel messages "$CHANNEL_ID" --after "$LAST_SEEN_MESSAGE_ID" --json
+heliox message list '#<channel-name>' --after "$LAST_SEEN_SEQ" --json
 ```
 
 - No newer messages: send.
 - A peer covered the point: send a short add-on or cede.
 - New context changes the answer: revise first.
 
-Use `heliox channel cede "$CHANNEL_ID" --reason "peer covered" --json` when silence is intentional.
+Use `heliox message cede <seq-1> [<seq-2> ...] --reason "peer covered" --seen "$LATEST_SEQ" --json` when silence is intentional. Cede seqs come from the active batch's `id:` fields and must cover all and only the messages in that batch.
+
+## Fetch a single message by seq
+
+When you already have a specific per-channel seq from a prior
+`heliox message list --json`, from a reply target in the incoming reminder, or
+from a quote chain, pull the message directly without re-listing:
+
+```bash
+heliox message get <channel-id> <message-seq> --json
+```
+
+Takes the raw channel-id plus per-channel seq pair (not the sigil-prefixed name
+and not a 24-hex message id). Useful for re-reading the parent of a thread
+reply, inspecting an attachment ref you saw mentioned earlier, or following a
+quote chain back through the scroll.
 
 ## Attachments
 
 Incoming attachments may already be materialized under `.helio/attachments/...`. Prefer the path shown in the runtime message context.
 
-To download historical message attachments:
+### Sending files
+
+Native Helio channels and DMs accept attachments via the `-a` flag on `heliox message send` (repeat for multiple files; upload order is preserved):
+
+```bash
+heliox message send '#engineering' "see attached" -a ./report.pdf --seen "$LATEST_SEQ" --json
+heliox message send @ada "two diffs" -a ./one.png -a ./two.pdf --seen "$LATEST_SEQ" --json
+heliox message send '#engineering' -a ./screenshot.png --seen "$LATEST_SEQ" --json   # attachment-only; body optional
+```
+
+Tasks and task comments accept the same flag — see `heliox:task`:
+
+```bash
+heliox task create "<title>" --channel '#engineering' -a ./screenshot.png --json
+heliox task comments add <task-id> "<body>" -a ./diff.patch --json
+heliox task comments add <task-id> -a ./repro.log --json          # attachment-only comment
+```
+
+Image refs land inline in the task description (`![name](helio://attachment/...)`); non-image refs ride the `attachments[]` sidecar. Both kinds show up in the JSON `attachments[].uri` field — see "Fetching attachments by URI" below.
+
+### Fetching attachments by URI
+
+Helio resource URIs use the `helio://` scheme. The one you see most is `helio://attachment/<att_id>` — emitted in task descriptions (image nodes), task `attachments[]`, and comment `attachments[]`. Use `heliox blob get` to pull the bytes:
+
+```bash
+heliox blob get helio://attachment/att_892450...   # write to stdout (binary safe)
+heliox blob get helio://attachment/att_892450... -o /tmp/shot.png
+heliox blob get helio://attachment/att_892450... -o -   # explicit stdout
+```
+
+`heliox blob get` is the one-stop fetcher; use it for any `helio://attachment/...` you see in `task show --json`, `message list --json`, or a `task comments list --json` response.
+
+### History download
+
+To pull historical message attachments by channel + message id (used when the runtime didn't materialize them locally):
 
 ```bash
 heliox channel attachments download "$CHANNEL_ID" "$MESSAGE_ID" --json
 ```
 
-To send files back to a native Helio channel:
-
-```bash
-heliox channel send "$CHANNEL_ID" "attached" --file ./report.pdf --json
-heliox channel send "$CHANNEL_ID" "attached" --file ./one.png --file ./two.pdf --json
-```
-
 Keep generated files in the workspace, not `/tmp`, when they may be attached or reused later.
-
-## Current command status
-
-These commands are placeholders that error out with "not yet implemented". Do not route real work to them:
-
-- `heliox act`
-- `heliox config get`
-- `heliox config set`
-- `heliox onboard oauth`
-- `heliox onboard register`
-- `heliox onboard verify-email`
