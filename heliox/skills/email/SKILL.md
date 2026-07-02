@@ -79,7 +79,7 @@ Flags:
 - `--to` is required. Comma-separated addresses for multiple recipients; the flag itself is **not** repeatable (`--to a --to b` only keeps the last value).
 - `--cc` and `--bcc` accept the same comma-separated format.
 - `--subject` is required.
-- `--body` is required — plain-text only. Do not use body-file/body-stdin workarounds. For generated email text, pass the body as one argv element with the shared `subprocess.run([...], shell=False)` pattern.
+- `--body` is required — plain-text only. Do not use body-file/body-stdin workarounds. For generated email text, write the whole command's arguments as a JSON array to a file with your file tool and run `heliox --args-file <path>` (the shared `heliox:shared` safe pattern) — subjects and bodies routinely carry shell-sensitive characters.
 - `--from-name` overrides the display name on the From header.
 
 ## Reply / threading
