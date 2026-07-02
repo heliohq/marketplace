@@ -1,6 +1,6 @@
 ---
 name: profile
-description: "Use `heliox profile ...` for the caller AI user's own outward-facing profile: showing the assistant's display name, email, avatar, model, and type, and renaming its display name. Trigger whenever the assistant needs to look up its own profile, find its own ai user id without spelunking env vars, or rename itself. For runtime / brain-fragment state, use `heliox:status`. For workspace-level metadata or members, use `heliox:workspace`. For external adapter (Lark / Slack / WeChat) connection state, use `heliox:assistant`."
+description: "Use `heliox profile` for the caller AI user's own profile: `profile show` to view it, `profile set name|handle|avatar` to change it. Trigger when the assistant needs to see or change its own display name, @handle, avatar, email, model, subscriptions, runtime id, or status. For another AI use `heliox assistant`; for workspace metadata or members use `heliox:workspace`."
 user-invocable: false
 metadata:
   requires:
@@ -12,39 +12,45 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-This skill covers the caller AI user's outward-facing profile — what other org members see when they look at this assistant: display name, email, avatar, model, type. For runtime / brain-fragment hashes use `heliox:status`; for the org workspace use `heliox:workspace`; for external adapter (Lark / Slack / WeChat) connection state use `heliox:assistant`.
+`heliox profile` reads and writes the caller AI user's own profile. For another AI use `heliox assistant`; for the org workspace use `heliox:workspace`. Use `heliox node list` only when you need runtime host inventory, not for the caller's profile.
 
-## Show
+## Show your profile
 
 ```bash
-heliox profile show --json
-heliox profile --json
+heliox profile show          # grouped text
+heliox profile show --json   # raw JSON
 ```
 
-`profile show` (also reachable as bare `heliox profile`) returns the caller AI user's own profile:
+Displays display name, @handle, email, bio, avatar, model, subscriptions, runtime, status, creator, and workspace.
 
-- `id` — internal AI user id (use this when another command takes `--ai-user-id`)
-- `name` — display name (sourced from Clerk `public_metadata.display_name` per design 119)
-- `email`
-- `avatar` — Clerk-hosted URL when a custom image is set
-- `avatar_status`
-- `type` — typically `ai`
-- `model` — current model id
-
-Use this whenever a turn needs "what's my own AI user id / display name?" without grepping environment variables, or before mutating a profile field so you can show the user a before/after.
-
-## Set name
+## Set display name
 
 ```bash
 heliox profile set name "<display name>" --json
 ```
 
-Renames the caller AI user. Per design 119 the handler synchronously writes Clerk `public_metadata.display_name` (the resolver's source of truth) and best-effort mirrors `first_name` for the Clerk dashboard / SCIM exports. Identity resolver read priority is `public_metadata.display_name > first_name > username`.
+Any text is accepted — non-latin, spaces, and names shared with another teammate.
 
-`profile set name` is the only set-field today; `bio`, `timezone`, `username`, and `avatar` are intentionally parked until a real need surfaces (per design 118 D6 — `<noun> set <field> <value>` grammar). Both commands require runtime credentials with a resolvable `user_id`.
+## Set @handle
 
-## Auth and self-only
+```bash
+heliox profile set handle <handle> --json
+```
 
-Profile commands target the caller's own ai user id. Per design 118 D5 the backend `PATCH /users/ai/:id` enforces self-only for AI callers — an AI cannot rename a different AI through this surface; admin-scoped mutations (model / subscriptions) require a human admin going through the desktop UI.
+- Pass a bare handle — no `@` prefix.
+- On `409` (handle taken), pick a different handle and retry; do not retry the same value.
 
-If `heliox profile show` exits non-zero with "Cannot determine caller id from credentials", the runtime credentials profile lacks a resolvable `user_id` — fix that before retrying instead of looping.
+## Set avatar
+
+```bash
+heliox profile set avatar --json                    # regenerate
+heliox profile set avatar --prompt "<hint>" --json  # regenerate with a subject hint
+```
+
+- The avatar is generated, not uploaded from a file.
+- `--prompt` is a subject hint, max 500 characters.
+- On `503 image generation not configured`, report it and do not retry.
+
+## Scope
+
+`heliox profile` acts on the caller only — you cannot read or change another AI's profile here. On `Cannot determine caller id from credentials`, the credentials profile lacks a `user_id`; fix it, do not retry.
