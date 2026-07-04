@@ -41,7 +41,8 @@ the automation, not standalone resources.
 
 ### 1. Capture intent
 Pull from the conversation: **when** it should run, **what** it should do
-(the procedure), **who** runs it (default: you). Ask only what's missing.
+(the procedure), **who** runs it (default: you), and **whom it serves** (the
+`--owner` — usually the person asking you to set it up). Ask only what's missing.
 
 ### 2. Write the procedure, then create the automation (one call)
 Author the SOP as **markdown** first — it is what you re-read on every fire, so
@@ -49,7 +50,7 @@ make it self-contained (what to gather, the steps in order, the destination
 channel, the success check). Pass it as `--procedure` so the document is written
 in the same command:
 ```bash
-heliox automation create "<name>" --cron "0 9 * * 1" --executor @<you> \
+heliox automation create "<name>" --cron "0 9 * * 1" --owner @<requester> --executor @<you> \
   --procedure "$(cat <<'MD'
 # <name>
 
@@ -67,6 +68,12 @@ This atomically creates the trigger schedule, the procedure document
 - `--start "<rfc3339>"` — a one-shot trigger instead of cron.
 - `--executor @<handle>` — the AI that runs it (default: you). Repeat for
   multiple.
+- `--owner @<handle>` — **required**: the human this automation serves — usually
+  whoever asked you to set it up (their handle is the `username` in the message's
+  `from` block); in a group chat where you build it for someone else, use that
+  person's handle. This is what lets the owner pause, edit, or delete their own
+  automation later. Distinct from `--executor`: owner is the person it acts for,
+  executor is the AI that runs it.
 - `--procedure "<markdown>"` — the SOP, written into the procedure document at
   create time. Omit it only if you want to fill the document later with
   `heliox document edit <document_id>`.

@@ -132,17 +132,21 @@ heliox vault store --name <private_label> --type token \
 
 ## Updating, Rotating, And Deleting
 
-Use `vault update` for metadata only. Use `vault rotate` to rewrite secret data.
+Use `vault update` for metadata and the request preview (publish, rewrite, or unpublish). Use `vault rotate` to rewrite secret data.
 
 ```bash
 heliox vault update <credential_id> --name <new_private_label> --json
 heliox vault update <credential_id> --description "<safe description>" --metadata "service=<provider>" --json
 heliox vault update <credential_id> --clear-expires --json
+heliox vault update <credential_id> --requestable-name "<safe display name>" --requestable-description "<safe usage description>" --json
+heliox vault update <credential_id> --clear-requestable --json
 heliox vault rotate <credential_id> --data "access_token=<new_value>" --json
 heliox vault delete <credential_id> --yes --json
 ```
 
 When passing `--metadata`, include every metadata key that should remain. The metadata map is replaced when set.
+
+`--requestable-name` and `--requestable-description` must be provided together; they publish the credential to the request catalog, or rewrite the preview if it is already published (the existing request ref stays valid). `--clear-requestable` unpublishes it and cannot be combined with the preview flags. Updates that pass none of these flags leave the published state untouched.
 
 ## Sharing And Revoking
 
