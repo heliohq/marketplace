@@ -12,101 +12,117 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-You are setting up a job **you run on your own**, on a trigger, by following a
-written procedure. You author and own that procedure; the human supervises and
-can pause/correct it. This skill is the guided authoring + maintenance loop —
-modeled on how a human colleague would write down an SOP, wire it to a
-schedule, and refine it over time.
+## Work first, machinery last
 
-## What an automation is (three orthogonal axes)
+You are a colleague being asked to take on recurring work — not a scheduler
+collecting parameters. So behave the way a colleague would: **do the work
+once, get it right with the user, and only then freeze it into an
+automation.** The automation is a record of work the user has already seen
+and approved — never a guess about work that hasn't happened yet.
 
-| Axis | What | Backed by |
-|---|---|---|
-| **Trigger** (when) | cron / one-shot fire | the schedule created internally by `heliox automation create` |
-| **Procedure** (how) | the step-by-step you re-read **every run** | an automation `document` (`heliox document`, Kind=automation) |
-| **Executor** (who) | the AI user(s) that run it (usually you) | AI user handle(s) |
+Everything below follows from that order, and it matters because:
 
-The procedure document **is the memory**. Each fire is a fresh run with no
-carried-over conversation — you re-read the procedure and execute it. So write
-the procedure to be self-contained: inputs, steps, where the output goes,
-what "done" looks like.
+- A person can react to a real deliverable; they cannot meaningfully answer
+  abstract questions about the format, length, or audience of something that
+  does not exist yet. Asking those upfront turns a conversation into a form.
+- The procedure you eventually write is a transcript of an execution the
+  user validated — not something imagined and then debugged in production.
+- Doing the work directly keeps "is the output right?" separate from "does
+  the automation machinery work?" — two different failure modes that are
+  miserable to debug when tangled.
+- Scheduling and audience are create-time facts. They become easy, natural
+  questions at create time and awkward interrogation anywhere earlier.
 
-## Creating an automation (the loop)
+## The flow
 
-Like authoring a skill: capture intent → create the automation → write the
-procedure → confirm → iterate. One `heliox automation create` builds the whole
-thing (trigger + procedure document + binding) in one transactional call — you
-do NOT create the schedule and document separately; they are internal parts of
-the automation, not standalone resources.
+### 1. Understand the work
+Clarify the task itself: what the user wants produced, from what inputs.
+A round or two of conversation, only if genuinely unclear. No automation
+vocabulary belongs here — no cadence, no owner, no subscribers. When someone
+says "summarize Hacker News for me every morning", the thing to understand
+is what a useful summary looks like to them; the "every morning" part waits
+until there is a summary worth scheduling.
 
-### 1. Capture intent
-Pull from the conversation: **when** it should run, **what** it should do
-(the procedure), **who** runs it (default: you), and **whom it serves** (the
-`--owner` — usually the person asking you to set it up). Ask only what's missing.
+### 2. Do it once, now
+Execute the task directly in this conversation, as an ordinary request.
+Create nothing yet.
 
-### 2. Write the procedure, then create the automation (one call)
-Author the SOP as **markdown** first — it is what you re-read on every fire, so
-make it self-contained (what to gather, the steps in order, the destination
-channel, the success check). Pass it as `--procedure` so the document is written
-in the same command:
+### 3. Review the real output together
+Put the deliverable in front of the user. Preferences — format, length,
+language, structure, message vs document — surface as reactions to actual
+material; fold them in and redo until they are satisfied. Several rounds is
+normal and cheap; this is the involvement that matters.
+
+### 4. Formalize — only now does the automation exist
+Freeze the validated way of working:
+
+- The procedure is what you actually just did: inputs, steps in order, the
+  approved output form, the destination, what "done" looks like. Write it as
+  self-contained markdown — each future run re-reads it with no memory of
+  this conversation.
+- The create-time questions are natural now. State the default, then ask:
+  "By default this delivers here, to you — anyone else who should get it?"
+  (destination + `--subscriber` in one breath). Confirm the cadence. Owner
+  defaults to the requester (`--owner`, required — it is what lets them
+  pause, edit, or delete their own automation; distinct from `--executor`,
+  the AI that runs it, default you).
+
 ```bash
-heliox automation create "<name>" --cron "0 9 * * 1" --owner @<requester> --executor @<you> \
-  --procedure "$(cat <<'MD'
-# <name>
-
-1. <step one>
-2. <step two>
-3. Report the result in <channel> with `heliox message send`.
-MD
-)" --json
+heliox automation create "<name>" --cron "<five-field>" --owner @<requester> \
+  --procedure "<the validated SOP as markdown>" --json
+# one transactional call: trigger schedule + procedure document + binding
 # → {id: auto_..., schedule_id: sch_..., document_id: doc_...}
+# --start "<rfc3339>" for a one-shot instead of --cron; created DISABLED
 ```
-This atomically creates the trigger schedule, the procedure document
-(Kind=automation, seeded with your markdown), and the automation binding. Flags:
-- `--cron "<five-field>"` — recurring trigger. (Local IANA tz is stamped
-  server-side.)
-- `--start "<rfc3339>"` — a one-shot trigger instead of cron.
-- `--executor @<handle>` — the AI that runs it (default: you). Repeat for
-  multiple.
-- `--owner @<handle>` — **required**: the human this automation serves — usually
-  whoever asked you to set it up (their handle is the `username` in the message's
-  `from` block); in a group chat where you build it for someone else, use that
-  person's handle. This is what lets the owner pause, edit, or delete their own
-  automation later. Distinct from `--executor`: owner is the person it acts for,
-  executor is the AI that runs it.
-- `--procedure "<markdown>"` — the SOP, written into the procedure document at
-  create time. Omit it only if you want to fill the document later with
-  `heliox document edit <document_id>`.
-- created **disabled** by default.
 
-### 3. Confirm + enable + iterate
-Show the user the procedure + trigger summary. Refine with
-`heliox document edit <document_id> --old "<span>" --new "<span>"` until they're
-happy, then enable:
-```bash
-heliox automation update auto_... --enable true
-```
-The procedure is the part that matters — every run obeys it.
+### 5. Hand over
+One question: "Want me to run it once end-to-end through the automation so
+you can see it, or put it straight to use?"
+
+- Rehearsal: `heliox automation run <id>` works while still disabled — the
+  run goes through the real machinery (fire → thread in the automation's
+  channel → delivery per procedure), verifying the frozen procedure stands
+  on its own. Then enable.
+- Straight to use: `heliox automation update <id> --enable true`.
+
+Either way, enabling is the user's call, made about work they have seen.
 
 ## Maintaining your automations
 
 ```bash
 heliox automation list --json                      # your org's automations
 heliox automation show auto_... --json             # one automation + its trigger
-heliox automation runs auto_... --json             # run history (each run's channel)
+heliox automation runs auto_... --json             # run history
 heliox automation update auto_... --enable false   # pause (propagates to the schedule)
-heliox document edit doc_...                        # revise the procedure
+heliox document edit doc_...                       # revise the procedure
 heliox automation run auto_...                     # run once now (manual trigger)
 ```
 
-When the procedure drifts from reality, **edit the document** — that is how you
-maintain the automation. The trigger and executor rarely change; the procedure
-evolves.
+When the procedure drifts from reality, edit the document — that is how you
+maintain an automation. The trigger and executor rarely change; the
+procedure evolves.
+
+## Executing runs
+
+- Every run happens in the automation's own channel: the fire posts a run
+  header there as a thread root, and you work inside that thread. Humans can
+  read the thread and speak in it mid-run — treat their messages as input.
+- **The procedure is the run's only authority** on what to do and where to
+  deliver. If you cannot read it, report the failure to the owner and stop —
+  improvising a destination from the automation's name sends half-baked
+  output to an audience that never asked for it.
+- Output form follows what the user approved in step 3: short results as a
+  chat message; anything long-form — reports, digests, analyses — as a
+  document (`heliox document create`, one per run) with its reference shared
+  into the destination conversation, never as a wall of chat text.
+- Deliver results to subscribers with an ordinary `heliox message send`,
+  using your judgment: a run that found nothing need not wake anyone; a real
+  finding gets named to the people it concerns.
 
 ## Boundaries
 
-- The procedure is a **document you maintain**, not a rules engine or a DAG.
-- One automation = one trigger + one procedure + executor(s). Different work →
-  a different automation, not branches inside one procedure.
-- A fire produces an isolated run (its own channel). Cross-run memory lives in
-  the procedure document, not in prior runs — write the procedure accordingly.
+- The procedure is a document you maintain, not a rules engine or a DAG.
+- One automation = one trigger + one procedure + executor(s). Different
+  work is a different automation, not branches inside one procedure.
+- Cross-run memory lives in the procedure document, not in prior runs —
+  write it accordingly.
