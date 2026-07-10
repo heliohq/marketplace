@@ -119,6 +119,86 @@ procedure evolves.
   using your judgment: a run that found nothing need not wake anyone; a real
   finding gets named to the people it concerns.
 
+## Event triggers: when a schedule isn't the right "when"
+
+`--cron` (schedule trigger) is the default "when" — it wakes you on a
+timer. Two other shapes of "when" don't fit a timer, and design 290 covers
+them as a second kind of trigger, `heliox automation trigger`:
+
+- **Cheap, frequent checking that only sometimes needs you** — "tell me
+  when the build goes red", "watch this competitor's changelog" — a cron
+  automation would cold-start a full session every few minutes just to say
+  "nothing changed" almost every time. Use `--kind poll`: EventBridge wakes
+  a small Lambda on its own cron; only when *it* decides something's worth
+  your attention does it fire the automation.
+- **A real external event that can push to you** — a GitHub PR merged, a
+  Stripe payment, any webhook-capable source. Use `--kind webhook`: the
+  trigger gets a public URL at `webhook.helio.im/<trigger_id>` you configure
+  at the source yourself (GitHub webhook settings, etc.) — the platform never
+  auto-configures the external side.
+
+Either way, the trigger is not a rules engine or a config — it's a small
+Node.js Lambda **you write**: a zip whose root is `handler.mjs` exporting
+`handler`. You build it in your own runtime (`npm install`, dependencies
+ride along in the zip) and package it yourself (`zip -r code.zip .`) — the
+platform only deploys the artifact, never builds or installs it.
+
+```bash
+heliox automation trigger create --automation <id> --kind webhook --name <n> --code <file.zip> [--env K=V ...]
+heliox automation trigger create --automation <id> --kind poll --cron "*/5 * * * ? *" --code <file.zip>
+# no --code: nothing is created — start from templates/webhook-handler.mjs in this skill
+```
+
+The fire callback is a contract, not a library call: your `shouldFire`
+decides a hit, then your handler POSTs to `process.env.HELIO_AUTOMATION_FIRE_URL`
+with `Authorization: Bearer ${process.env.HELIO_AUTOMATION_FIRE_TOKEN}` and body
+`{fire_key, event}` — `fire_key` is your idempotency key (prefer the
+source's own delivery id), `event` is whatever you want the executor to
+see. The platform injects `HELIO_AUTOMATION_FIRE_URL` / `HELIO_AUTOMATION_FIRE_TOKEN` /
+`HELIO_AUTOMATION_TRIGGER_ID` into the Lambda automatically; you never see or handle
+the token yourself.
+
+**Verify the event yourself — the webhook URL is not a secret.** A
+webhook's public address (`webhook.helio.im/<id>`) is discoverable and gets
+logged by gateways along the way; the only thing that proves an event is
+genuine is a check *you* write in `handler.mjs`. Start from
+`templates/webhook-handler.mjs` in this skill (a verification-ready handler)
+and use the scheme your source actually offers:
+
+- **Source signs with HMAC (GitHub, Stripe, most dev platforms)** — verify
+  its signature header (`X-Hub-Signature-256`, `Stripe-Signature`) against a
+  shared secret you set at the source and inject with `--env
+  WEBHOOK_SECRET=...`. This is the strong, preferred path, and it's why the
+  secret rides in a header the source signs, not in the URL.
+- **Source offers no signing** — you fall back to the unguessable URL plus
+  the per-trigger rate limit. This is weak (the URL leaks into logs); prefer
+  a signing source whenever you can.
+
+How hard you must verify tracks the automation's blast radius: if the
+procedure has side effects (sends mail, changes data, spends money),
+verification is **mandatory**; a purely read-only/idempotent procedure can
+be laxer. `trigger create` prints a warning if it sees no verification in a
+webhook handler — heed it.
+
+The platform never inspects or verifies your payloads; it only holds the
+Lambda, the event ingress, and a token scoped to firing this one automation.
+
+**Test locally before you deploy.** There is no platform test mode — a
+"dry run" fire is indistinguishable from a real one, since the request
+body is whatever your code sends. Run `node handler.mjs` against a sample
+event yourself first; after deploying, your only observation window is
+`heliox automation trigger logs <id>` (CloudWatch).
+
+Fixing a bug in deployed code is an in-place update, not a
+delete-and-recreate — the latter mints a new webhook URL and a new token,
+breaking anything already configured against the old one:
+
+```bash
+heliox automation trigger update <id> --code <file.zip>   # redeploys; URL + fire token unchanged
+heliox automation trigger logs <id> [--last 20]            # recent invocations (CloudWatch)
+heliox automation run show <execution_id> [--transcript]   # inspect one fire: event in full, +thread timeline
+```
+
 ## Boundaries
 
 - The procedure is a document you maintain, not a rules engine or a DAG.
