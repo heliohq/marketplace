@@ -10,9 +10,8 @@ metadata:
 
 # Channel Charter Creator
 
-Start by reading `../shared/SKILL.md`; it owns routing, `--json`, thread,
-attachment, and the safe-argument (`--args-file`) rules every `heliox` action
-depends on.
+Start by reading `../shared/SKILL.md`; it owns routing, `--json`, thread, and
+attachment rules every `heliox` action depends on.
 
 A group channel with more than one teammate is a **team**. Teams coordinate
 well when they share one agreement about who does what, what "done" looks like,
@@ -187,7 +186,7 @@ ask, don't paper over it.
 
 The charter is generated prose with characters the shell will mangle. Never
 splice it into a command line — write the argv as JSON and run
-`heliox --args-file <path>` (see `../shared`), which passes the text as data.
+`heliox --args-file <path>`, which passes the text as data.
 
 **Record the draft.** One call creates the channel-bound document and seeds the
 full body. Mark the header line `DRAFT — awaiting ratification` per

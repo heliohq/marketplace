@@ -20,20 +20,6 @@ Use this skill as the baseline for every `heliox ...` action.
 - Do not retry the same failing command unchanged.
 - Do not print secrets, tokens, passwords, or raw credential payloads.
 - Treat delete, revoke, rotate, disconnect, uninstall, and restart as sensitive operations. Confirm user intent unless the current instruction already explicitly asked for that operation.
-- Never splice user-written, AI-generated, copied, or tool-produced prose into a shell command string. This covers every text-bearing Heliox argument: message bodies, task titles, task comments, automation names/procedures, cede reasons, memory text, email subjects/bodies, document edits, and any `--description` / `--procedure` value. Backticks, `$()`, newlines, quotes, and `#` are parsed by the shell before `heliox` sees the argument. For any text with shell-sensitive characters, do not put it on the command line: write the command's arguments — everything after `heliox` — as a JSON array to a file with your file-writing tool (a relative path, not a shell redirect like `> file` — keep it cross-platform across macOS and Windows), then run `heliox --args-file <path>` with nothing else on the command line. The shell only sees the safe `heliox --args-file <path>`; Heliox reads the array from the file. If the PreToolUse hook rejects an unsafe command, it tells you to use `--args-file`.
-
-Safe pattern for generated text — write the argv array to a file with your file tool, then run `heliox --args-file <path>`:
-
-```bash
-# cmd.json (written with your file tool):
-#   ["message","send","@ada","Cost is $200K and `code`","--seen","94","--json"]
-# or an automation with a markdown --procedure:
-#   ["automation","create","daily tracking report","--cron","0 9 * * *",
-#    "--procedure","Run the pipeline and post failures from `TaskView.tsx` to #daily-tracking.","--json"]
-heliox --args-file cmd.json
-```
-
-The array is the full argument vector after the binary name (verb, positionals, flags) quoted as JSON strings — one mechanism for every command and every argument. `--args-file` must be the entire command: put `--json` and everything else inside the array.
 
 ## Routing from message
 
@@ -43,7 +29,7 @@ Choose the send path from `message.sender.interface`:
 
 | Interface | Reply command |
 | --- | --- |
-| native Helio or missing | `heliox message send '#<channel-name>' "<short literal text>" --seen "$LATEST_SEQ" --json` (or `@<handle>` for DM); use the `--args-file` pattern above for generated text |
+| native Helio or missing | `heliox message send '#<channel-name>' "<text>" --seen "$LATEST_SEQ" --json` (or `@<handle>` for DM) |
 | `lark` | No supported heliox provider-send command yet |
 | `slack` | No supported heliox provider-send command yet |
 | `wechat` | No supported heliox provider-send command yet |
