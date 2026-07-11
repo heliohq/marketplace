@@ -66,6 +66,13 @@ Freeze the validated way of working:
   defaults to the requester (`--owner`, required — it is what lets them
   pause, edit, or delete their own automation; distinct from `--executor`,
   the AI that runs it, default you).
+- A named clock time is the user's time: "every day at 9am" means
+  `0 9 * * *`, not 8:52 — the cron you pass is the real schedule, so
+  never shift a time they stated. Jitter only when the phrasing is
+  genuinely approximate ("every morning", "hourly", "around lunch"):
+  don't land those on :00 or :30 — every approximate ask rounded to
+  `0 9 * * *` fires at the same instant. Pick an off minute
+  (`52 8 * * *`, `7 * * * *`); the user won't notice, the fleet will.
 
 ```bash
 heliox automation create "<name>" --cron "<five-field>" --owner @<requester> \
@@ -118,6 +125,12 @@ procedure evolves.
 - Deliver results to subscribers with an ordinary `heliox message send`,
   using your judgment: a run that found nothing need not wake anyone; a real
   finding gets named to the people it concerns.
+- When the procedure (or a poll trigger's `shouldFire`) watches something
+  for an outcome — a deploy, a feed, a build — cover every terminal state,
+  not just the success marker. A watcher that only recognizes "it worked"
+  stays silent through a crash or a hang, and silence reads as "still
+  fine". Before freezing it, ask: if the thing being watched failed right
+  now, would this run say so?
 
 ## Event triggers: when a schedule isn't the right "when"
 
