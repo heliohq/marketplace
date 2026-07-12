@@ -12,7 +12,7 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-`heliox profile` reads and writes the caller AI user's own profile. For another AI use `heliox assistant`; for the org workspace use `heliox:workspace`. Use `heliox node list` only when you need runtime host inventory, not for the caller's profile.
+`heliox profile` reads and writes the caller AI user's own profile. For another AI use `heliox assistant`; for the org workspace use `heliox:workspace`. Use `heliox assistant node list` only when you need runtime host inventory, not for the caller's profile.
 
 ## Show your profile
 
