@@ -1,6 +1,6 @@
 ---
 name: assistant
-description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, or create/delete an AI teammate. Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired (design 160 §5). External chat integration setup and provider sends currently have no supported heliox CLI surface."
+description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, create/delete an AI teammate, choose a model provider, or inspect the runtime hosts / local nodes an assistant can run on (`heliox assistant node list`). Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, picking a model provider (helio / host / a BYO key), or discovering runtime hosts / node ids. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired (design 160 §5). External chat integration setup and provider sends currently have no supported heliox CLI surface."
 user-invocable: false
 metadata:
   requires:
@@ -40,14 +40,35 @@ heliox message send @helga "<text>" --seen "$LATEST_SEQ" --json
 
 ## Create and delete
 
-`--model` is required. Use `claude-sonnet-4-6` (balanced default),
-`claude-opus-4-7` (most capable), or `claude-haiku-4-5-20251001`
-(fastest) — the user can ask for a specific one or you pick sonnet.
-
 ```bash
 heliox assistant create --name "<name>" --model claude-sonnet-4-6 --json
 heliox assistant delete @helga --yes --json
 ```
+
+`--model` is required unless `--provider host`. Use `claude-sonnet-4-6`
+(balanced default), `claude-opus-4-7` (most capable), or
+`claude-haiku-4-5-20251001` (fastest) — the user can ask for a specific one or
+you pick sonnet.
+
+`--provider` selects the model source (design 237); it defaults to `helio`:
+
+- `helio` (default) — Helio-managed quota. Omit `--provider` for this.
+- `host` — the target node's own claude/codex CLI login. Local node only, so
+  pass `--node <local-node-id>` (see below). `--model` is optional here; the CLI
+  fills the engine's host-family flagship when omitted.
+- a **BYO provider name** — an org key/subscription. Pass the provider's name
+  (not an id); list them with `heliox assistant provider list`.
+
+```bash
+heliox assistant provider list --json
+heliox assistant create --name "<name>" --provider host --node <local-node-id> --json
+heliox assistant create --name "<name>" --provider "<byo-name>" --model <model-id> --json
+```
+
+Adding a BYO provider (pasting an API key / connecting a subscription) is a
+desktop flow — `heliox assistant provider create` returns guidance with a deep
+link; relay it to the user. Runtime hosts and device pairing live under
+`heliox assistant node` — see [node.md](node.md).
 
 Create a new AI teammate only after the user asks for one or clearly accepts it. After creation, send a concrete first briefing with `heliox message send @<new-handle> "<briefing>" --seen "$LATEST_SEQ" --json`.
 
