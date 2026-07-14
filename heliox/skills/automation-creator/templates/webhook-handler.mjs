@@ -1,5 +1,5 @@
 // webhook-handler.mjs — reference handler for a Helio automation *event
-// trigger* (design 290). Copy this into your trigger project, keep the
+// trigger. Copy this into your trigger project, keep the
 // fire-callback contract as-is, and fill in the two functions you own:
 // verifyWebhook() and shouldFire(). Then package the project root (which must
 // contain handler.mjs) as a zip and deploy:

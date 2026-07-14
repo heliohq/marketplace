@@ -1,0 +1,83 @@
+{
+  "skill_name": "automation-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Every Friday at 5pm, remind me in this chat to submit my timesheet. Set it up, but do not call Helio APIs in this evaluation.",
+      "expected_output": "Treats this as a simple one-shot-per-week message, drafts the reminder first, recommends at most lightweight validation, lets the user choose the depth, and does not invent a three-case benchmark for deterministic low-risk work.",
+      "files": [],
+      "expectations": [
+        "Recognizes the request as an automation and preserves the exact Friday 5pm schedule.",
+        "Drafts or proposes the actual reminder message before discussing creation machinery.",
+        "Explicitly considers whether evaluation is useful and recommends skip or lightweight evaluation because the work is deterministic and low-risk.",
+        "Lets the user choose the validation depth instead of imposing a representative/boundary/failure matrix.",
+        "If rehearsal is skipped, distinguishes approved wording from unverified scheduled delivery."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Every weekday at 8:30am, send me a compact digest of urgent support tickets opened in the previous 24 hours. If there are none, don't wake me. Set it up but leave it disabled; do not call APIs in this evaluation.",
+      "expected_output": "Recommends structured evaluation because inputs vary and silence has meaning, while keeping the recommendation concise and user-adjustable. Covers representative, zero-result, and dependency-failure behavior plus a disabled rehearsal.",
+      "files": [],
+      "expectations": [
+        "Preserves the exact 8:30am weekday schedule and produces a representative digest before formalization.",
+        "Recommends structured evaluation because the data varies and no-result behavior differs from failure.",
+        "Offers the recommendation as a choice rather than forcing the user through a test-plan questionnaire.",
+        "Covers representative, zero-ticket no-op, and unavailable or stale data cases with observable checks.",
+        "Uses a disabled rehearsal and transcript inspection before recommending enablement."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "When Stripe sends a dispute over $5,000, email legal with the customer and charge details. Set this up for me, but only describe the work in this evaluation and do not create anything.",
+      "expected_output": "Recognizes a high-risk signed-webhook automation and recommends strict evaluation: authenticated fixtures, idempotency, sandboxed/intercepted email, failure cases, separate trigger/run evidence, and no enablement until checks pass.",
+      "files": [],
+      "expectations": [
+        "Chooses a signed Stripe webhook based on source capability and verifies the signature.",
+        "Recommends strict evaluation because the automation handles sensitive data and sends external email.",
+        "Uses fixtures or a sandbox and intercepts email rather than sending a real test message to legal.",
+        "Verifies stable fire_key idempotency, irrelevant events, invalid signatures, duplicates, and upstream failures.",
+        "Separates trigger-handler evidence from the disabled automation run transcript and does not enable until both pass."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I drafted the procedure for a weekday 8:52am US stock report at /Users/yori/.helio/runtimes/abc/procedure-stock-report.md. Set up the automation disabled. In this evaluation, describe the exact command transport only and do not call APIs.",
+      "expected_output": "Treats the local markdown file as a drafting source, not as the procedure value. Reads its contents, puts the complete markdown body in the --procedure element of an argv JSON array, uses the JSON file only as --args-file transport, and verifies the returned canonical procedure document before rehearsal or enablement.",
+      "files": [],
+      "expectations": [
+        "Preserves the exact weekday 8:52am schedule and keeps the automation disabled.",
+        "Reads or describes reading the draft file and uses its markdown contents as the procedure.",
+        "Never passes the local .md path as the value of --procedure.",
+        "Uses a JSON argument array whose --procedure element contains the markdown body, with only the JSON path passed to heliox --args-file.",
+        "Reads the returned document_id and verifies that the canonical document contains the procedure body before rehearsal or enablement."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Our existing support-digest automation sometimes posts 'no urgent tickets' when the Zendesk API times out. Improve the existing automation without replacing it. In this evaluation, describe the maintenance and evaluation work only; do not call APIs.",
+      "expected_output": "Uses the full improvement loop: inspects and preserves the current procedure plus failing run as baseline, defines discriminating representative/no-result/upstream-failure cases, edits the bound procedure in place, runs and grades the candidate with transcript evidence, aggregates baseline versus candidate, analyzes weak checks and variance, shows the user, iterates, and retains the production failure as a durable regression.",
+      "files": [],
+      "expectations": [
+        "Reads the current automation, exact procedure, recent runs, and failing transcript, using the observed production failure as baseline evidence when replaying it would be unsafe.",
+        "Preserves the existing automation and trigger identities and disables the automation before evaluation if leaving it live could send incorrect or duplicate output.",
+        "Defines representative urgent-ticket, legitimate zero-ticket no-op, and Zendesk-unavailable cases with checks that distinguish no result from dependency failure.",
+        "Runs the candidate at the justified repetition depth, grades checks after execution from outputs and transcripts, and aggregates baseline-versus-candidate results with a variance and weak-check analyst pass.",
+        "Shows the user the comparison, iterates on failures, and retains the Zendesk-timeout case plus latest verified execution ids in the procedure's evaluation contract."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Create a disabled weekday executive market brief automation. The facts are objective, but tone and story selection vary between AI runs, so I want confidence it will be consistently useful. Describe the creation and evaluation loop only; do not call APIs.",
+      "expected_output": "Uses an approved direct brief as the quality baseline, defines observable fact/freshness/format checks while leaving tone to human review, repeats representative candidate runs to expose variance, grades only after execution, aggregates consistency and transcript findings, presents outputs to the user, and revises and repeats before enablement.",
+      "files": [],
+      "expectations": [
+        "Produces or proposes an approved direct brief before formalizing the automation and treats it as the new automation's quality baseline.",
+        "Separates objective checks such as freshness, required facts, citations, and delivery shape from subjective tone and story-selection review by the user.",
+        "Runs the representative disabled candidate three times by default because nondeterministic consistency matters, while allowing fewer runs only with an explicit safety or cost reason.",
+        "Grades each run after execution with exact output or transcript evidence, then aggregates pass rate and consistency and analyzes variance, hidden fallbacks, and weak checks.",
+        "Shows representative outputs and the evaluation summary to the user, incorporates feedback, and repeats the loop before offering enablement."
+      ]
+    }
+  ]
+}
