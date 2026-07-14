@@ -1,6 +1,6 @@
 ---
 name: user-guide
-description: "Use when a user asks about Helio ITSELF — 'how do I do X in Helio', where a button or setting lives, whether Helio supports a feature, what a channel / task / Inbox / Vault / skill is, why an AI colleague didn't do something (product behavior, not work content), what's new, or any onboarding 'what is this app / what can you do here' moment. Answers MUST be grounded in the live Help Center, cited, and given as exact UI steps — never from prior knowledge of Helio or of similar apps. Not for questions about the user's own content or ongoing work."
+description: "Use when a user asks about Helio ITSELF — 'how do I do X in Helio', where a button or setting lives, whether Helio supports a feature, what a channel / task / Inbox / Vault / skill is, why an AI teammate didn't do something (product behavior, not work content), what's new, or any onboarding 'what is this app / what can you do here' moment. Answers MUST be grounded in the live Help Center, cited, and given as exact UI steps — never from prior knowledge of Helio or of similar apps. Not for questions about the user's own content or ongoing work."
 user-invocable: false
 metadata:
   requires:
@@ -39,20 +39,22 @@ no topic obviously fits.
 
 <!-- topic-map:begin -->
 - `get-started` — sign-up to first result: create a workspace, first AI
-  colleague, invite teammates, your first 15 minutes.
-- `concepts` — what an AI colleague is; the mental model behind Helio.
-- `ai-colleagues` — creating, configuring, and working with AI teammates.
-- `channels` — shared conversations where people and AI colleagues work.
+  teammate, invite teammates, your first 15 minutes.
+- `concepts` — what an AI teammate is; the mental model behind Helio.
+- `ai-teammates` — creating, configuring, and working with AI teammates.
+- `channels` — shared conversations where people and AI teammates work.
+- `threads` — lightweight 1:1 threads with an AI teammate via New Thread.
 - `tasks` — the shared task board: create, assign to AI, track progress.
 - `inbox` — approval requests, task updates, and reminders in one place.
-- `calendar` — scheduled recurring actions; connecting a team calendar.
-- `memory` — how an AI colleague builds and uses memory over time.
+- `calendar` — your events and the calendars of teammates you follow.
+- `memory` — how an AI teammate builds and uses memory over time.
 - `connect` — connecting tools: GitHub, your own machine for local compute.
 - `control` — which actions run autonomously vs pause for approval.
 - `vault` — storing credentials and sharing access under a policy.
 - `byok` — using your own AI-provider keys, budget, or subscription.
 - `skills-and-plugins` — installing new capabilities from the marketplace.
-- `proactive` — AI-initiated work: schedules and event triggers.
+- `automation` — AI-initiated recurring work: schedules and event triggers.
+- `artifacts` — agent-published pages: the gallery and sharing.
 - `use-cases` — worked examples: building, content, sales, research.
 - `settings` — profile, workspace configuration, member access.
 - `troubleshoot` — solutions to common problems.

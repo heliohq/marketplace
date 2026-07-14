@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Every weekday before standup, pull yesterday's failed CI jobs, group them by owning team, and post a short digest in #engineering. Skip the post when there were no failures.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you keep an eye on the Stripe dispute feed and alert Mei if a dispute over $5,000 arrives? We can use their webhook.",
+    "should_trigger": true
+  },
+  {
+    "query": "next friday at 4pm come back to this launch checklist, verify every owner has signed off, then send me the gaps",
+    "should_trigger": true
+  },
+  {
+    "query": "I want a Monday-morning customer-health report with churn risks, expansion signals, and links to the source conversations.",
+    "should_trigger": true
+  },
+  {
+    "query": "Watch https://status.example.com and tell #ops when the incident changes from investigating to resolved; checking every two minutes is enough.",
+    "should_trigger": true
+  },
+  {
+    "query": "When a GitHub pull request in heliohq/helio gets the ready-for-review label, summarize the diff and tag the code owners.",
+    "should_trigger": true
+  },
+  {
+    "query": "Our nightly inventory automation is sending duplicate alerts. Inspect its recent runs and fix the procedure without changing its webhook URL.",
+    "should_trigger": true
+  },
+  {
+    "query": "Please pause auto_7f3 for the holiday, show me its last five runs, and update the SOP so empty reports stay silent.",
+    "should_trigger": true
+  },
+  {
+    "query": "hourly-ish, check the partner API for new settlement files and validate their totals; only message finance when a file is new or invalid",
+    "should_trigger": true
+  },
+  {
+    "query": "After the migration window closes tonight, verify row counts and failed records, write the result to a document, and share it with the database team.",
+    "should_trigger": true
+  },
+  {
+    "query": "Summarize the support tickets in this CSV right now and give me the top three themes.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a calendar event called Release Readiness for Tuesday at 10am and invite the mobile team.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft the wording for a reminder to Alex about the design review, but do not schedule or send it.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain what workflow automation means and compare Zapier with n8n for a small marketing team.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a one-off GitHub Actions workflow that runs unit tests on pull requests. Save it as .github/workflows/test.yml.",
+    "should_trigger": false
+  },
+  {
+    "query": "Look at the failed release job on my screen and diagnose why it broke. Don't set up ongoing monitoring.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft an SOP for how a human support agent should escalate refund requests; we are not scheduling or executing it yet.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the existing data-quality script once now and paste the output here.",
+    "should_trigger": false
+  },
+  {
+    "query": "Add a due date of Friday to HEL-914 and assign it to Travis.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this cron expression and tell me whether 0 9 * * 1-5 means weekdays at nine; don't create anything.",
+    "should_trigger": false
+  }
+]
