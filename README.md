@@ -21,12 +21,12 @@ claude plugin install skill-creator@heliohq
 
 The Helio agent-facing CLI, organized as domain skills. Each skill wraps a slice of
 the `heliox` command surface so an AI teammate can operate Helio directly. It ships
-17 skills:
+20 skills:
 
-- **Communication** — `channel`, `email`, `meeting`, `agent-collaboration`
-- **Work & knowledge** — `task`, `document`, `memory`, `workspace`
+- **Communication** — `channel`, `channel-charter-creator`, `agent-collaboration` (deprecated alias), `email`, `meeting`
+- **Work & knowledge** — `task`, `document`, `memory`, `workspace`, `user-guide`
 - **Identity & access** — `profile`, `vault-approval`
-- **Runtime & extensibility** — `assistant`, `browser`, `node`, `plugin`, `skill`, `automation-creator`
+- **Runtime & extensibility** — `apps`, `artifact`, `assistant`, `browser`, `plugin`, `skill`, `automation-creator`
 - **Shared** — `shared` (common CLI conventions the other skills build on)
 
 ### skill-creator
@@ -48,11 +48,11 @@ heliox is published to three runtimes; skill-creator targets Claude Code only.
 ## Source of truth
 
 Plugin source lives in the [helio](https://github.com/sheet0/helio) monorepo
-under `agents/skills/`. **This repo is a publish target — do not edit
+under `agents/plugins/heliox/`. **This repo is a publish target — do not edit
 plugins here directly.** Submit changes upstream; the next sync run
 republishes them.
 
-The directory layout here mirrors `helio/agents/skills/`:
+The Heliox payload here mirrors `helio/agents/plugins/heliox/`:
 
 ```
 .claude-plugin/marketplace.json    Claude Code marketplace manifest
@@ -60,7 +60,7 @@ The directory layout here mirrors `helio/agents/skills/`:
 heliox/
   .claude-plugin/plugin.json       Claude Code plugin manifest
   .codex-plugin/plugin.json        Codex plugin manifest
-  skills/                          17 domain skills
+  skills/                          20 domain skills
 skill-creator/                     single-skill plugin (Claude Code)
 ```
 
@@ -68,3 +68,23 @@ skill-creator/                     single-skill plugin (Claude Code)
 
 Everything here is Apache-2.0 — both plugins (declared in each `plugin.json`) and the
 marketplace metadata. The full license text ships in `skill-creator/LICENSE.txt`.
+
+## Publication protection
+
+Heliox is published only by the post-deploy workflow in `sheet0/helio`. It
+opens a same-repository `heliox-publish-vX.Y.Z` pull request; it never pushes
+`main`. The required `heliox-marketplace-validate` check runs through the
+default-branch `pull_request_target` workflow and executes validator code from
+live `main` against the exact candidate revision as read-only data. It enforces synchronized
+manifests/catalogs, loadable skill metadata, preservation of non-Heliox catalog
+content, a strict version increase against freshly fetched `main`, exact
+bot-branch naming, and payload-only changes. This merge-time comparison
+prevents an older open publication PR from downgrading a newer version or
+replacing the guard that judges it.
+
+The `main` ruleset must require pull requests, this check, code-owner review,
+stale-review dismissal, last-push approval, and strict up-to-date status checks,
+with no publisher-App bypass. Bootstrap this guard PR under the current rules,
+then make the check required and verify a test PR cannot merge while stale.
+Keep the upstream `heliox-marketplace-publish` environment disabled until those
+controls are active.

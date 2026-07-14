@@ -1,0 +1,9 @@
+# Marketplace publication authority. The main ruleset must require code-owner
+# review, last-push approval, and the heliox-marketplace-validate check.
+/.github/ @wenfengwang @mchtech
+/scripts/ @wenfengwang @mchtech
+/tests/ @wenfengwang @mchtech
+/.claude-plugin/marketplace.json @wenfengwang @mchtech
+/.agents/plugins/marketplace.json @wenfengwang @mchtech
+/heliox/ @wenfengwang @mchtech
+/skill-creator/ @wenfengwang @mchtech
