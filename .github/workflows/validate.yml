@@ -1,0 +1,74 @@
+name: Marketplace Validate
+
+on:
+  pull_request_target:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: marketplace-validate-${{ github.repository }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: heliox-marketplace-validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted validator from live main
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          repository: ${{ github.repository }}
+          ref: refs/heads/main
+          path: control
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out exact candidate revision as data
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned validator dependency
+        run: python3 -m pip install --disable-pip-version-check PyYAML==6.0.3
+
+      - name: Run validator regression tests
+        working-directory: control
+        run: python3 -m unittest tests.test_validate_marketplace -v
+
+      - name: Fetch live main into candidate repository
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git -C candidate remote add upstream "$GITHUB_SERVER_URL/$REPOSITORY.git"
+          git -C candidate fetch --no-tags --force upstream \
+            refs/heads/main:refs/remotes/upstream/main
+          git -C candidate rev-parse --verify 'refs/remotes/upstream/main^{commit}'
+
+      - name: Validate structure and merge-time publication order
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request_target' && 'refs/remotes/upstream/main' || github.event.before }}
+          HEAD_REF: ${{ github.head_ref || github.ref_name }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          control/scripts/validate_marketplace.py \
+            --root candidate \
+            --base-ref "$BASE_REF" \
+            --head-ref "$HEAD_REF" \
+            --repository "$REPOSITORY" \
+            --head-repository "$HEAD_REPOSITORY" \
+            --event-name "$EVENT_NAME"
