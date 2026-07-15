@@ -25,6 +25,8 @@ class MarketplaceValidationTest(unittest.TestCase):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, destination)
+        # Pin the fixture baseline so real Heliox releases cannot stale these tests.
+        self._set_version("0.0.0")
         self._git("init", "--initial-branch=main")
         self._git("config", "user.name", "Marketplace Test")
         self._git("config", "user.email", "marketplace-test@example.com")
