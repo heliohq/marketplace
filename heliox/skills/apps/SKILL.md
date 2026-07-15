@@ -1,6 +1,6 @@
 ---
 name: apps
-description: "Use `heliox app ...` to create and maintain a durable public Helio App with a private Helio-managed source repository, native Git, immutable built versions, request-driven Worker execution, explicit deploys, history, rollback, delete, and restore. Trigger when a user asks to build, update, publish, deploy, roll back, inspect, delete, or restore an App. Git push never deploys."
+description: "Use `heliox app ...` to create and maintain a durable Helio App with workspace or public visibility, a private Helio-managed source repository, native Git, immutable built versions, request-driven Worker execution, explicit deploys, history, rollback, delete, and restore. Trigger when a user asks to build, update, publish, deploy, change visibility, roll back, inspect, delete, or restore an App. Git push never deploys."
 user-invocable: false
 metadata:
   requires:
@@ -12,16 +12,16 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-`heliox app` manages durable public Apps. Each App has a private Helio-managed
+`heliox app` manages durable hosted Apps. Each App has a private Helio-managed
 source repository, immutable version history, explicit deployments, a stable
-public URL, rollback, and a bounded recovery window after delete. An App can be
-a static-facing site or a request-driven application; both use the same
-Helio Sites Worker contract, and backend code runs only when an HTTP request
-arrives.
+hosted URL, workspace or public visibility, rollback, and a bounded recovery
+window after delete. An App can be a static-facing site or a request-driven
+application; both use the same Helio Sites Worker contract, and backend code
+runs only when an HTTP request arrives.
 
 Use an App when the user wants a maintained website or web application with
-source history and a public URL, including request-driven backend logic or
-outbound API fetches. Use `heliox artifact` instead for an org-private,
+source history and a stable hosted URL, including request-driven backend logic
+or outbound API fetches. Use `heliox artifact` instead for an org-private,
 self-contained HTML or markdown deliverable such as a report or dashboard.
 Apps and Artifacts have separate storage and lifecycle contracts.
 
@@ -41,8 +41,13 @@ Apps and Artifacts have separate storage and lifecycle contracts.
   returned clone URL and native Git; never infer or expose an underlying GitHub
   repository URL.
 - Prefer `--json` for every assistant-facing Heliox command.
-- Delete, restore, rollback, and deploy change public state. Perform them only
-  when the user's request authorizes that outcome.
+- New Apps default to `workspace`: only people in the current Helio workspace
+  can open them. A `public` App can be opened by anyone on the internet.
+- Never widen an App to `public` without the user's explicit consent. Do not
+  infer consent from a request to build, push, publish, or deploy. Pass `--yes`
+  only after the user explicitly asks for public internet access.
+- Delete, restore, rollback, deploy, and visibility changes affect hosted
+  state. Perform them only when the user's request authorizes that outcome.
 
 ## Create and clone
 
@@ -64,10 +69,11 @@ Recover without creating a duplicate:
 heliox app clone <app-id> <path> --json
 ```
 
-Clone any existing active, visible App the same way. Source credentials are
+Clone an existing App only when it is active and you are authorized to edit it.
+Gallery visibility alone does not grant source access. Source credentials are
 available only while the App is active and not tombstoned. `APP` is the exact
-24-hex App ID; the slug is display/routing metadata and is not a CLI
-identifier. Retain the ID returned by create/list for subsequent commands.
+24-hex App ID; the slug is display/routing metadata and is not a CLI identifier.
+Retain the ID returned by create/list for subsequent commands.
 
 ## Inspect before changing
 
@@ -77,14 +83,38 @@ heliox app status <app-id> --json
 ```
 
 Run `status` before editing an existing App. It shows the current lifecycle,
-source, and deployment state without exposing provider identities or
-credentials. If the command shape is uncertain, inspect live help instead of
-guessing:
+visibility, source, and deployment state without exposing provider identities
+or credentials. If the command shape is uncertain, inspect live help instead
+of guessing:
 
 ```bash
 heliox app --help
 heliox app deploy --help
 ```
+
+## Visibility
+
+Visibility belongs to the App, not to a deployment or hosting manifest.
+Deploy, rollback, delete, and restore preserve the current choice.
+
+Keep an App limited to the current Helio workspace:
+
+```bash
+heliox app visibility <app-id> workspace --json
+```
+
+Only after the user explicitly consents to world-readable access, make it
+public and acknowledge that widening:
+
+```bash
+heliox app visibility <app-id> public --yes --json
+```
+
+`--yes` is deliberately required for `public` and must never be added merely
+to get past the CLI gate. Narrowing back to `workspace` does not require it.
+The Apps gallery displays visibility but does not offer an edit action because
+workspace viewers are not necessarily App editors; use this editor-authorized
+Heliox path instead.
 
 ## Edit and push source
 
@@ -105,7 +135,7 @@ result satisfies the canonical `dist/` contract below. Keep unrelated user
 changes intact, stage only the intended files, and run the smallest relevant
 checks before pushing.
 
-After `git push`, the public App is still unchanged. Never tell the user a push
+After `git push`, the hosted App is still unchanged. Never tell the user a push
 was deployed.
 
 ## Build the Helio Sites project
@@ -116,7 +146,7 @@ project root must contain both of these canonical files:
 - `dist/server/index.js`: the Cloudflare Worker-compatible ESM entrypoint;
 - `.helio/hosting.json`: Helio's private hosting manifest.
 
-For P1, the canonical minimal hosting manifest is:
+The canonical minimal hosting manifest is:
 
 ```json
 {}
@@ -139,13 +169,15 @@ flat-static bundle format.
 The Worker can handle incoming HTTP requests and fetch external APIs. It is not
 an always-on Node or Go server: do not design around a persistent process,
 daemon, cron job, queue consumer, or long-running background task. D1, R2,
-runtime environment variables, and hosted secrets are not available yet. Do
-not embed secrets in Worker modules or browser JavaScript.
+runtime environment variables, hosted secrets, WebSockets, and other HTTP
+upgrades are not available yet. Do not embed secrets in Worker modules or
+browser JavaScript.
 
 The project-root `.helio/hosting.json` is packaged privately as
 `dist/.helio/hosting.json`; it is never a public asset. Raw Cloudflare Pages
 `_worker.js`, `_worker.bundle`, `_routes.json`, and `functions/**` layouts are
-unsupported.
+unsupported. `.openai/hosting.json` is not accepted and must not be generated
+or packaged.
 
 The project root, `dist/`, `.helio/`, and hosting manifest must be real,
 non-symlink paths. Heliox packages only `dist/**` plus
@@ -214,22 +246,22 @@ version, or call a provider-specific rollback API.
 
 ## Delete and restore
 
-Delete immediately blocks new mutations, detaches the branded custom domain,
-and deletes the deterministic hosting project before the App becomes
-recoverable. It retains the repository, immutable versions, deployment history,
-and current pointers until the returned recovery deadline:
+Delete immediately blocks new mutations and removes every immutable release
+owned by the App before it becomes recoverable. It retains the repository,
+immutable versions, deployment history, and current pointers until the returned
+recovery deadline:
 
 ```bash
 heliox app delete <app-id> --yes --json
 ```
 
 `--yes` is required and delete is sensitive. A successful recoverable delete
-means neither the branded domain nor the provider-generated `pages.dev` URL
-serves the App, but verify both authoritative reads before reporting incident
-containment. Preserve the returned `recoverable_until` value. Before that
-deadline, restore recreates the deterministic hosting project, republishes the
-retained current immutable version as a new deployment attempt when one exists,
-and reattaches the branded domain:
+means the canonical Helio App origin no longer serves the App. There is no
+provider-generated origin or per-App route to verify; confirm both the App
+status and the owned release inventory before reporting incident containment.
+Preserve the returned `recoverable_until` value. Before that deadline, restore
+republishes the retained current immutable version as a new release and
+deployment attempt when one exists:
 
 ```bash
 heliox app restore <app-id> --json
@@ -249,10 +281,11 @@ permanent erasure.
 5. Inspect `dist/**` and `.helio/hosting.json` for the complete contract and
    accidental secrets.
 6. `heliox app deploy APP --dir PROJECT_ROOT --ref HEAD --json`.
-7. Confirm the returned deployment and public URL with `status` and, when
-   needed, `deployments`.
-8. Report the exact public URL, App ID, source commit, version, deployment, and
-   checks run. Keep secrets and provider internals out of the report.
+7. Confirm the returned deployment, hosted URL, and App visibility with
+   `status` and, when needed, `deployments`.
+8. Report the exact hosted URL, visibility, App ID, source commit, version,
+   deployment, and checks run. Keep secrets and provider internals out of the
+   report.
 
 ## Failure handling
 
@@ -272,12 +305,22 @@ permanent erasure.
 
 ## Safety and privacy
 
-- App source repositories are private, but deployed assets and Worker responses
-  are public. Remove confidential data and secrets before building.
+- App source repositories are private. Workspace visibility gates the hosted
+  origin to current workspace members; public visibility makes Worker responses
+  world-readable. Remove confidential data and secrets before building either
+  kind.
+- A hosted URL does not imply public visibility. Read the App's `visibility`
+  field before describing who can open it.
+- The canonical App origin uses a registrable domain separate from Helio's
+  trusted product and control-plane origins so broad `Domain` cookies and
+  browser same-site semantics cannot cross into user Workers. Never construct,
+  rewrite, or guess that hostname; use the returned `production_url` or
+  `launch_url` exactly.
 - Public JavaScript cannot safely hold a secret. Use only intentionally public
   build-time values.
 - The App source credential belongs to Helio's GitHub App, not the user. User
   GitHub integrations are unrelated and must never be used as a fallback.
-- App cleanup owns only App repositories, hosting projects/domains, and
-  `apps/<app-id>/versions/*` archives. It must never mutate Artifact metadata or
-  delete Artifact Service `artifacts/*` objects.
+- App cleanup owns only App repositories, application-tagged release scripts,
+  and `apps/<app-id>/versions/*` archives. It must never mutate the shared
+  dispatcher or namespace, Artifact metadata, or Artifact Service `artifacts/*`
+  objects.
