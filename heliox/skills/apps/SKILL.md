@@ -1,6 +1,6 @@
 ---
 name: apps
-description: "Use `heliox app ...` to create and maintain a durable public Helio App with a private Helio-managed source repository, native Git, immutable static versions, explicit deploys, history, rollback, delete, and restore. Trigger when a user asks to build, update, publish, deploy, roll back, inspect, delete, or restore an App. Git push never deploys."
+description: "Use `heliox app ...` to create and maintain a durable public Helio App with a private Helio-managed source repository, native Git, immutable built versions, request-driven Worker execution, explicit deploys, history, rollback, delete, and restore. Trigger when a user asks to build, update, publish, deploy, roll back, inspect, delete, or restore an App. Git push never deploys."
 user-invocable: false
 metadata:
   requires:
@@ -12,28 +12,34 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-`heliox app` manages durable public, multi-file static Apps. Each App has a
-private Helio-managed source repository, immutable version history, explicit
-deployments, a stable public URL, rollback, and a bounded recovery window after
-delete.
+`heliox app` manages durable public Apps. Each App has a private Helio-managed
+source repository, immutable version history, explicit deployments, a stable
+public URL, rollback, and a bounded recovery window after delete. An App can be
+a static-facing site or a request-driven application; both use the same
+Helio Sites Worker contract, and backend code runs only when an HTTP request
+arrives.
 
-Use an App when the user wants a maintained website or frontend project with
-source history and a public URL. Use `heliox artifact` instead for an
-org-private, self-contained HTML or markdown deliverable such as a report or
-dashboard. Apps and Artifacts have separate storage and lifecycle contracts.
+Use an App when the user wants a maintained website or web application with
+source history and a public URL, including request-driven backend logic or
+outbound API fetches. Use `heliox artifact` instead for an org-private,
+self-contained HTML or markdown deliverable such as a report or dashboard.
+Apps and Artifacts have separate storage and lifecycle contracts.
 
 ## Non-negotiable behavior
 
 - **A Git push never deploys.** Push source first, build locally, then run
   `heliox app deploy` as a separate, explicit action.
-- Build source in the current runtime. App Service accepts only prebuilt static
-  output; it never runs package managers, build scripts, or source code.
+- Build source in the current runtime. App Service accepts only prebuilt output;
+  it never runs package managers or project build scripts.
 - Use native `git` commands in the cloned repository. Heliox installs a
   repository-local credential helper that mints a fresh, short-lived,
   repository-scoped credential when Git needs one.
 - Never request, print, inspect, copy, persist, or place source credentials in a
   remote URL. Never invoke the hidden credential helper yourself. Do not
   replace it with a user's GitHub token or OAuth connection.
+- Treat the source repository as Helio-managed and provider-opaque. Use the
+  returned clone URL and native Git; never infer or expose an underlying GitHub
+  repository URL.
 - Prefer `--json` for every assistant-facing Heliox command.
 - Delete, restore, rollback, and deploy change public state. Perform them only
   when the user's request authorizes that outcome.
@@ -94,39 +100,77 @@ git push
 ```
 
 Before building, read the repository's instructions and inspect its actual
-package/build scripts. Do not assume a framework or output directory. Keep
-unrelated user changes intact, stage only the intended files, and run the
-smallest relevant checks before pushing.
+package/build scripts. Do not assume a framework or build command; ensure the
+result satisfies the canonical `dist/` contract below. Keep unrelated user
+changes intact, stage only the intended files, and run the smallest relevant
+checks before pushing.
 
 After `git push`, the public App is still unchanged. Never tell the user a push
 was deployed.
 
-## Build and choose static output
+## Build the Helio Sites project
 
-Run the repository's documented production build in the runtime. Select the
-resulting directory that contains the deployable static files (for example,
-`dist/`, `build/`, or `out/` only when the project actually produces it).
+Run the repository's documented production build in the runtime. The App's
+project root must contain both of these canonical files:
 
-The deploy directory must be a real, non-symlink directory containing only the
-prebuilt static site. The archive rejects unsafe paths, symlinks and special
-files, duplicate paths, oversized content, `_worker.js`, and `functions/`.
-Do not include source credentials, `.env` files, private keys, server code, or
-runtime-only secrets in the output.
+- `dist/server/index.js`: the Cloudflare Worker-compatible ESM entrypoint;
+- `.helio/hosting.json`: Helio's private hosting manifest.
 
-If the project needs a server process, server-side secrets, Workers functions,
-or dynamic execution, stop: the current Apps product is static hosting only.
-Do not work around that boundary by embedding secrets into browser JavaScript.
+For P1, the canonical minimal hosting manifest is:
+
+```json
+{}
+```
+
+The only accepted top-level fields are an optional `project_id` string and
+optional `d1` and `r2` fields whose values must be `null`. `project_id` is
+accepted for Sites build-tool compatibility but ignored for provider identity;
+App Service owns that identity. Unknown fields, duplicate fields, and non-null
+bindings fail validation.
+
+Regular `.js` files under `dist/server/**` are private Worker modules, and
+`dist/.helio/**` is reserved private hosting metadata populated by Heliox from
+the project-root manifest. Only the remaining regular files under `dist/**`,
+including `dist/client/**` when emitted, are static assets whose paths relative
+to `dist/` are preserved. A static-facing App still needs the Worker entrypoint;
+route those requests to the `env.ASSETS` binding. Do not create a second
+flat-static bundle format.
+
+The Worker can handle incoming HTTP requests and fetch external APIs. It is not
+an always-on Node or Go server: do not design around a persistent process,
+daemon, cron job, queue consumer, or long-running background task. D1, R2,
+runtime environment variables, and hosted secrets are not available yet. Do
+not embed secrets in Worker modules or browser JavaScript.
+
+The project-root `.helio/hosting.json` is packaged privately as
+`dist/.helio/hosting.json`; it is never a public asset. Raw Cloudflare Pages
+`_worker.js`, `_worker.bundle`, `_routes.json`, and `functions/**` layouts are
+unsupported.
+
+The project root, `dist/`, `.helio/`, and hosting manifest must be real,
+non-symlink paths. Heliox packages only `dist/**` plus
+`.helio/hosting.json`; source files and repository metadata are excluded. The
+archive rejects unsafe deployable paths, symlinks and special files, duplicate
+paths, oversized content, and common secret-bearing paths by name. It does not
+scan JavaScript, HTML, or other file contents for embedded credentials. Inspect
+the built contents explicitly, and do not place source credentials, `.env`
+files, private keys, or runtime-only secrets in the build output.
+
+If the project needs always-on compute, scheduled ingestion, queues, persistent
+storage, or secret-backed API credentials, stop: the current Apps runtime does
+not provide those capabilities. Do not work around that boundary by embedding
+secrets into Worker modules or browser JavaScript.
 
 ## Explicit deploy
 
 After the source commit is pushed and the production build succeeds:
 
 ```bash
-heliox app deploy <app-id> --dir <output-directory> --ref HEAD --json
+heliox app deploy <app-id> --dir <project-root> --ref HEAD --json
 ```
 
 Deploy resolves `--ref` from the local clone, verifies that commit against the
-managed remote repository, validates and stores an immutable static version,
+managed remote repository, validates and stores an immutable built version,
 then explicitly creates a deployment. Keep `--ref HEAD` unless the user asked
 to deploy another local ref. A successful JSON response includes `version_id`,
 `version_number`, `deployment_id`, `status`, and `production_url`.
@@ -202,8 +246,9 @@ permanent erasure.
 2. Edit and test the managed clone.
 3. Commit and `git push` with native Git.
 4. Run the documented production build.
-5. Inspect the output directory for static-only content and accidental secrets.
-6. `heliox app deploy APP --dir OUTPUT --ref HEAD --json`.
+5. Inspect `dist/**` and `.helio/hosting.json` for the complete contract and
+   accidental secrets.
+6. `heliox app deploy APP --dir PROJECT_ROOT --ref HEAD --json`.
 7. Confirm the returned deployment and public URL with `status` and, when
    needed, `deployments`.
 8. Report the exact public URL, App ID, source commit, version, deployment, and
@@ -227,8 +272,8 @@ permanent erasure.
 
 ## Safety and privacy
 
-- App source repositories are private, but deployed static bytes are public.
-  Remove confidential data and secrets before building.
+- App source repositories are private, but deployed assets and Worker responses
+  are public. Remove confidential data and secrets before building.
 - Public JavaScript cannot safely hold a secret. Use only intentionally public
   build-time values.
 - The App source credential belongs to Helio's GitHub App, not the user. User
