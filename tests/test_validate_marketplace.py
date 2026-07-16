@@ -25,8 +25,16 @@ class MarketplaceValidationTest(unittest.TestCase):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, destination)
-        # Pin the fixture baseline so real Heliox releases cannot stale these tests.
-        self._set_version("0.0.0")
+        # Derive publish fixtures from the copied base so releases cannot stale the tests.
+        manifest = json.loads(
+            (self.repo / "heliox/.claude-plugin/plugin.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        major, minor, patch = (int(part) for part in manifest["version"].split("."))
+        self.publish_version = f"{major}.{minor}.{patch + 1}"
+        self.later_publish_version = f"{major}.{minor}.{patch + 2}"
+        self.publish_branch = f"heliox-publish-v{self.publish_version}"
         self._git("init", "--initial-branch=main")
         self._git("config", "user.name", "Marketplace Test")
         self._git("config", "user.email", "marketplace-test@example.com")
@@ -109,9 +117,9 @@ class MarketplaceValidationTest(unittest.TestCase):
         )
 
     def test_strictly_newer_same_repository_publish_passes(self) -> None:
-        self._commit_publish("0.2.14")
+        self._commit_publish(self.publish_version)
 
-        result = self._run(head_ref="heliox-publish-v0.2.14")
+        result = self._run(head_ref=self.publish_branch)
 
         self.assertEqual(result.returncode, 0, result.stderr)
 
@@ -126,20 +134,20 @@ class MarketplaceValidationTest(unittest.TestCase):
         self.assertIn("strictly increase", result.stderr)
 
     def test_live_main_overrides_stale_event_base(self) -> None:
-        self._git("switch", "--create", "heliox-publish-v0.2.14")
-        self._commit_publish("0.2.14", "Older publication")
+        self._git("switch", "--create", self.publish_branch)
+        self._commit_publish(self.publish_version, "Older publication")
         self._git("branch", "stale-event-base", self.base_sha)
         self._git("switch", "main")
-        self._commit_publish("0.2.15", "Newer publication")
-        self._git("switch", "heliox-publish-v0.2.14")
+        self._commit_publish(self.later_publish_version, "Newer publication")
+        self._git("switch", self.publish_branch)
 
-        result = self._run(base_ref="main", head_ref="heliox-publish-v0.2.14")
+        result = self._run(base_ref="main", head_ref=self.publish_branch)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("strictly increase", result.stderr)
 
     def test_publish_preserves_non_heliox_catalog_content(self) -> None:
-        self._commit_publish("0.2.14")
+        self._commit_publish(self.publish_version)
         catalog_path = self.repo / ".claude-plugin" / "marketplace.json"
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
         catalog["plugins"] = [
@@ -149,20 +157,20 @@ class MarketplaceValidationTest(unittest.TestCase):
         self._git("add", ".")
         self._git("commit", "-m", "delete unrelated plugin")
 
-        result = self._run(head_ref="heliox-publish-v0.2.14")
+        result = self._run(head_ref=self.publish_branch)
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("may only replace", result.stderr)
 
     def test_publish_branch_rejects_extra_files_and_forks(self) -> None:
-        self._commit_publish("0.2.14")
+        self._commit_publish(self.publish_version)
         (self.repo / "README.md").write_text("unrelated\n", encoding="utf-8")
         self._git("add", "README.md")
         self._git("commit", "-m", "unrelated file")
 
-        extra = self._run(head_ref="heliox-publish-v0.2.14")
+        extra = self._run(head_ref=self.publish_branch)
         fork = self._run(
-            head_ref="heliox-publish-v0.2.14",
+            head_ref=self.publish_branch,
             head_repository="attacker/marketplace",
         )
 
@@ -172,7 +180,7 @@ class MarketplaceValidationTest(unittest.TestCase):
         self.assertIn("same-repository", fork.stderr)
 
     def test_heliox_change_cannot_opt_out_with_feature_branch(self) -> None:
-        self._commit_publish("0.2.14")
+        self._commit_publish(self.publish_version)
 
         same_repository = self._run(head_ref="feature")
         fork = self._run(head_ref="feature", head_repository="attacker/marketplace")
