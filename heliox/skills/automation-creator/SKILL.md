@@ -30,6 +30,19 @@ Meet the user where they are. If they already supplied an approved example,
 a complete procedure, or an existing automation, start there rather than
 repeating work that is already complete.
 
+## Output language
+
+The automation's name, description, and procedure follow the language of the
+user's own instruction — never the language of any wrapper, hand-off, or
+bootstrap text that surrounds it. The user's instruction is the authoritative
+source: when a system-inserted sentence around it is in a different language,
+write the artifacts in the instruction's language, not that sentence's.
+
+When the instruction is too short to determine its language (for example a
+one-line edit), fall back to the room language, following the brain's existing
+rule. This governs the automation artifacts only; conversational replies keep
+following the room language, so the two can differ without conflict.
+
 ## Creation loop
 
 ### 1. Understand and do the work once

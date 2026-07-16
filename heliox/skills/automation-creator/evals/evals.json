@@ -78,6 +78,58 @@
         "Grades each run after execution with exact output or transcript evidence, then aggregates pass rate and consistency and analyzes variance, hidden fallbacks, and weak checks.",
         "Shows representative outputs and the evaluation summary to the user, incorporates feedback, and repeats the loop before offering enablement."
       ]
+    },
+    {
+      "id": 7,
+      "prompt": "请帮我创建并配置一个自动化任务：Every weekday at 7am, compile a summary of the pull requests merged into heliohq/helio in the last 24 hours, grouped by author, and post it to this channel. Describe the automation you would create; do not call APIs in this evaluation.",
+      "expected_output": "Treats the user's English instruction as the authoritative language source even though a Chinese wrapper sentence surrounds it, and writes the automation name, description, and procedure entirely in English. This pins the original bug: an English instruction entering through the automation hand-off must yield English artifacts, not Chinese ones inherited from the wrapper text.",
+      "files": [],
+      "expectations": [
+        "Treats the user's English instruction, not the surrounding Chinese wrapper sentence, as the authoritative language source — the wrapper text must not set the artifact language.",
+        "Writes the automation name in English.",
+        "Writes the automation description in English.",
+        "Writes the procedure document in English.",
+        "Preserves the exact weekday 7am schedule."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Assume the surrounding conversation with this user has been entirely in Chinese. The user now says only: 'auto_4d1: 8:45'. Make that timing edit and update the automation's wording accordingly; describe the change only, do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that the terse edit instruction 'auto_4d1: 8:45' is too short to determine its own language, so any artifact wording the edit touches falls back to the room language — Chinese — following the brain's existing rule rather than defaulting to English because the handle and numbers are ASCII.",
+      "files": [],
+      "expectations": [
+        "Recognizes the terse edit instruction carries no determinable language of its own.",
+        "Falls back to the room language (Chinese) for any artifact wording it changes.",
+        "Applies the brain's existing room-language rule as the fallback rather than choosing a language arbitrarily.",
+        "Does not default to English merely because the handle and time are ASCII characters.",
+        "Preserves the automation and trigger identities for a simple timing edit."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "The conversation so far has been in English. The user now writes: '每个工作日下午6点，把当天在客服频道里没有得到回复的问题整理成一份清单发给我。' Set up the automation; describe it only, do not call APIs in this evaluation.",
+      "expected_output": "Uses the Chinese instruction as the authoritative language source even though the room language is English: the automation name, description, and procedure are written in Chinese, while conversational replies to the user stay in the room language (English). Artifact language follows the instruction, not the room.",
+      "files": [],
+      "expectations": [
+        "Uses the Chinese instruction as the authoritative language source even though the room language is English.",
+        "Writes the automation name, description, and procedure in Chinese.",
+        "Does not fall back to the room language, because the instruction is long enough to determine its language.",
+        "Keeps conversational replies to the user in the room language (English) while the artifacts stay Chinese.",
+        "Preserves the exact weekday 6pm schedule."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Every Monday at 9am, 汇总 the previous week's 新增用户 and churn numbers, then post a short executive summary to the growth channel. Describe the automation only; do not call APIs in this evaluation.",
+      "expected_output": "Judges the mixed-language instruction to be dominantly English — English sentence structure and the majority of the content, with only a few embedded Chinese nouns — and therefore writes the name, description, and procedure in English (the decided dominant language) as one coherent language, not a split across two.",
+      "files": [],
+      "expectations": [
+        "Judges the dominant language of the mixed instruction to be English.",
+        "Writes the automation name, description, and procedure in English, the decided dominant language.",
+        "Does not split the artifacts across two languages.",
+        "Treats the embedded Chinese nouns as vocabulary within an otherwise English artifact, not as a signal to switch the artifact's language.",
+        "Preserves the exact Monday 9am schedule."
+      ]
     }
   ]
 }
