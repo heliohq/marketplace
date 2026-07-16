@@ -51,11 +51,12 @@ no topic obviously fits.
 - `connect` — connecting tools: GitHub, your own machine for local compute.
 - `control` — which actions run autonomously vs pause for approval.
 - `vault` — storing credentials and sharing access under a policy.
-- `byok` — using your own AI-provider keys, budget, or subscription.
+- `use-your-own-keys` — using your own AI-provider keys, budget, or subscription.
 - `skills-and-plugins` — installing new capabilities from the marketplace.
 - `automation` — AI-initiated recurring work: schedules and event triggers.
 - `artifacts` — agent-published pages: the gallery and sharing.
-- `use-cases` — worked examples: building, content, sales, research.
+- `use-cases` — worked examples by category: R&D & product, GTM & growth,
+  design, content, research, team ops, industry.
 - `settings` — profile, workspace configuration, member access.
 - `troubleshoot` — solutions to common problems.
 - `whats-new` — the latest product updates.
