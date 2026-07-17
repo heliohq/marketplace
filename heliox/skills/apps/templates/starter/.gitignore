@@ -1,0 +1,7 @@
+dist/
+node_modules/
+# Never commit secret values. Hosted secrets go through `heliox app env set`,
+# not into the source repo (see the apps skill secrets reference).
+.env
+.env.*
+*.local

@@ -1,6 +1,6 @@
 ---
 name: skill
-description: "Use `heliox skill ...` to install, list, show, or uninstall standalone skills for this assistant (design 214). Trigger when the user asks to add a skill from a local file, directory, zip, GitHub repo/path, or raw SKILL.md content, or asks 'what skills do I have' / 'remove the X skill'."
+description: "Use `heliox skill ...` to install, list, show, or uninstall standalone skills for this assistant. Trigger when the user asks to add a skill from a local file, directory, zip, GitHub repo/path, or raw SKILL.md content, or asks 'what skills do I have' / 'remove the X skill'."
 user-invocable: false
 metadata:
   requires:

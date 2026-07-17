@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Replace this title and description with the real product's. -->
+    <title>New Helio App</title>
+    <meta name="description" content="A starter Helio App." />
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font: 16px/1.5 system-ui, sans-serif;
+        background: Canvas;
+        color: CanvasText;
+      }
+      main { max-width: 34rem; padding: 2rem; text-align: center; }
+      h1 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+      p { margin: 0.25rem 0; opacity: 0.8; }
+      code { font-family: ui-monospace, monospace; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <!-- Placeholder content: replace this entire block with the product. -->
+      <h1>Your app is ready to build</h1>
+      <p>This starter serves static pages and API routes from one Worker.</p>
+      <p>Edit <code>src/public/index.html</code> and <code>src/server/index.js</code>.</p>
+    </main>
+    <script>
+      // Example call to the starter's API route. Remove or replace.
+      fetch("/api/hello")
+        .then((r) => r.json())
+        .then((data) => console.log("hello:", data))
+        .catch(() => {});
+    </script>
+  </body>
+</html>

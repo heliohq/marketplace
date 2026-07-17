@@ -30,4 +30,13 @@ heliox tool google gmail --account work@corp.com -- messages list --max 10
 
 | App | Reference | What it does |
 | --- | --- | --- |
+| calendar | [calendar.md](./calendar.md) | Create, list, update, and delete events; check free/busy; read-only list of your calendars |
+| contacts | [contacts.md](./contacts.md) | Search and read the user's contacts (read-only — can't create or edit them) |
+| docs | [docs.md](./docs.md) | Create, read, and edit Google Docs; insert and format text content |
+| drive | [drive.md](./drive.md) | Work with files this tool creates or opens — read, update, and share those; not full-library browse or search |
+| forms | [forms.md](./forms.md) | Create forms, add and edit questions, read submitted responses |
 | gmail | [gmail.md](./gmail.md) | Search, read, send, reply, organize the user's mailbox; fetch attachments |
+| meet | [meet.md](./meet.md) | Create ad-hoc meeting links and change space config; post-meeting participants, transcripts, recordings index |
+| sheets | [sheets.md](./sheets.md) | Read, write, append, and clear spreadsheet values by link/ID; create spreadsheets and manage tabs — no list/search (work from a link the user gives you) |
+| slides | [slides.md](./slides.md) | Create presentations; add and edit slides, text, and images |
+| tasks | [tasks.md](./tasks.md) | Manage the user's task lists and tasks — create, list, update, and complete |
