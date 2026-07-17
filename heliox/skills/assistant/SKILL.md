@@ -1,6 +1,6 @@
 ---
 name: assistant
-description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, create/delete an AI teammate, choose a model provider, or inspect the runtime hosts / local nodes an assistant can run on (`heliox assistant node list`). Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, picking a model provider (helio / host / a BYO key), or discovering runtime hosts / node ids. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired (design 160 §5). External chat integration setup and provider sends currently have no supported heliox CLI surface."
+description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, create/delete an AI teammate, choose a model provider, or inspect the runtime hosts / local nodes an assistant can run on (`heliox assistant node list`). Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, picking a model provider (helio / host / a BYO key), or discovering runtime hosts / node ids. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired. External chat integration setup and provider sends currently have no supported heliox CLI surface."
 user-invocable: false
 metadata:
   requires:
@@ -50,7 +50,7 @@ heliox assistant delete @helga --yes --json
 `claude-haiku-4-5-20251001` (fastest) — the user can ask for a specific one or
 you pick sonnet.
 
-`--provider` selects the model source (design 237); it defaults to `helio`:
+`--provider` selects the model source; it defaults to `helio`:
 
 - `helio` (default) — Helio-managed quota. Omit `--provider` for this.
 - `host` — the target node's own claude/codex CLI login. Local node only, so

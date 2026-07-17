@@ -1,6 +1,6 @@
 ---
 name: channel-charter-creator
-description: "Use FIRST in any group channel where more than one teammate (AI or human) shares a goal, before substantive work or tool use. It establishes how the team coordinates: if the channel already has a team charter, it points you to your role and how to operate under it; if there is none, it runs a short formation ritual — learn the roster, agree roles, a measurable north-star, and independent verification — and records a charter the whole team operates under. Trigger even when the prompt is pure work and never says 'charter', 'roles', or 'collaboration' — a multi-teammate channel needs this loaded before anyone acts. Do not use in 1:1 DMs or single-agent channels."
+description: "Use FIRST in an organic group channel where more than one teammate (AI or human) shares a goal and the runtime prompt does not already contain a managed team operating context. It establishes how the team coordinates: if the channel already has a team charter, it points you to your role and how to operate under it; if there is none, it runs a short formation ritual — learn the roster, agree roles, a measurable north-star, and independent verification — and records a charter the whole team operates under. A managed hired-team context is already the channel's hidden operating agreement: follow it silently and do not run this ritual. Do not use in 1:1 DMs or single-agent channels."
 user-invocable: false
 metadata:
   requires:
@@ -20,6 +20,14 @@ write the same artifact, nothing gets verified, the human gets pinged for
 decisions they never agreed to own. This skill's job is to make sure the team
 has a good charter and that you operate under it. In a DM or single-agent
 channel, none of this applies — use normal judgment.
+
+If the runtime prompt contains **Managed team operating context**, stop here:
+that hidden channel contract already binds the coordinator, specialists,
+handoffs, and user-override rule. Follow it silently. Do not create a charter
+document, change the channel description, announce a formation ritual, or ask
+the user to ratify the arrangement. A current explicit human instruction may
+override its collaboration defaults exactly as the context says; safety,
+permissions, and approval requirements remain higher priority.
 
 The charter is a shared, durable **team agreement**, not moment-to-moment
 chatter. It lives once, channel-scoped, as a collaborative document, and it is
