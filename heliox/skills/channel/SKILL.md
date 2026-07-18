@@ -61,10 +61,11 @@ Channel arg accepts bare or `#`-prefixed; user arg accepts bare or `@`-prefixed.
 ## Attachments
 
 ```bash
-heliox channel attachments download <channel_id> <message_id> --json
+heliox channel attachments download '#engineering' <message-seq> --json
+heliox channel attachments download @alice          <message-seq> --json
 ```
 
-Attachments take a raw 24-hex `<channel_id>` (admin/debug surface; brain rarely needs it).
+Address the channel by `#<name>` (group) or `@<handle>` (DM) — resolved the same way as `message list`/`send`. `<message-seq>` is the per-channel seq from `message list --json` (not the mongo message id).
 
 ## Solo coding environments
 
