@@ -89,3 +89,7 @@ family, each app connected and called on its own:
   account — it has its own skill (`../browser/SKILL.md`).
 - GitHub is org-installed (an admin installs the GitHub App once); if `auth`
   points you at an install/grant flow, relay those instructions instead.
+- Figma is the official Figma MCP, not an AnyCLI passthrough. `heliox tool
+  figma` is only a signpost — the assistant connects Figma itself and then
+  calls the Figma MCP tools directly. See [figma/figma.md](./figma/figma.md)
+  (routes to your engine's connect guide via `HELIO_RUNTIME_HARNESS`).

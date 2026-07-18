@@ -82,13 +82,15 @@ When you already have a specific per-channel seq from a prior
 from a quote chain, pull the message directly without re-listing:
 
 ```bash
-heliox message get <channel-id> <message-seq> --json
+heliox message get '#engineering' <message-seq> --json
+heliox message get @alice          <message-seq> --json
 ```
 
-Takes the raw channel-id plus per-channel seq pair (not the sigil-prefixed name
-and not a 24-hex message id). Useful for re-reading the parent of a thread
-reply, inspecting an attachment ref you saw mentioned earlier, or following a
-quote chain back through the scroll.
+Address the channel by `#<name>` (group) or `@<handle>` (DM) — the same forms
+`message list`/`send` take — plus the per-channel seq (not a 24-hex message id).
+Useful for re-reading the parent of a thread reply, inspecting an attachment
+ref you saw mentioned earlier, or following a quote chain back through the
+scroll.
 
 ## Attachments
 
@@ -128,10 +130,10 @@ heliox blob get helio://attachment/att_892450... -o -   # explicit stdout
 
 ### History download
 
-To pull historical message attachments by channel + message id (used when the runtime didn't materialize them locally):
+To pull historical message attachments by channel + message seq (used when the runtime didn't materialize them locally). Address the channel by `#<name>` (group) or `@<handle>` (DM):
 
 ```bash
-heliox channel attachments download "$CHANNEL_ID" "$MESSAGE_ID" --json
+heliox channel attachments download '#engineering' "$MESSAGE_SEQ" --json
 ```
 
 Keep generated files in the workspace, not `/tmp`, when they may be attached or reused later.
