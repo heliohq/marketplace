@@ -1,7 +1,6 @@
 ---
 name: plugin
 description: "Use `heliox plugin ...` to list, install, show, or uninstall Claude plugin bundles for this assistant. Trigger when the user asks what plugins/extensions are installed, asks to add/remove a marketplace plugin, or when a plugin install status/error needs inspection. For standalone SKILL.md files use `heliox:skill` instead."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

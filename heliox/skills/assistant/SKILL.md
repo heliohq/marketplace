@@ -1,7 +1,6 @@
 ---
 name: assistant
 description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, create/delete an AI teammate, choose a model provider, or inspect the runtime hosts / local nodes an assistant can run on (`heliox assistant node list`). Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, picking a model provider (helio / host / a BYO key), or discovering runtime hosts / node ids. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired. External chat integration setup and provider sends currently have no supported heliox CLI surface."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

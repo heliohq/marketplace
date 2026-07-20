@@ -1,7 +1,6 @@
 ---
 name: channel
 description: "Use Heliox channel commands for channel CRUD (create, list, show, update, delete), membership management, attachments, and opening solo coding sessions. Trigger whenever the assistant needs to inspect or modify a channel object, change members, recover attachments, or open a solo coding environment. **Message verbs (send / cede / list / get) are under `heliox message *`** — run `heliox message --help` for that surface; do not look for them here."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

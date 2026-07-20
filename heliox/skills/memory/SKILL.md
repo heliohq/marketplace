@@ -1,7 +1,6 @@
 ---
 name: memory
 description: "Use `heliox memory ...` when prior memory may change the answer: user preferences, earlier decisions, recent agent activity, facts from another channel/entity, or a thin injected memory block. Trigger before re-asking, repeating work, or answering from uncertain recollection."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

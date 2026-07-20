@@ -1,7 +1,6 @@
 ---
 name: task
 description: "Use `heliox task ...` for Helio task lifecycle: creating, listing, showing, updating status, assigning, commenting on, or deleting tasks. Trigger whenever a task number, task card, task assignment, status transition, or task comment is part of the job."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

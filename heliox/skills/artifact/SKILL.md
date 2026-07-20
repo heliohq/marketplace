@@ -1,7 +1,6 @@
 ---
 name: artifact
-description: "Use `heliox artifact ...` to publish a self-contained HTML page (or a markdown file) as a durable, org-gated Helio artifact and hand a human a live link that stays the same as you update it: publish (or republish) a file, restore an old version, list the org's artifacts, or delete one. Reach for it when the deliverable is a page a person will open and keep open — a report, dashboard, analysis, or interactive prototype — especially one you'll refresh over time, or on a schedule from an automation. Every artifact names the human it's for (`--owner`). Not a downloadable file (that's an attachment) and not a collaborative document (that's `heliox:document`)."
-user-invocable: false
+description: "Operate Helio artifacts with heliox. Use when the user explicitly asks to create or publish an artifact, or to list, republish, restore, delete, or schedule a Helio artifact by name, ID, or app.helio.im/a link."
 metadata:
   requires:
     bins: ["heliox"]
@@ -12,18 +11,26 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
+## Trigger contract
+
+Enter this workflow only when the user explicitly asks for an artifact or refers
+to an existing Helio artifact. A request for a report, dashboard, analysis,
+prototype, or recurring page does not by itself opt into artifact publication.
+Do not silently convert a compatible deliverable or propose an artifact merely
+because this skill can publish one.
+
 `heliox artifact` publishes a **self-contained HTML page** — or a **markdown
 file**, rendered server-side into a clean, styled page — as a first-class,
 org-gated Helio resource. You get back a durable `view_url` at
 `https://app.helio.im/a/<id>` that any signed-in member of the org can open, and
-nobody outside it. Use it to hand a human a *live page* — a report, a dashboard,
-an interactive prototype — instead of a dead screenshot or a download.
+nobody outside it. Once the user has chosen an artifact, use it to hand them a
+*live page* instead of a dead screenshot or a download.
 
-This is the right surface when the deliverable is rendered content meant to be
-*viewed*. It is not the documents plane (`heliox:document` is collaborative
-Tiptap prose you edit in place) and not an attachment (a downloadable file you
-send with `-a`). Artifacts are published renders: you publish a new version and
-the link stays the same.
+For an explicit artifact request, this is the rendered-content surface. It is
+not the documents plane (`heliox:document` is collaborative Tiptap prose you
+edit in place) and not an attachment (a downloadable file you send with `-a`).
+Artifacts are published renders: you publish a new version and the link stays
+the same.
 
 ## Publish
 
@@ -68,15 +75,14 @@ tab already showing the artifact refreshes in place within seconds**, so a human
 watching the page sees your update land live. Republishing the identical bytes
 is a no-op (idempotent by content hash) — safe to retry after a timeout.
 
-**Living reports (with an automation).** The strongest use of republish is a
-recurring `heliox automation` that refreshes a report on a schedule: each run
-republishes to the *same* artifact id, so the human keeps one permanent link
-that updates itself. Anchor every run to the existing id (`--artifact <id>`);
-do **not** mint a new artifact each run or the link churns. Find-or-create so
-the automation is safe to re-run: `heliox artifact list --json` to locate the
-existing one by title, else create it once (with `--owner`). Republishing
-unchanged bytes is a no-op, so a scheduled run that finds nothing new costs
-nothing.
+**Living reports (with an automation).** If the user explicitly asks for the
+artifact to refresh on a schedule, use a recurring `heliox automation` that
+republishes to the *same* artifact id. Anchor every run to the existing id
+(`--artifact <id>`); do **not** mint a new artifact each run or the link churns.
+Find-or-create so the automation is safe to re-run: `heliox artifact list
+--json` to locate the existing one by title, else create it once (with
+`--owner`). Republishing unchanged bytes is a no-op, so a scheduled run that
+finds nothing new costs nothing.
 
 ## Version history & restore
 

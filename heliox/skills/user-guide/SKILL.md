@@ -1,7 +1,6 @@
 ---
 name: user-guide
 description: "Use when a user asks about Helio ITSELF — 'how do I do X in Helio', where a button or setting lives, whether Helio supports a feature, what a channel / task / Inbox / Vault / skill is, why an AI teammate didn't do something (product behavior, not work content), what's new, or any onboarding 'what is this app / what can you do here' moment. Answers MUST be grounded in the live Help Center, cited, and given as exact UI steps — never from prior knowledge of Helio or of similar apps. Not for questions about the user's own content or ongoing work."
-user-invocable: false
 metadata:
   requires:
     bins: ["curl"]

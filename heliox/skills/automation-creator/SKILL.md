@@ -1,7 +1,6 @@
 ---
 name: automation-creator
 description: "Create, evaluate, and maintain Helio automations: AI work that runs later from a schedule, reminder, webhook, or monitored condition. Use whenever the user asks to schedule or automate AI work, send a recurring report or digest, watch or monitor something, notify people when an event happens, follow up later, or inspect and repair an existing automation—even if they never say 'automation'. Do not use for a one-off task to complete now, a human calendar event, or an SOP with no future AI execution. An automation binds a trigger to a self-contained procedure document and one or more AI executors."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

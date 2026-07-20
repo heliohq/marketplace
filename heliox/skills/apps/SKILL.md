@@ -1,7 +1,6 @@
 ---
 name: apps
 description: "Use `heliox app ...` to build and maintain a durable Helio App for a teammate — a hosted website or web application with workspace or public visibility, a private Helio-managed source repository, native Git, immutable built versions, request-driven Worker execution, per-App database (D1) and object storage (R2), viewer identity forwarding, hosted secrets, explicit deploys, history, rollback, delete, and restore. Trigger when a user asks to build, update, publish, deploy, add a database / login / API key to, change visibility, roll back, inspect, delete, or restore an App or website. A blessed starter template ships in `templates/starter/`. Git push never deploys."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox", "git"]

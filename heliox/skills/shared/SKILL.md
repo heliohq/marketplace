@@ -1,7 +1,6 @@
 ---
 name: shared
 description: "Shared Heliox CLI rules for AI agents: routing replies from message, choosing native channel versus Lark/Slack/WeChat integration sends, using --json, handling errors, attachments, safety checks, and looking up command help instead of guessing flags. Trigger before issuing any `heliox ...` command in a turn so the routing, freshness, attachment, and safety rules are loaded first — every other heliox skill assumes you have already read this one."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]
