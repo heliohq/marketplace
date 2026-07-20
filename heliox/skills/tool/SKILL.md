@@ -1,6 +1,6 @@
 ---
 name: tool
-description: "Connected third-party tools portal: use `heliox tool ...` to see which external tools (Gmail, Slack, Notion, GitHub, Discord, LinkedIn, X, ...) are connected to you, ask the user to connect one (authorize link), and call a connected tool with credentials injected automatically. Trigger whenever a task needs an external service account — reading or sending the user's email, posting to Slack, editing Notion pages, working with GitHub repos — or when the user asks to connect/disconnect a tool. Not for generic web browsing (that is the separate `browser` skill)."
+description: "Connected tools portal: use `heliox tool ...` to see which external tools (Gmail, Slack, Notion, GitHub, Discord, LinkedIn, X, ...) are connected to you, ask the user to connect one (authorize link), and call a connected tool with credentials injected automatically. Also covers `heliox tool browser` — drive the user's paired local Chrome to browse the web. Trigger whenever a task needs an external service account — reading or sending the user's email, posting to Slack, editing Notion pages, working with GitHub repos — or when the user asks to connect/disconnect a tool."
 metadata:
   requires:
     bins: ["heliox"]
@@ -24,6 +24,10 @@ family, each app connected and called on its own:
   [microsoft/outlook.md](./microsoft/outlook.md),
   [microsoft/calendar.md](./microsoft/calendar.md),
   [microsoft/onedrive.md](./microsoft/onedrive.md) for each app.
+
+One member is not an OAuth account: `heliox tool browser` drives the user's own
+paired local Chrome for web-page work (open / click / fill / snapshot / eval).
+It has its own connect + use model — see [browser/browser.md](./browser/browser.md).
 
 ## The model (learn once, applies to every provider)
 
@@ -84,11 +88,8 @@ family, each app connected and called on its own:
 
 ## Special cases
 
-- `heliox tool browser ...` is a cloud Chrome session, not a connected
-  account — it has its own skill (`../browser/SKILL.md`).
+- `heliox tool browser ...` drives the user's paired local Chrome, not a
+  connected account — its connect/use model differs from the OAuth flow above;
+  see [browser/browser.md](./browser/browser.md).
 - GitHub is org-installed (an admin installs the GitHub App once); if `auth`
   points you at an install/grant flow, relay those instructions instead.
-- Figma is the official Figma MCP, not an AnyCLI passthrough. `heliox tool
-  figma` is only a signpost — the assistant connects Figma itself and then
-  calls the Figma MCP tools directly. See [figma/figma.md](./figma/figma.md)
-  (routes to your engine's connect guide via `HELIO_RUNTIME_HARNESS`).

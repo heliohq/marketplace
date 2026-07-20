@@ -241,11 +241,25 @@ read [`references/event-triggers.md`](references/event-triggers.md).
 - Work in the automation's run thread; humans may add useful input there.
 - Treat the procedure as the authority for the work and delivery. If it is
   unavailable, report the failure to the owner and stop rather than improvise.
-- Deliver short outcomes as messages. Put reports, digests, and analyses in a
-  document and share its reference instead of posting a wall of chat text.
-- Use judgment with subscribers: a deliberate no-result run may stay silent;
-  a failure must not masquerade as "nothing found."
-- Cover every terminal state of a watched system, not only success.
+- Post the full result into the run's own thread — that thread is the run's
+  audit record, so it is never left empty. A long report/digest/analysis goes
+  in a document; share its reference in the thread instead of a wall of chat
+  text.
+- The worth-sharing judgment is the success-vs-skip choice, not per-subscriber:
+  closing as `success` requires a short digest DM to **every** listed subscriber
+  first (success will not close without them); a quiet run closes as `skip` with
+  no digests. A failure must not masquerade as "nothing found." Even a quiet
+  no-result run still leaves a one-line all-clear in the thread — never truly
+  silent.
+- Finalize every run with exactly one of `heliox automation run success
+  <execution-id>`, `heliox automation run failed <execution-id> --reason
+  "<what broke>"`, or `heliox automation run skip <execution-id> --reason
+  "<what you checked; why quiet>"`. `--reason`
+  is **required** on `failed` and `skip` (omitting it leaves the run
+  unfinalized). `skip` = ran to completion but nothing worth anyone's attention;
+  `failed` = it broke — DM the owner directly with what broke and what you
+  need (a thread mention doesn't count; `failed` won't close without the owner
+  DM). Cover every terminal state of a watched system, not only success.
 
 ## Boundaries
 
