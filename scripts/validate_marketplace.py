@@ -322,8 +322,9 @@ def validate_skills(root: Path) -> None:
             fail(f"{path.relative_to(root)} name must match its directory")
         if not isinstance(description, str) or not description.strip():
             fail(f"{path.relative_to(root)} has no description")
-        if document.get("user-invocable") is not False:
-            fail(f"{path.relative_to(root)} must set user-invocable: false")
+        # Keep invocation behavior on the platform default for every Heliox skill.
+        if "user-invocable" in document:
+            fail(f"{path.relative_to(root)} must omit user-invocable")
         metadata = document.get("metadata")
         requires = metadata.get("requires") if isinstance(metadata, dict) else None
         bins = requires.get("bins") if isinstance(requires, dict) else None
