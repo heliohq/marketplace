@@ -1,7 +1,6 @@
 ---
 name: workspace
 description: "Use `heliox workspace ...` for the active org's workspace: showing current workspace metadata, renaming it, editing description/slug, listing workspace members, and inviting teammates. Trigger whenever the assistant needs to introspect or mutate workspace-level org state (name, description, slug, members) or invite a human teammate. For the AI's own profile (display name, avatar, status) use `heliox:profile`; for runtime hosts use `heliox assistant node`."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

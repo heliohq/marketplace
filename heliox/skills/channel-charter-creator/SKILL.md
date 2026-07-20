@@ -1,7 +1,6 @@
 ---
 name: channel-charter-creator
 description: "Use FIRST in an organic group channel where more than one teammate (AI or human) shares a goal and the runtime prompt does not already contain a managed team operating context. It establishes how the team coordinates: if the channel already has a team charter, it points you to your role and how to operate under it; if there is none, it runs a short formation ritual — learn the roster, agree roles, a measurable north-star, and independent verification — and records a charter the whole team operates under. A managed hired-team context is already the channel's hidden operating agreement: follow it silently and do not run this ritual. Do not use in 1:1 DMs or single-agent channels."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

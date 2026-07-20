@@ -1,7 +1,6 @@
 ---
 name: browser
 description: "Use `heliox tool browser ...` for any web-page interaction the assistant needs to perform: opening URLs, login / accept-invite flows, clicking, filling forms, reading SPA content (JS-rendered pages where curl returns nothing useful), taking screenshots, running ad-hoc JavaScript, and closing the session. Trigger whenever the task involves visiting or interacting with a website — this is the only browser surface available to AI runtimes; the assistant has no other way to drive a real Chrome / accept invitations / log into a third-party app."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

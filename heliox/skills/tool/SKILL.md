@@ -1,7 +1,6 @@
 ---
 name: tool
 description: "Connected third-party tools portal: use `heliox tool ...` to see which external tools (Gmail, Slack, Notion, GitHub, Discord, LinkedIn, X, ...) are connected to you, ask the user to connect one (authorize link), and call a connected tool with credentials injected automatically. Trigger whenever a task needs an external service account — reading or sending the user's email, posting to Slack, editing Notion pages, working with GitHub repos — or when the user asks to connect/disconnect a tool. Not for generic web browsing (that is the separate `browser` skill)."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

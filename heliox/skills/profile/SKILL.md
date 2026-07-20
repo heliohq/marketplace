@@ -1,7 +1,6 @@
 ---
 name: profile
 description: "Use `heliox profile` for the caller AI user's own profile: `profile show` to view it, `profile set name|handle|avatar` to change it. Trigger when the assistant needs to see or change its own display name, @handle, avatar, email, model, subscriptions, runtime id, or status. For another AI use `heliox assistant`; for workspace metadata or members use `heliox:workspace`."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

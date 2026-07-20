@@ -1,7 +1,6 @@
 ---
 name: image
 description: "Use `heliox tool image ...` to generate images from text prompts or edit existing images with Helio-managed models (GPT-Image, Gemini). Trigger whenever the task needs a picture created OR modified — an illustration, logo, icon, poster, banner, avatar, wallpaper, diagram concept, any 画图 / 生成图片 / 文生图 request, or an edit like 换背景 / 改颜色 / restyle / remove-object on an image the user provided — even when the user never says 'image' ('make me a logo', '把背景换成白色'). The result is a durable helio://attachment/<id> URI; this is the only image surface available to AI runtimes."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

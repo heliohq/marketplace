@@ -1,7 +1,6 @@
 ---
 name: vault-approval
 description: "Use whenever credentials, API tokens, passwords, private keys, vault delegation, requestable credential search, approval polling, or owner/grantee credential flows require `heliox vault ...` or `heliox approval ...`."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

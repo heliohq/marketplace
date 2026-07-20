@@ -1,7 +1,6 @@
 ---
 name: email
 description: "Use `heliox email ...` for the AI user's email inbox and outbound mail: listing or filtering recent emails (--from / --subject / --since), inspecting a full thread, waiting for verification emails, reading a message, sending new mail, replying within a thread, or handling email-based auth and vendor flows. Trigger whenever the assistant needs to read its own inbox, fetch a full email thread for context, wait for an inbound mail (signup verification, OTP, vendor reply), send mail to a third party, or reply within an existing email thread — this is the only path; the runtime has no separate mail client."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]

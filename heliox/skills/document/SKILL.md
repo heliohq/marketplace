@@ -1,7 +1,6 @@
 ---
 name: document
 description: "Use `heliox document ...` for Helio collaborative documents: read a live document as markdown, make exact in-place text edits, or handle `helio://document/<id>` references. Trigger when the user asks to inspect or edit a Helio document, task-description document, or document URI."
-user-invocable: false
 metadata:
   requires:
     bins: ["heliox"]
