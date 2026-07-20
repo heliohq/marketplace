@@ -25,6 +25,14 @@ class MarketplaceValidationTest(unittest.TestCase):
             destination = self.repo / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, destination)
+        # Build fixtures against the final default invocation contract.
+        for skill in (self.repo / "heliox" / "skills").glob("*/SKILL.md"):
+            skill.write_text(
+                skill.read_text(encoding="utf-8").replace(
+                    "user-invocable: false\n", "", 1
+                ),
+                encoding="utf-8",
+            )
         # Derive publish fixtures from the copied base so releases cannot stale the tests.
         manifest = json.loads(
             (self.repo / "heliox/.claude-plugin/plugin.json").read_text(
@@ -213,6 +221,7 @@ class MarketplaceValidationTest(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("preserve the artifact skill", result.stderr)
 
+    # Keep rejecting incomplete skills and invocation-policy overrides.
     def test_every_skill_directory_requires_complete_runtime_metadata(self) -> None:
         (self.repo / "heliox" / "skills" / "missing-skill").mkdir()
 
@@ -225,7 +234,7 @@ class MarketplaceValidationTest(unittest.TestCase):
         skill = self.repo / "heliox" / "skills" / "apps" / "SKILL.md"
         skill.write_text(
             skill.read_text(encoding="utf-8").replace(
-                "user-invocable: false", "user-invocable: true", 1
+                "metadata:\n", "user-invocable: false\nmetadata:\n", 1
             ),
             encoding="utf-8",
         )
@@ -233,7 +242,7 @@ class MarketplaceValidationTest(unittest.TestCase):
         metadata = self._run()
 
         self.assertNotEqual(metadata.returncode, 0)
-        self.assertIn("user-invocable: false", metadata.stderr)
+        self.assertIn("must omit user-invocable", metadata.stderr)
 
     def test_codex_manifest_must_expose_loadable_skill_directory(self) -> None:
         path = self.repo / "heliox" / ".codex-plugin" / "plugin.json"
