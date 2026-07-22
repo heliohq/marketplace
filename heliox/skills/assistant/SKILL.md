@@ -1,6 +1,6 @@
 ---
 name: assistant
-description: "Use `heliox assistant ...` for AI teammate lifecycle and AI-channel inspection: list teammates, show another AI's profile/channel metadata, create/delete an AI teammate, choose a model provider, or inspect the runtime hosts / local nodes an assistant can run on (`heliox assistant node list`). Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, picking a model provider (helio / host / a BYO key), or discovering runtime hosts / node ids. **For reading or sending AI DMs**, use `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` — assistant message verbs are retired. External chat integration setup and provider sends currently have no supported heliox CLI surface."
+description: "Use `heliox assistant ...` for AI teammate lifecycle: show an AI's profile/channels, create or delete an AI teammate (optionally from an agent template via `template list --query`), pick a model provider, or inspect runtime nodes. Trigger whenever the task involves spawning, retiring, or inspecting an AI teammate, hiring from a template, choosing a model source (helio / host / BYO), or finding node ids. **To list AI teammates** use `heliox workspace members list --json` (`assistant list` is retired); **for AI DMs** use `heliox message list/send @<handle>` — assistant message verbs are retired."
 metadata:
   requires:
     bins: ["heliox"]
@@ -11,68 +11,64 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-Use this for assistant lifecycle and AI-channel metadata inspection. Reading or sending messages to an AI uses `heliox message list @<handle>` / `heliox message send @<handle> ... --seen <seq>` (DM resolution is implicit when target is `@<handle>`); run `heliox message --help` for that surface.
+Surface split — three questions, three surfaces:
 
-## Addressing
+- *Who are the AI teammates?* → `heliox workspace members list --json` (rows carry `type: human|ai`, `handle`, `bio`). `assistant list` is retired.
+- *Talk to an AI* → `heliox message list @<handle>` / `heliox message send @<handle> "<text>" --seen <seq>`.
+- *Assistant-domain detail + lifecycle* → this skill.
 
-Every verb here accepts the assistant handle in two equivalent shapes:
+Handles ride bare (`helga`) or `@`-prefixed (`@helga`). Raw 24-hex ids are rejected — reverse-lookup via `heliox workspace members get <id> --json`. `#`-prefixed inputs are channel names, rejected here.
 
-- bare handle — `helga`
-- `@`-prefixed — `@helga`
-
-24-hex ids are rejected; reverse-lookup via `heliox assistant list --json` if all you have is an id. `#`-prefixed inputs are rejected (those are channel names).
-
-## List and inspect
+## Inspect
 
 ```bash
-heliox assistant list --json
 heliox assistant show @helga --json
-heliox message list @helga --limit 50 --json
 ```
 
-`assistant show` includes the AI user's profile, DM channel metadata, and channel memberships. The old assistant-specific DM history verb was removed; read DM history through the normal message surface:
+Returns the projected profile — `handle`, `name`, `bio`, `model`, `lifecycle_status`, `email`, `dm` (a `helio://dm/...` link), and `model_source` (`{provider, harness, provider_label}` — which model source and engine the assistant actually runs on; use it to diagnose host/BYO binding) — plus channel memberships as `{name, kind}` rows. No raw platform ids.
 
-```bash
-heliox message list @helga --limit 50 --json
-heliox message send @helga "<text>" --seen "$LATEST_SEQ" --json
-```
-
-## Create and delete
+## Create
 
 ```bash
 heliox assistant create --name "<name>" --model claude-sonnet-4-6 --json
+```
+
+`--model` is required unless `--provider host`. Default to `claude-sonnet-4-6` (balanced); `claude-opus-4-7` (most capable) or `claude-haiku-4-5-20251001` (fastest) when the user asks for it. Create only after the user asks for a new teammate or clearly accepts one; after creation, send the new AI a concrete first briefing: `heliox message send @<new-handle> "<briefing>" --seen "$LATEST_SEQ" --json`. The create echo is the projected profile — poll `assistant show` until `lifecycle_status` is active if you need it awake.
+
+### From a template
+
+A template gives the new assistant a role identity (brain, skills, tool integrations) instead of the bare default. Refs are discovered, never guessed — an unknown ref fails the create:
+
+```bash
+heliox assistant template list --query "release" --json
+heliox assistant create --name "<name>" --model <model> --template @helio/<slug> [--var KEY=VALUE ...] --json
+```
+
+The catalog is 300+ templates, so `template list` is a bounded page (default 30) — always narrow with `--query` (matches ref, name, description, tags, specialties); `matched` in the envelope reveals truncation. Rows carry the `ref` that `--template` accepts, a `recommended_model` to use as `--model` when the user has no preference, and `required_vars` — every listed name needs a `--var NAME=value` on create (the create fails 4xx per missing one); no `required_vars` means no `--var` flags at all.
+
+### Model provider and node
+
+`--provider` picks the model source (default `helio` — managed quota, omit the flag):
+
+```bash
+heliox assistant provider list --json                      # every selectable --provider value + model menus
+heliox assistant create --name "<n>" --provider host --node <local-node-id> --json
+heliox assistant create --name "<n>" --provider "<byo-name>" --model <model-id> --json
+```
+
+- `host` — the node's own claude/codex CLI login. Local node only: pass `--node` with a node whose `host_cli` shows the engine as `found` (the probe statuses are `found` / `not_found` / `unknown`; `heliox assistant node list --json`, see [node.md](node.md)). `--model` may be omitted — the CLI fills the engine's flagship.
+- BYO — an org key/subscription; select by **name** from `provider list` (never an id).
+
+Adding a BYO provider or pairing a device are desktop flows — `provider create` / `node create` return a deep link to relay to the user.
+
+## Delete
+
+```bash
 heliox assistant delete @helga --yes --json
 ```
 
-`--model` is required unless `--provider host`. Use `claude-sonnet-4-6`
-(balanced default), `claude-opus-4-7` (most capable), or
-`claude-haiku-4-5-20251001` (fastest) — the user can ask for a specific one or
-you pick sonnet.
+Only when explicitly requested.
 
-`--provider` selects the model source; it defaults to `helio`:
+## Not on this surface
 
-- `helio` (default) — Helio-managed quota. Omit `--provider` for this.
-- `host` — the target node's own claude/codex CLI login. Local node only, so
-  pass `--node <local-node-id>` (see below). `--model` is optional here; the CLI
-  fills the engine's host-family flagship when omitted.
-- a **BYO provider name** — an org key/subscription. Pass the provider's name
-  (not an id); list them with `heliox assistant provider list`.
-
-```bash
-heliox assistant provider list --json
-heliox assistant create --name "<name>" --provider host --node <local-node-id> --json
-heliox assistant create --name "<name>" --provider "<byo-name>" --model <model-id> --json
-```
-
-Adding a BYO provider (pasting an API key / connecting a subscription) is a
-desktop flow — `heliox assistant provider create` returns guidance with a deep
-link; relay it to the user. Runtime hosts and device pairing live under
-`heliox assistant node` — see [node.md](node.md).
-
-Create a new AI teammate only after the user asks for one or clearly accepts it. After creation, send a concrete first briefing with `heliox message send @<new-handle> "<briefing>" --seen "$LATEST_SEQ" --json`.
-
-Delete only when explicitly requested.
-
-## External chat integrations
-
-`heliox assistant` does not manage Lark, Slack, or WeChat adapter setup. There is also no supported heliox CLI command for provider sends yet. Do not guess a command; ask for a supported integration surface or use native Helio channels only when the user explicitly wants to post into Helio.
+Lark / Slack / WeChat adapter setup and external-provider sends have no heliox CLI surface — don't guess commands; ask for a supported integration surface, or use native Helio channels only when the user explicitly wants a Helio post.

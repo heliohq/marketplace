@@ -11,7 +11,8 @@
         "Drafts or proposes the actual reminder message before discussing creation machinery.",
         "Explicitly considers whether evaluation is useful and recommends skip or lightweight evaluation because the work is deterministic and low-risk.",
         "Lets the user choose the validation depth instead of imposing a representative/boundary/failure matrix.",
-        "If rehearsal is skipped, distinguishes approved wording from unverified scheduled delivery."
+        "If rehearsal is skipped, distinguishes approved wording from unverified scheduled delivery.",
+        "Describes the automation as created disabled, with enablement gated on the user's decision"
       ]
     },
     {
@@ -24,7 +25,8 @@
         "Recommends structured evaluation because the data varies and no-result behavior differs from failure.",
         "Offers the recommendation as a choice rather than forcing the user through a test-plan questionnaire.",
         "Covers representative, zero-ticket no-op, and unavailable or stale data cases with observable checks.",
-        "Uses a disabled rehearsal and transcript inspection before recommending enablement."
+        "Uses a disabled rehearsal and transcript inspection before recommending enablement.",
+        "Describes the automation as created disabled, with enablement gated on the user's decision"
       ]
     },
     {
@@ -37,7 +39,8 @@
         "Recommends strict evaluation because the automation handles sensitive data and sends external email.",
         "Uses fixtures or a sandbox and intercepts email rather than sending a real test message to legal.",
         "Verifies stable fire_key idempotency, irrelevant events, invalid signatures, duplicates, and upstream failures.",
-        "Separates trigger-handler evidence from the disabled automation run transcript and does not enable until both pass."
+        "Separates trigger-handler evidence from the disabled automation run transcript and does not enable until both pass.",
+        "Describes the automation as created disabled, with enablement gated on the user's decision"
       ]
     },
     {
@@ -50,7 +53,8 @@
         "Reads or describes reading the draft file and uses its markdown contents as the procedure.",
         "Never passes the local .md path as the value of --procedure.",
         "Uses a JSON argument array whose --procedure element contains the markdown body, with only the JSON path passed to heliox --args-file.",
-        "Reads the returned document_id and verifies that the canonical document contains the procedure body before rehearsal or enablement."
+        "Reads the returned document_id and verifies that the canonical document contains the procedure body before rehearsal or enablement.",
+        "Describes the automation as created disabled, with enablement gated on the user's decision"
       ]
     },
     {
@@ -63,7 +67,8 @@
         "Preserves the existing automation and trigger identities and disables the automation before evaluation if leaving it live could send incorrect or duplicate output.",
         "Defines representative urgent-ticket, legitimate zero-ticket no-op, and Zendesk-unavailable cases with checks that distinguish no result from dependency failure.",
         "Runs the candidate at the justified repetition depth, grades checks after execution from outputs and transcripts, and aggregates baseline-versus-candidate results with a variance and weak-check analyst pass.",
-        "Shows the user the comparison, iterates on failures, and retains the Zendesk-timeout case plus latest verified execution ids in the procedure's evaluation contract."
+        "Shows the user the comparison, iterates on failures, and retains the Zendesk-timeout case plus latest verified execution ids in separate evaluation evidence rather than the executor procedure.",
+        "Disables the automation before the behavioral edit when leaving it live could send unsafe output, or explicitly justifies leaving it enabled — never recreates it"
       ]
     },
     {
@@ -76,7 +81,8 @@
         "Separates objective checks such as freshness, required facts, citations, and delivery shape from subjective tone and story-selection review by the user.",
         "Runs the representative disabled candidate three times by default because nondeterministic consistency matters, while allowing fewer runs only with an explicit safety or cost reason.",
         "Grades each run after execution with exact output or transcript evidence, then aggregates pass rate and consistency and analyzes variance, hidden fallbacks, and weak checks.",
-        "Shows representative outputs and the evaluation summary to the user, incorporates feedback, and repeats the loop before offering enablement."
+        "Shows representative outputs and the evaluation summary to the user, incorporates feedback, and repeats the loop before offering enablement.",
+        "Describes the automation as created disabled, with enablement gated on the user's decision"
       ]
     },
     {
@@ -89,7 +95,8 @@
         "Writes the automation name in English.",
         "Writes the automation description in English.",
         "Writes the procedure document in English.",
-        "Preserves the exact weekday 7am schedule."
+        "Preserves the exact weekday 7am schedule.",
+        "Procedure pins a bounded, cadence-derived read window (no unbounded read)"
       ]
     },
     {
@@ -102,7 +109,8 @@
         "Falls back to the room language (Chinese) for any artifact wording it changes.",
         "Applies the brain's existing room-language rule as the fallback rather than choosing a language arbitrarily.",
         "Does not default to English merely because the handle and time are ASCII characters.",
-        "Preserves the automation and trigger identities for a simple timing edit."
+        "Preserves the automation and trigger identities for a simple timing edit.",
+        "Preserves the automation and trigger identities; changes the schedule and only the wording the time change touches — no unrelated field or procedure rewrites"
       ]
     },
     {
@@ -115,7 +123,8 @@
         "Writes the automation name, description, and procedure in Chinese.",
         "Does not fall back to the room language, because the instruction is long enough to determine its language.",
         "Keeps conversational replies to the user in the room language (English) while the artifacts stay Chinese.",
-        "Preserves the exact weekday 6pm schedule."
+        "Preserves the exact weekday 6pm schedule.",
+        "Procedure includes an explicit failure path distinct from the quiet no-result path"
       ]
     },
     {
@@ -128,7 +137,8 @@
         "Writes the automation name, description, and procedure in English, the decided dominant language.",
         "Does not split the artifacts across two languages.",
         "Treats the embedded Chinese nouns as vocabulary within an otherwise English artifact, not as a signal to switch the artifact's language.",
-        "Preserves the exact Monday 9am schedule."
+        "Preserves the exact Monday 9am schedule.",
+        "Procedure pins the read window to one cadence period (previous week), not an unbounded read"
       ]
     }
   ]

@@ -50,7 +50,7 @@ so operate under it without re-checking its status.
   path and it is light — a read, not a re-authoring.
 - **No pointer** → don't rush to create; check for a ritual or a charter you
   can't see from the description. Skim recent history
-  (`heliox message list '#<channel-name>' --limit 50 --json`):
+  (`heliox message list '#<channel-name>' --limit 50`):
   - A formation ritual is already underway — a draft announced, awaiting
     ratification → **join that thread**. Never start a second ritual.
   - The history or a teammate references an existing charter document → reuse
@@ -115,17 +115,19 @@ the team trusts it. Work through these steps; the quality bar at the end is what
 You cannot assign roles to people you don't know. Learn the team:
 
 ```bash
-heliox channel members list '#<channel-name>' --json    # who is here: user_id, handle, permission role
-heliox assistant list --json                            # the workspace's AI teammates: id, name, handle, bio, model
+heliox channel members list '#<channel-name>' --json    # who is here: resolved user (@handle), type (human|ai), permission role
+heliox workspace members list --json                    # the whole org roster: handle, name, type, bio
 heliox assistant show @<handle> --json                  # one AI in depth: bio, model, channels
-heliox message list '#<channel-name>' --limit 50 --json # what they've actually done
+heliox message list '#<channel-name>' --limit 50       # what they've actually done
 ```
 
-`members list` does not say who is human and who is AI — it emits only
-`user_id`, `handle`, `role`, and `notification_level`. AI-ness comes from the
-join: a member is an AI teammate when their `user_id` equals an assistant's
-`id` in `assistant list`; everyone else is human. Join on the id — `handle`
-can be empty on either side.
+Each `channel members list` row carries one resolved `user` field (`@handle`,
+falling back to display name, then bare id), a `type` field (`human` | `ai`)
+that answers the AI-ness question directly, plus `role` and
+`notification_level`. Bios live on the `workspace members list` row for the
+same person. A row whose `type` is absent (and whose `user` renders as a bare
+24-hex) means the workspace cache could not resolve that member yet — re-run
+the command rather than guessing.
 
 Note the trap: the `members list` role is a **permission** (`admin`/`member`),
 **not** a work-role. A teammate's actual responsibility, if written anywhere,

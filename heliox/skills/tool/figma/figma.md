@@ -17,9 +17,8 @@ plugin **registers the Figma MCP server for you** — so connecting is:
 
 1. **Check first** — is Figma already connected? If yes, stop (don't reinstall).
 2. **Install the official plugin with your ENGINE's own plugin command** — this
-   registers the Figma MCP server. Do **NOT** use `heliox plugin` (retiring) and
-   do **NOT** manually `mcp add` (that duplicates what the plugin does and
-   conflicts).
+   registers the Figma MCP server. Do **NOT** manually `mcp add` (that duplicates
+   what the plugin does and conflicts).
 3. **Authenticate** — the Figma MCP uses OAuth: you produce an authorize URL,
    relay it to the user, they authorize and paste the callback URL back, you
    complete the exchange.

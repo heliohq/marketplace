@@ -176,6 +176,16 @@ heliox approval get <approval_id> --json
 
 `--role` is required: `asker` or `approver`. Filters are `--status pending|decided`, `--limit`, and `--cursor`. Owner-side decisions happen through the desktop approval card today; the CLI surface creates domain requests and inspects/polls approvals.
 
+Approvals also carry tool-execution requests (the tool approval gate): a
+policy-gated `heliox tool` command exits with `APPROVAL_REQUIRED`, you create
+the request with `heliox approval request`, and replay the identical command
+with `--approval <id>` once approved. On those approvals, `approval get <id>`
+reports a derived `Status` (pending / approved / denied / cancelled / expired /
+consumed — approved credentials expire when the execution window lapses), and
+`--json` exposes the frozen command under `payload.extends` (`tool`, `account`,
+`argv`) so you can recover the exact command to replay when it has fallen out
+of context. The full gate flow lives in the `heliox:tool` skill.
+
 Wait outcome codes for `vault request --wait`:
 
 | Code | Meaning |
@@ -202,6 +212,6 @@ Follow this ladder for GitHub, Slack, Linear, OpenAI, and similar providers:
 8. Store new provider tokens as `type=token` with `access_token=<value>`.
 9. Publish safe requestable preview text only when future agents should discover the credential.
 10. Ask a human in DM/channel if signup blocks on CAPTCHA, missing invite permission, verification trouble, or unclear provider forms.
-11. Gate destructive provider actions with a product-supported approval flow when one exists; otherwise ask a human before acting.
+11. Outward-facing actions on connected tools are gated automatically by `heliox tool` (`APPROVAL_REQUIRED` — see `heliox:tool`); for destructive provider actions outside that gate (e.g. raw-credential calls), ask a human before acting.
 
 Routine reads, clone, branch push, PR creation, issue comments, and non-destructive API calls usually do not need a separate approval after credential access is granted. Destructive or authority-changing actions do: repo deletion, org settings, admin-scope token creation, force-pushing protected branches, billing changes, access grants, and secret rotation.

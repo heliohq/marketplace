@@ -137,8 +137,8 @@ flags rather than guessing.
 
 ## Safety
 
-- Comments, shared pages, and public content are outward-facing — follow the
-  sensitive-operation rule in [../SKILL.md](../SKILL.md) before writing into a
-  workspace others read.
+- Comments and page edits are team-internal collaboration — routine, not
+  approval-gated, and no pre-confirmation needed (see the tool skill's
+  "Approval gate" section for what is gated).
 - Content edits with `--allow-deleting-content` can drop existing blocks;
   confirm scope before running one against a page you didn't create.

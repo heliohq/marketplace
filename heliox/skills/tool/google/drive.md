@@ -60,35 +60,27 @@ syntax — pass it through verbatim (`'<folderId>' in parents`,
 `name contains 'x'`, `mimeType='application/vnd.google-apps.document'`,
 `trashed = false`).
 
-## Sharing: confirm before you expose anything
+## Sharing goes through the approval gate
 
-Uploading and organizing stay in your private domain — do them freely. **Sharing
-is the one place data leaves that domain**, so treat every share like an
-outward-facing action and confirm with the user first:
+Uploading and organizing stay in your private domain — do them freely.
+**Sharing is the one place data leaves that domain**, and the gate enforces
+the check: `files share` (to a person or `--anyone`) and `permissions update`
+are policy-gated — instead of running, heliox exits with `APPROVAL_REQUIRED`
+and prints the exact request/replay commands (full flow in the tool skill's
+"Approval gate" section). Put **what file, to whom, and what role** (reader /
+commenter / writer) in the request `--message` — and for `--anyone`
+(link-visible to anyone with the link, the highest-exposure form) say that
+public-exposure fact explicitly. The approval card **is** the human check —
+do not also pre-confirm in chat.
 
-- **Before any `files share`**, report **what file, to whom, and what role**
-  (reader / commenter / writer) and get the user's go-ahead.
+```bash
+heliox tool google drive -- files share <id> --with alice@example.com --role reader --message "Here's the report"
+heliox tool google drive -- files share <id> --anyone --role reader
+```
 
-  ```bash
-  heliox tool google drive -- files share <id> --with alice@example.com --role reader --message "Here's the report"
-  ```
-
-- **`--anyone` (link-visible to anyone with the link) is the highest-exposure
-  form** — confirm it explicitly, every time, before running it.
-
-  ```bash
-  heliox tool google drive -- files share <id> --anyone --role reader
-  ```
-
-- **Escalating an existing permission widens exposure too.** `permissions
-  update <file-id> <perm-id> --role writer` (e.g. reader → writer) is treated
-  like a new share — confirm first.
-- **Narrowing is safe to do on your own**: lowering a role (writer → reader) or
-  `permissions delete <file-id> <perm-id>` (revoking a share) is convergent —
-  no confirmation needed.
-
-There is no pending/draft state for sharing — the only place this confirmation
-can happen is in the conversation, so always do it there.
+**Narrowing is yours to do directly**: lowering a role (writer → reader) or
+`permissions delete <file-id> <perm-id>` (revoking a share) shrinks exposure
+and is not gated — no confirmation needed.
 
 ## Working with Gmail: files move via the filesystem
 
