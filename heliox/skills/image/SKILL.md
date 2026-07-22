@@ -47,7 +47,7 @@ The URI and the bytes travel differently; using the wrong one produces a message
 
   ```bash
   heliox tool image create "<prompt>" --model gemini-3.1-flash-image -o ./img.png --json
-  heliox message send '#design' "logo draft" -a ./img.png --seen "$LATEST_SEQ" --json
+  heliox message send '#design' "logo draft" -a ./img.png --seen "$LATEST_SEQ"
   ```
 
 - **Document or task-comment body** — paste the `helio://attachment/<id>` URI inline; the frontend renders it (local file paths in a document render nothing).

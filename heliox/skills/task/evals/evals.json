@@ -1,0 +1,26 @@
+{
+  "skill_name": "task",
+  "evals": [
+    {
+      "id": 0,
+      "name": "lifecycle-pickup-close",
+      "prompt": "Task HEL-14 ('Fix login redirect') is assigned to you. Pick it up properly, and — assuming the code work succeeds — record what you did on the task and close it out.",
+      "expected_output": "Ordered heliox commands: read task first (show), status → in_progress, then close with evidence (task done --comment, or comments add + update --status done); mutations carry --json",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "attachment-swap-description-pairing",
+      "prompt": "Task HEL-7's description is just an outdated screenshot (the task was created with `task create -a old-shot.png`). Replace it with the new screenshot at ./new-shot.png.",
+      "expected_output": "task update HEL-7 -a ./new-shot.png paired with --clear-description (or -d), WITHOUT --clear-attachments alongside -a",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "bounded-filtered-query",
+      "prompt": "Your teammate asks: 'what is Alice (@alice) still working on in #engineering?' Find the right read command(s).",
+      "expected_output": "One bounded list with --assignee @alice and --channel '#engineering' (sigiled), no unfiltered dump, no --all",
+      "files": []
+    }
+  ]
+}

@@ -11,245 +11,111 @@ metadata:
 
 Start by reading `../shared/SKILL.md`.
 
-## Take on the work before scheduling it
+## Model
 
-Treat an automation as work you are agreeing to own, not a form whose schedule
-fields need filling. Use this order:
+- An automation = a trigger (cron / one-shot / event) + a procedure document + AI executors. Verbs address it by 24-hex id; people are `@handle`, channels `#name` — reads return the vocabulary the flags take.
+- Created DISABLED, always. Enabling is the user's decision after proof: `automation update <id> --enable true`.
+- The procedure document is a fresh executor's complete brief (`heliox document read|edit <document_id>`). Cross-run knowledge lives there, not in prior transcripts.
+- `--owner @handle` (required) = the human it serves; lets them pause/edit/delete later. Subscribers want run results; the owner is always implicit (`automation subscriber list|add|remove`).
+- Run lifecycle: fired → started → success | failed | skipped (or died). The run's process has one source of truth — its thread in the automation channel. `run show <execution_id>` is the fire record; `--transcript` renders the thread.
+- Reads (`list`/`show`/`runs`): plain text is the cheap recall mode; add `--json` when acting on field values.
 
-1. understand the requested outcome;
-2. do the work once and refine the result;
-3. choose evaluation depth and define realistic cases;
-4. capture the approved method and create the automation disabled;
-5. run the cases, preserving a baseline when improving existing work;
-6. grade evidence, aggregate results, and analyze variance or weak checks;
-7. show the user, revise, and repeat until satisfied;
-8. enable it with the user's approval.
+## Do the work once first
 
-Meet the user where they are. If they already supplied an approved example,
-a complete procedure, or an existing automation, start there rather than
-repeating work that is already complete.
+An automation is work you agree to own, not a form whose schedule fields need filling. Execute the request once in the conversation first (a labeled historical example if the real event can't be produced now) and refine it with the user — a real deliverable reveals preferences faster than a setup questionnaire. Then capture the approved method as the procedure. If the user brings an approved example or existing automation, start there.
 
-## Output language
-
-The automation's name, description, and procedure follow the language of the
-user's own instruction — never the language of any wrapper, hand-off, or
-bootstrap text that surrounds it. The user's instruction is the authoritative
-source: when a system-inserted sentence around it is in a different language,
-write the artifacts in the instruction's language, not that sentence's.
-
-When the instruction is too short to determine its language (for example a
-one-line edit), fall back to the room language, following the brain's existing
-rule. This governs the automation artifacts only; conversational replies keep
-following the room language, so the two can differ without conflict.
-
-## Creation loop
-
-### 1. Understand and do the work once
-
-Clarify the outcome, inputs, and useful output only where the request is
-genuinely ambiguous. Do not lead with cadence, owner, subscribers, or other
-setup details.
-
-Execute the work directly in the conversation. If the real event cannot be
-produced now, use a clearly labeled historical example or representative
-fixture. Put the result in front of the user and revise it until the useful
-shape is clear. A real deliverable reveals preferences faster than a setup
-questionnaire.
-
-### 2. Decide whether evaluation will pay for itself
-
-After the output is understood, recommend the lightest evaluation that gives
-honest confidence:
-
-- **Skip a formal evaluation** when the work is deterministic, low-risk,
-  easy to undo, and the approved example already proves the important part.
-  Still write a clear success condition. Be explicit that the scheduled
-  trigger and executor path remain unverified if the user also skips a
-  rehearsal.
-- **Lightweight** for simple or subjective work: the approved example plus
-  one disabled end-to-end rehearsal is usually enough.
-- **Structured** for variable inputs, monitoring, data retrieval, deduping,
-  or meaningful no-result behavior: use a representative case, an important
-  boundary/no-op case, and a failure case with observable checks.
-- **Strict** for external side effects, sensitive data, authentication,
-  money, or a broad audience: use fixtures or a sandbox, verify authorization
-  and idempotency, cover failure paths, and do not enable until the checks pass.
-
-State the recommendation and reason in one sentence, then let the user choose
-a different depth. For example: "This is a read-only digest with variable
-input, so I recommend three small cases plus a disabled rehearsal; want that,
-a quick rehearsal only, or no formal evaluation?"
-
-Do not force numerical scoring onto taste. Let the user judge subjective
-quality; use assertions only for things that can actually be observed, such
-as freshness, counts, required fields, destination, terminal state, or number
-of deliveries.
-
-When the user chooses structured or strict evaluation, follow the complete
-baseline → run → grade → aggregate → analyze → review → revise loop in
-[`references/evaluation.md`](references/evaluation.md).
-
-### 3. Write the procedure and create it disabled
-
-The procedure is a fresh executor's complete brief. Write self-contained
-markdown from the approved execution, not from an imagined workflow.
-
-Pass the markdown itself to `--procedure`, never its filename. A draft may live
-in a local `.md` file while you work, but a later executor cannot follow that
-runtime-local path. Put the draft's **contents** in the `--procedure` element
-of an argv JSON array; the array file is only `--args-file` transport.
-
-Use the parts of this outline that apply:
-
-```markdown
-# <automation name>
-
-## Objective
-## Inputs and freshness
-## Procedure
-## Output and delivery
-## Failure and no-result behavior
-## Done when
-## Evaluation contract (only when structured or strict evaluation is useful)
-```
-
-At creation time, state the defaults and ask only for decisions that remain:
-
-- destination defaults to the current conversation;
-- owner defaults to the requester (`--owner`, required);
-- executor defaults to you;
-- subscribers default to none;
-- confirm the cadence and any additional audience.
-
-A named clock time is exact: "every day at 9am" means `0 9 * * *`. Add an
-off-minute only when the wording is approximate ("every morning", "hourly",
-"around lunch") so approximate jobs do not all fire together.
+## Create
 
 ```json
-["automation", "create", "<name>", "--cron", "<five-field>", "--owner", "@<requester>", "--procedure", "# <name>\n\n## Objective\n<approved objective>\n\n## Procedure\n<approved steps>"]
+["automation", "create", "<name>", "--cron", "0 9 * * 1-5", "--owner", "@<requester>",
+ "--procedure", "# <name>\n\n## Objective\n<approved objective>\n\n## Procedure\n<approved steps>"]
 ```
 
 ```bash
 heliox --json --args-file /absolute/path/create-automation.json
 ```
 
-Use `--start "<rfc3339>"` instead of `--cron` for a one-shot. Creation returns
-a disabled automation with its trigger and bound procedure document; the CLI
-then writes the markdown in a separate request. If that second write fails,
-keep the automation disabled, repair its canonical document, and verify it.
-Read the returned document before treating the write as proof:
+- `--cron` XOR `--start "<rfc3339>"` (one-shot). A named clock time is exact ("every day at 9am" = `0 9 * * *`); add an off-minute only for approximate wording ("every morning") so approximate jobs don't all fire together.
+- State the defaults, ask only what remains: destination = this conversation, owner = requester, executor = you, subscribers = none; confirm cadence.
+- `--procedure` takes the markdown BODY, never a filename — a later executor cannot read a runtime-local path. Draft in a local `.md` if you like, but paste its contents into the argv JSON; the file is only `--args-file` transport.
+- The procedure write is a second request after create. Verify: `heliox document read <document_id>` must show the approved procedure, not an empty body or a path. Repair before rehearsal or enablement.
 
-```bash
-heliox document read <document_id>
+## The procedure document
+
+Self-contained markdown from the approved execution, using the parts that apply:
+
+```markdown
+# <name>
+## Objective
+## Inputs and freshness
+## Procedure
+## Output and delivery
+## Failure and no-result behavior
+## Done when
 ```
 
-The document must contain the approved procedure, not an empty body, local
-path, or reference to a draft file. Repair it before rehearsal or enablement.
+For recurring scans/digests/watches, `## Inputs and freshness` pins the read scope: exact sources + filters derived from the cadence (`--channel`, `--status`, `--since` of one cadence period — a daily scan reads the last day, not everything). A bounded read that finds nothing IS the no-result path; never page past the window or drop filters because a period was quiet. Keep eval cases, grades, and execution ids OUT of the procedure — authoring evidence, not per-run instructions.
 
-### 4. Evaluate and iterate at the chosen depth
+## Evaluate before enabling
 
-For a rehearsal, run the disabled automation and inspect the run itself, not
-only the polished result:
+Recommend the lightest depth that gives honest confidence — one sentence with the reason — and let the user choose:
+
+| Depth | When | What it takes |
+| --- | --- | --- |
+| skip | deterministic, low-risk, undoable; the approved example proves it | a success condition; note the trigger path stays unverified |
+| light | simple or subjective work | approved example + one disabled rehearsal |
+| structured | variable inputs, monitoring, dedup, meaningful no-result | representative + boundary/no-op + failure case, observable checks |
+| strict | side effects, sensitive data, auth, money, broad audience | fixtures/sandbox; verify authorization, idempotency, failures; no enable until green |
+
+Assertions only for observables (freshness, counts, destination, delivery totals); the user judges taste — never force numeric scores onto it. Rehearse while still disabled:
 
 ```bash
-heliox automation run <id> --json
+heliox automation run <id>
 heliox automation run show <execution_id> --transcript --json
 ```
 
-The transcript reveals whether a fresh executor understood the procedure,
-used the right inputs, hid a broken dependency behind a fallback, delivered to
-the right place, or caused an unintended side effect.
+Transcript inspection is an evidence read, so it takes `--json`: cards, approvals, and attachments have no text twin, and grading a rehearsal without them can pass a broken run.
 
-For structured or strict evaluation, use the same loop as skill creation:
+The transcript shows whether a FRESH executor understood the procedure, hid a broken dependency behind a fallback, or delivered wrong. For structured/strict, follow the baseline → run → grade → aggregate → analyze → review loop in [`references/evaluation.md`](references/evaluation.md). If the user skips evaluation, respect it — and report exactly what stays unverified.
 
-1. define realistic cases and observable checks before running them;
-2. preserve current behavior as the baseline when maintaining an automation;
-3. run the candidate cases, repeating nondeterministic cases when useful;
-4. grade each check after execution with exact output or transcript evidence;
-5. aggregate results and analyze weak checks, variance, hidden fallbacks, and
-   side effects;
-6. show the user representative outputs and the evaluation summary;
-7. revise the smallest general defect, replay the failure and a representative
-   case, and repeat until the user is satisfied;
-8. retain stable regressions and latest verified execution IDs in the
-   procedure's evaluation contract.
+Hand over: id, trigger, destination, evaluation result, remaining proof gap. Enabling is the user's call.
 
-Read [`references/evaluation.md`](references/evaluation.md) for the case
-schema, baseline rules, repeated-run policy, grading record, aggregate table,
-analyst pass, and human feedback loop.
+## Executing a run
 
-If the user chooses to skip evaluation, respect that choice. Report exactly
-what remains unverified instead of quietly treating creation as proof.
-
-### 5. Hand over
-
-Show the automation ID, schedule or trigger, destination, evaluation result
-(if any), and remaining proof gap. Enabling is the user's decision:
+- Work in the run's own thread — it is the run's audit record, never left empty. Long output goes in a document; its reference goes in the thread.
+- The procedure is the authority. If unreadable, report to the owner and stop — don't improvise.
+- Finalize with exactly one terminal verb; the worth-sharing judgment is success-vs-skip, not per-subscriber:
 
 ```bash
-heliox automation update <id> --enable true
+heliox automation run success <execution_id>                                   # needs: result in thread + digest DM to EVERY subscriber first
+heliox automation run failed <execution_id> --reason "<what broke>"            # needs: owner DM'd what broke (thread mention doesn't count)
+heliox automation run skip <execution_id> --reason "<checked what; why quiet>" # quiet run: one-line all-clear in thread, no digests
 ```
 
-## Maintaining an automation
+`--reason` is required on `failed`/`skip` — omitting it leaves the run unfinalized. A failure must never masquerade as "nothing found"; cover every terminal state of a watched system.
 
-Start from current evidence rather than recreating it:
+## Maintain
 
 ```bash
-heliox automation show auto_... --json
-heliox document read doc_...
-heliox automation runs auto_... --json
+heliox automation list                      # ID STATUS NAME OWNER NEXT_RUN DOCUMENT
+heliox automation show <id>
+heliox automation runs <id>                 # newest 10; --limit up to 100; a full page may continue
 heliox automation run show <execution_id> --transcript --json
+heliox document edit <document_id>
+heliox automation update <id> --enable false
 ```
 
-Edit the procedure document in place when the method changes. Preserve the
-automation and trigger identities unless the requested change truly requires
-new ones. Before editing, retain the current procedure and a safe,
-representative run as the baseline; afterward, run the same case against the
-candidate.
+Start from current evidence, not recreation. Edit the bound procedure in place; preserve automation and trigger identities unless the change truly requires new ones. Before a behavioral edit, keep the current procedure + a representative run as baseline, then run the same case against the candidate. A production bug: turn the failure into a regression case, prove the smallest general fix, replay a prior representative case — never patch only the sample that failed. Loop details: [`references/evaluation.md`](references/evaluation.md).
 
-Use the same proportional evaluation rule for ordinary improvements. A bug is
-the exception: turn the observed failure into a regression case, prove the
-smallest general fix, and rerun a prior representative case before calling it
-resolved. Add the new case to the durable evaluation contract so the next
-change replays it. Do not patch only the exact sample that happened to fail.
+## Event triggers
 
-Useful maintenance commands:
+Choose from the source, not the phrasing: time itself → `--cron`/`--start`; source pushes a signed event → webhook; no reliable push → poll. "Checking every five minutes is fine" is a latency budget, not a webhook veto. Pass the source's stable delivery id as `fire_key` — the idempotency boundary for retries. Handler contract, signature verification, packaging, fixtures, deploy, logs: [`references/event-triggers.md`](references/event-triggers.md).
 
-```bash
-heliox automation list --json
-heliox automation update auto_... --enable false
-heliox document edit doc_...
-heliox automation run auto_...
-```
+## Output language
 
-## Choose the trigger from the source
-
-- Use `--cron` or `--start` when time itself is the trigger.
-- Prefer a signed webhook when the source can push a stable event.
-- Use a poll trigger when the source cannot push reliably or periodic
-  observation is explicitly required.
-- For an event trigger, pass the source's stable delivery ID as `fire_key`;
-  that is Helio's idempotency boundary for retries and duplicate deliveries.
-
-A phrase such as "checking every five minutes is fine" is a latency budget,
-not a reason to ignore a better webhook. For poll/webhook code, signature
-verification, idempotency, packaging, local fixtures, deployment, and logs,
-read [`references/event-triggers.md`](references/event-triggers.md).
-
-## Executing runs
-
-- Work in the automation's run thread; humans may add useful input there.
-- Treat the procedure as the authority for the work and delivery. If it is
-  unavailable, report the failure to the owner and stop rather than improvise.
-- Deliver short outcomes as messages. Put reports, digests, and analyses in a
-  document and share its reference instead of posting a wall of chat text.
-- Use judgment with subscribers: a deliberate no-result run may stay silent;
-  a failure must not masquerade as "nothing found."
-- Cover every terminal state of a watched system, not only success.
+The automation's name, description, and procedure follow the language of the user's own instruction — never a wrapper or bootstrap sentence around it; a mixed instruction follows its dominant language. Too short to tell (a one-line edit)? Fall back to the room language per the brain's rule. Artifacts only — conversational replies keep the room language, so the two can differ.
 
 ## Boundaries
 
 - A procedure is a maintained document, not a rules engine or DAG.
-- One automation represents one coherent job. Different work belongs in a
-  different automation, not branches hidden inside one procedure.
-- Cross-run knowledge belongs in the procedure, not in prior run transcripts.
+- One automation = one coherent job; different work is a different automation, not hidden branches.

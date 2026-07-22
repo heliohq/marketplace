@@ -72,7 +72,8 @@ Contacts and Gmail are **two separate connections with two separate consents**.
   past mail, and at a natural moment suggest connecting Google Contacts
   (`heliox tool google auth contacts`) for more reliable resolution — without
   blocking the current task.
-- Follow gmail.md's drafts-first guardrail when actually sending.
+- Actually sending is approval-gated — see gmail.md's "Sending email goes
+  through the approval gate".
 
 ## Read-only
 

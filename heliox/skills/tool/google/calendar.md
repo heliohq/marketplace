@@ -40,23 +40,21 @@ heliox tool google calendar -- events respond <event-id> --status accepted
 Also available: `calendars get`, `events get`, `events instances`,
 `events delete`. Check `-- --help` rather than guessing flags.
 
-## Reaching other people: confirm before you send
+## Reaching other people: the approval gate handles it
 
-Any create / update / delete on an event **with attendees** notifies those
-people (`--send-updates` defaults to `all`). `respond` always notifies the
-organizer. Treat these as outward-facing actions:
+`events create` / `events update` with `--attendee` are policy-gated: instead
+of running, heliox exits with `APPROVAL_REQUIRED` and prints the exact
+request/replay commands — follow that output (full flow in the tool skill's
+"Approval gate" section). `--send-updates none` does not exempt: the event
+still lands on attendees' calendars, so a "quiet" invite is still an invite.
+The approval card **is** the human check — do not also pre-confirm in chat.
 
-- **Before creating, changing the time of, or cancelling a meeting that has
-  attendees**, report the essentials to the user — title, time, attendees, and
-  (for a cancel) that it will notify everyone — and get confirmation first.
-  Purely personal events (no attendees) you can just do.
-- **Do not pass `--send-updates none` to "quietly" change a meeting.** Silent
-  edits are a sync trap: external calendars drift and guests are left with a
-  stale invite. If the user truly wants no notification, say what that means
-  first.
-
-There is no draft/pending state for events — the only place this confirmation
-can happen is in the conversation, so always do it there.
+Everything else is routine — run it without extra confirmation: purely
+personal events (no attendees), rescheduling or cancelling an existing meeting
+without touching the attendee list, and `respond`. Existing attendees get the
+normal update/cancellation notices; that is expected collaboration ripple, not
+a new reach. Still avoid `--send-updates none` on routine edits — silent
+changes leave guests with stale invites.
 
 ## Recurring events: edit the right level
 

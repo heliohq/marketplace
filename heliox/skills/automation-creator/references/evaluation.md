@@ -5,7 +5,7 @@ failure prompts a change to an existing automation. The loop mirrors skill
 creation: define realistic cases, preserve a baseline, run the candidate,
 grade the evidence, analyze the results, show the user, revise, and repeat.
 
-## 1. Capture the evaluation contract
+## 1. Capture the evaluation cases
 
 Start from the approved example and define success before running anything.
 Begin with two or three cases; expand only when results or production failures
@@ -34,9 +34,10 @@ idempotency. For monitored systems, cover every relevant terminal state. Do
 not turn taste into a numeric score: let the user judge subjective quality and
 reserve assertions for facts that can be observed.
 
-Store stable cases under `## Evaluation contract` in the procedure so future
-maintainers can replay them. Keep the contract in the procedure, not only in a
-local file.
+Store stable cases and verified execution IDs in a separate Helio evaluation
+document or maintenance task so future maintainers can replay them. Keep this
+authoring evidence out of the executor procedure; every scheduled run should
+receive only the instructions needed to do its work.
 
 ## 2. Preserve the baseline
 
@@ -157,11 +158,11 @@ When a case fails:
 5. show the changed output and evidence to the user.
 
 Avoid tuning only to the exact fixture. Add a new stable regression case when a
-real failure teaches something the existing contract did not cover.
+real failure teaches something the existing evaluation evidence did not cover.
 
 Stop iterating when the user is satisfied and all required checks pass with
 acceptable consistency. If further runs stop changing a failed conclusion,
 report the blocker and keep the automation disabled. Offer enablement only
 after the required checks pass and the user approves. Retain the stable cases
-and latest verified execution IDs in the procedure; leave bulky transcripts
-in run history.
+and latest verified execution IDs in the evaluation document or maintenance
+task; leave bulky transcripts in run history.

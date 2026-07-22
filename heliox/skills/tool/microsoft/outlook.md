@@ -35,21 +35,23 @@ Check `-- --help` rather than guessing flags. Every command takes `--json`;
 lists default to a human-readable table with `--page <token>` for explicit
 pagination (Graph `@odata.nextLink`).
 
-## Sending email: default to the drafts flow
+## Sending email goes through the approval gate
 
-Sending leaves the user's own mailbox under their name — treat it like any
-outward-facing sensitive action (see the safety rule in `../shared/SKILL.md`):
+Sending leaves the user's own mailbox under their name, so `messages send` /
+`reply` / `forward` and `drafts send` are policy-gated: instead of running,
+heliox exits with `APPROVAL_REQUIRED` and prints the exact request/replay
+commands — follow that output (full flow in the tool skill's "Approval gate"
+section). The approval card **is** the human check: do not also ask for a chat
+confirmation first — the approver may not even be the person you are talking
+to.
 
-- **Default for anything non-trivial** (new recipients, external parties,
-  commitments, attachments): create a draft, tell the user it is ready in their
-  Outlook drafts, and only `drafts send <id>` after they confirm.
+Drafts remain useful as a composition surface — the user can edit the draft in
+Outlook before you request approval on `drafts send <id>` — but they are not a
+substitute for the gate and need no separate chat confirmation:
 
-  ```bash
-  heliox tool microsoft outlook -- drafts create --to boss@x.com --subject 'Weekly report' --body-file ./weekly.md --json
-  ```
-
-- Direct `messages send` / `reply` / `forward` is fine when the user explicitly
-  asked you to send this specific message in this turn.
+```bash
+heliox tool microsoft outlook -- drafts create --to boss@x.com --subject 'Weekly report' --body-file ./weekly.md --json
+```
 
 ## Bulk operations: confirm the scale first
 

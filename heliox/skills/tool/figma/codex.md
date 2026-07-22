@@ -18,12 +18,11 @@ codex plugin add figma@claude-plugins-official
 
 This registers the Figma MCP server (`codex mcp list` will then show a `figma`
 row). Always pass `@<marketplace>` — `codex plugin add figma` alone errors when
-figma exists in more than one marketplace. Do **not** `mcp add` and do **not**
-`heliox plugin install`.
+figma exists in more than one marketplace. Do **not** `mcp add`.
 
 ## Step 2 — authenticate (one turn)
 
-1. **Record position**: `heliox message list --json | head` → note latest id → `<SEQ>`.
+1. **Record position**: `heliox message list --json | head` → note latest seq → `<SEQ>`.
 2. **Start login detached** (it binds a loopback listener and blocks; `nohup … &`
    keeps it alive without hanging this turn — and on a local node stops it from
    blocking on an opened browser). Commands below assume a POSIX shell

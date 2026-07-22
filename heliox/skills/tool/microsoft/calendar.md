@@ -29,19 +29,19 @@ heliox tool microsoft calendar -- events respond <id> --action accept   # also d
 Check `-- --help` for full flags. Every command takes `--json`; lists default
 to a human-readable table with `--page <token>` for explicit pagination.
 
-## Confirm before you notify others
+## Inviting people goes through the approval gate
 
-Creating, changing, or cancelling an event with attendees **sends a
-notification to those people** — an outward-facing action. Follow the
-sensitive-operation rule in `../shared/SKILL.md`:
+`events create` with `--attendees` is policy-gated: instead of running, heliox
+exits with `APPROVAL_REQUIRED` and prints the exact request/replay commands —
+follow that output (full flow in the tool skill's "Approval gate" section).
+The approval card **is** the human check — do not also pre-confirm in chat.
 
-- Before creating/updating/cancelling any event that has **attendees**, confirm
-  the details with the user first — subject, time, and who gets invited/notified.
-  Events with no attendees (your own blocks) are lower-stakes.
-- When scheduling, check `freebusy` first, then `create` — do not blind-book
-  over existing commitments.
-- `respond` and `cancel` notify by default; use `--no-notify` only when the
-  user explicitly wants a silent change.
+The rest is routine — run it without extra confirmation: events with no
+attendees (your own blocks), `events update`, `events cancel`, and `respond`.
+Existing attendees and the organizer get the normal notifications; that is
+expected collaboration ripple. When scheduling, check `freebusy` first, then
+`create` — do not blind-book over existing commitments; use `--no-notify` only
+when the user explicitly wants a silent change.
 
 ## Failure notes
 

@@ -27,7 +27,7 @@ claude plugin install figma@claude-plugins-official
 ```
 
 Registers the Figma MCP server (named `plugin:figma:figma`). If it says "already
-installed", that's fine. Do **not** `mcp add` and do **not** `heliox plugin`.
+installed", that's fine. Do **not** `mcp add`.
 
 ## Step 2 — authenticate (one turn) via the pty login helper
 
@@ -41,7 +41,7 @@ Windows local runtime needs a different TTY shim:
 LOGIN=$(find / -path '*tool/figma/scripts/mcp_login_pty.py' 2>/dev/null | head -1)
 ```
 
-1. **Record position**: `heliox message list --json | head` → note latest id → `<SEQ>`.
+1. **Record position**: `heliox message list --json | head` → note latest seq → `<SEQ>`.
 2. **Start the login helper** (background; it captures the URL and waits for the callback):
    ```bash
    nohup python3 "$LOGIN" plugin:figma:figma /tmp/figma_login.out /tmp/figma_callback.txt >/dev/null 2>&1 &

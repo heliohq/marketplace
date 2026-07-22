@@ -31,15 +31,16 @@ heliox tool microsoft onedrive -- items delete <id>...                          
 Check `-- --help` for full flags. Every command takes `--json`; lists default
 to a human-readable table with `--page <token>` for explicit pagination.
 
-## Confirm before sharing or deleting
+## Sharing and deleting
 
-Creating a sharing link and deleting files are the sensitive actions here —
-follow the rule in `../shared/SKILL.md`:
-
-- **Sharing links let others reach the file.** Before `items share`, confirm the
-  visibility with the user. Default to `--scope organization`, not `anonymous`;
-  only create an `anonymous` (anyone-with-the-link) link when the user
-  explicitly asks for a public link.
+- **Public links go through the approval gate.** `items share --scope
+  anonymous` (anyone with the link) is policy-gated — instead of running,
+  heliox exits with `APPROVAL_REQUIRED` and prints the exact request/replay
+  commands (full flow in the tool skill's "Approval gate" section); say the
+  public-exposure fact explicitly in the request `--message`. The approval
+  card **is** the human check — do not also pre-confirm in chat. Default to
+  `--scope organization`, which stays inside the org and is routine — not
+  gated, no confirmation needed.
 - **Confirm before delete**, even though items go to the recycle bin — surprising
   deletions erode trust. Report what will be deleted first.
 - **Confirm before overwriting** an existing file on upload.
