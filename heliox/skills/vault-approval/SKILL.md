@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Vault And Approval
 
-Start by reading `../shared/SKILL.md`.
-
 Use Helio vault for secret material. Use Helio approvals when a credential owner must decide whether to delegate a requestable credential. Vault discovery is org-scoped; plaintext access is still limited to owners and active delegates.
 
 ## Operating Rules

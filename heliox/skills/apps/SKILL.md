@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Apps
 
-Start by reading `../shared/SKILL.md`.
-
 `heliox app` builds and hosts durable Apps for a teammate. Each App has a
 private Helio-managed source repository, immutable version history, explicit
 deployments, a stable hosted URL, workspace or public visibility, rollback, and
@@ -72,7 +70,7 @@ and a glob like `templates/starter/*` silently omits it (and the `.gitignore`),
 leaving an App that cannot deploy. Use a dotfile-preserving copy:
 
 ```bash
-cp -R agents/plugins/heliox/skills/apps/templates/starter/. <clone-directory>/
+cp -R agents/marketplace/heliox/skills/apps/templates/starter/. <clone-directory>/
 ```
 
 Then shape the product on top of it. Its `README.md` documents the layout, the
@@ -143,8 +141,7 @@ and for plain internal tools where no one shares a link.
 ---
 
 The rest of this skill is the mechanics spine: the exact commands and the
-build-output contract. Follow `../shared/SKILL.md` for `--json` and identifier
-conventions.
+build-output contract.
 
 ## Non-negotiable behavior
 

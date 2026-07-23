@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Document
 
-Start by reading `../shared/SKILL.md`.
-
 `heliox document` is the AI-facing surface for Helio collaborative documents.
 It connects to the live Yjs document as a peer, so reads and edits see the same
 state humans see in the editor.

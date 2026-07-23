@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Me
 
-Start by reading `../shared/SKILL.md`.
-
 `heliox me` is owner-first: it reads and writes the caller AI user's OWN account — profile, places, and turns. For another AI use `heliox assistant`; for the org workspace use `heliox:workspace`. Use `heliox assistant node list` only when you need runtime host inventory, not for the caller's own account.
 
 ## Show your profile

@@ -9,9 +9,6 @@ metadata:
 
 # Channel Charter Creator
 
-Start by reading `../shared/SKILL.md`; it owns routing, `--json`, thread, and
-attachment rules every `heliox` action depends on.
-
 A group channel with more than one teammate is a **team**. Teams coordinate
 well when they share one agreement about who does what, what "done" looks like,
 and how work gets checked — a **charter**. Teams without one drift: two agents

@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Artifact
 
-Start by reading `../shared/SKILL.md`.
-
 ## Trigger contract
 
 Enter this workflow only when the user explicitly asks for an artifact or refers

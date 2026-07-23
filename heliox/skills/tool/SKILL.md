@@ -9,30 +9,18 @@ metadata:
 
 # Heliox Connected Tools
 
-Start by reading `../shared/SKILL.md`.
-
 `heliox tool` is the portal to third-party accounts a human has connected to
-you. Credentials never pass through your hands: the CLI fetches the right
-token per call and injects it into the tool. Some providers are **grouped** by
-family, each app connected and called on its own:
-
-- Google (Gmail today) under `heliox tool google` — see
-  [google/google.md](./google/google.md) for the family auth model and
-  [google/gmail.md](./google/gmail.md) for the gmail command surface.
-- Microsoft (Outlook / Calendar / OneDrive) under `heliox tool microsoft` —
-  see [microsoft/microsoft.md](./microsoft/microsoft.md) for the family and
-  [microsoft/outlook.md](./microsoft/outlook.md),
-  [microsoft/calendar.md](./microsoft/calendar.md),
-  [microsoft/onedrive.md](./microsoft/onedrive.md) for each app.
+you. Credentials never pass through your hands: the CLI fetches the right token
+per call and injects it. Most providers are **flat** — one app, called as
+`heliox tool <name>`; a few are **grouped** families called as
+`heliox tool <provider> <app>` (see the model below). They all share one fixed
+layout, so there is nothing to enumerate here: a provider's guide is
+`./<name>/<name>.md`, `heliox tool <name> -- --help` is its full command
+reference, and `heliox tool list --json` shows which accounts are connected.
 
 One member is not an OAuth account: `heliox tool browser` drives the user's own
 paired local Chrome for web-page work (open / click / fill / snapshot / eval).
 It has its own connect + use model — see [browser/browser.md](./browser/browser.md).
-
-Flat providers with a larger command surface have their own guide:
-[notion/notion.md](./notion/notion.md) and [x/x.md](./x/x.md) (posts, replies
-/ comments, timelines, likes, follows, DMs). For the rest, `--help` after `--`
-is the reference.
 
 ## The model (learn once, applies to every provider)
 
@@ -49,7 +37,7 @@ is the reference.
 
    ```bash
    heliox tool <app> auth --json               # flat providers: slack, notion, x, ...
-   heliox tool <provider> auth <app> --json    # grouped: google gmail; microsoft outlook / calendar / onedrive
+   heliox tool <provider> auth <app> --json    # grouped: google gmail; microsoft outlook / calendar / onedrive; zoho books / crm
    ```
 
    This mints a long-lived authorize link. Send that link to the user in the
@@ -63,7 +51,7 @@ is the reference.
 
    ```bash
    heliox tool <app> [--account <key>] -- <tool args...>              # flat
-   heliox tool <provider> <app> [--account <key>] -- <tool args...>   # grouped: google gmail; microsoft outlook
+   heliox tool <provider> <app> [--account <key>] -- <tool args...>   # grouped: google gmail; microsoft outlook; zoho books
    ```
 
    `--account` is only needed when the user connected more than one account of
@@ -141,7 +129,8 @@ Rules that keep the gate safe:
   chat confirmation first.
 - Ungated side effects still follow the per-family guidance (bulk-scale
   confirmation, destructive-edit confirmation in the `google/` and
-  `microsoft/` docs) and the sensitive-operation rule in `../shared/SKILL.md`.
+  `microsoft/` docs) and the sensitive-operation rule: confirm before
+  disconnect, revoke, or uninstall unless the user already asked.
 - Never echo tokens or credential payloads; the CLI never shows them to you by
   design.
 

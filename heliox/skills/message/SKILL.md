@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Message
 
-Start by reading `../shared/SKILL.md`.
-
 ## Model
 
 - Messages are addressed by per-channel `seq` — the coordinate every verb takes (`--seen`, `--around`, `--thread`, `--in-reply-to`, `--before`, `--after`, `cede`). Raw 24-hex ids are not part of this surface.
@@ -39,6 +37,8 @@ heliox message send '#eng' "see attached" -a ./report.pdf --seen "$LATEST_SEQ"  
 ```
 
 `--seen` (required) declares the latest seq you observed; the gateway CAS-fences concurrent sends on it. A stale `--seen` fails with the missed messages and the exact retry — follow it, don't guess. Before sending into a busy group channel run the freshness check above: no newer messages → send; a peer covered the point → short add-on or cede; new context changes the answer → revise first.
+
+Rich or multi-line body — backticks, `$`, apostrophes, newlines — gets shell-mangled; don't hand-escape or flatten to plain text to dodge it. Write the whole invocation as a JSON array to a file (`["message","send","#eng","…full markdown body…","--seen","<seq>"]`) and run `heliox --args-file <path>`, nothing else on the line. The array must hold the literal body text — never a draft-file path in a value (`--body`, `--procedure`, `--content`); a future runtime can't read a file that only existed here.
 
 ```bash
 heliox message cede --reason "peer covered" --seen "$LATEST_SEQ"
@@ -79,6 +79,22 @@ heliox message get 'turn:<id>'      # one of YOUR OWN turns (global; no channel 
 ```
 
 `get <target> <seq>` additionally shows the turn pivots: `produced by turn:` (the turn behind the message — dereference your own via `heliox me turns get 'turn:<id>'`) and `processed by N turn(s)` (non-empty means the message has been picked up). Turn ids come from system output (GAP markers, `heliox me turns list`) — never hand-assemble one.
+
+## Attachments
+
+Incoming attachments may already be materialized under `.helio/attachments/...` — prefer the path shown in the runtime message context. Otherwise fetch by URI: a message's `attachments[].uri` (from `--json`) uses the `helio://` scheme, and `heliox blob get` is the one-stop fetcher (binary-safe):
+
+```bash
+heliox blob get helio://attachment/att_892450... -o /tmp/shot.png   # -o writes to file; omit for stdout
+```
+
+Sending: `-a <file>` on `message send` (repeatable, upload order preserved; the body is optional when `-a` is present). When an attachment wasn't materialized locally, download it by channel + message seq:
+
+```bash
+heliox channel attachments download '#eng' "$MESSAGE_SEQ" --json
+```
+
+Keep generated files in the workspace, not `/tmp`, when they may be attached or reused later.
 
 ## JSON shape (tooling)
 

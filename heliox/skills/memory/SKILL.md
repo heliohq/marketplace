@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Memory
 
-Start by reading `../shared/SKILL.md`.
-
 Use this skill for memory lookup and inspection.
 
 ## Current model

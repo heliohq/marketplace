@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Workspace
 
-Start by reading `../shared/SKILL.md`.
-
 Workspace commands act on the caller's currently active org. They require a resolvable active org id (from `HELIO_ORG_ID` or runtime credentials). For the AI's own outward-facing profile (display name / avatar / rename / status) use `heliox:me`; for runtime host inventory use `heliox assistant node`.
 
 ## Workspace info
