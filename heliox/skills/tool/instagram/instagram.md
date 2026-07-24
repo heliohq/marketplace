@@ -56,7 +56,11 @@ heliox tool instagram -- publish finish <container_id>
 Rules the tool surfaces rather than hides:
 
 - **Media must be at a publicly reachable URL** at publish time (Instagram
-  fetches it server-side). A localhost or auth-gated URL fails.
+  fetches it server-side). A localhost or auth-gated URL fails. For a local
+  file or chat attachment, mint one: `heliox blob put <file>` → helio:// URI,
+  then `heliox blob share <uri>` → short-lived public URL to pass as
+  `--video-url`/`--image-url`. Run `publish create` right after `share` —
+  the URL expires (~1h), and Instagram fetches during container processing.
 - **Containers expire after 24h.** `publish status` returns `EXPIRED` for a
   stale one — recreate it.
 - **`--media-type`** is `IMAGE` (feed photo, default for `--image-url`),

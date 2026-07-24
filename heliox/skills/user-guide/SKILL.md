@@ -37,28 +37,23 @@ One section per Help Center area. Start here; fall back to `llms.txt` when
 no topic obviously fits.
 
 <!-- topic-map:begin -->
-- `get-started` — sign-up to first result: create a workspace, first AI
-  teammate, invite teammates, your first 15 minutes.
-- `concepts` — what an AI teammate is; the mental model behind Helio.
-- `ai-teammates` — creating, configuring, and working with AI teammates.
-- `channels` — shared conversations where people and AI teammates work.
-- `threads` — lightweight 1:1 threads with an AI teammate via New Thread.
-- `tasks` — the shared task board: create, assign to AI, track progress.
-- `inbox` — approval requests, task updates, and reminders in one place.
-- `calendar` — your events and the calendars of teammates you follow.
-- `memory` — how an AI teammate builds and uses memory over time.
-- `connect` — connecting tools: GitHub, your own machine for local compute.
-- `control` — which actions run autonomously vs pause for approval.
-- `vault` — storing credentials and sharing access under a policy.
-- `use-your-own-keys` — using your own AI-provider keys, budget, or subscription.
-- `skills-and-plugins` — installing new capabilities from the marketplace.
-- `automation` — AI-initiated recurring work: schedules and event triggers.
-- `artifacts` — agent-published pages: the gallery and sharing.
+- `get-started` — sign-up to first result: your first 15 minutes, what makes
+  Helio different, the mental model of an AI teammate, pricing, and inviting
+  teammates to the workspace.
+- `ai-teammates` — creating, configuring, and working with AI teammates: hire
+  one, choose a model, give instructions, share context, memory, edit
+  settings, autonomy vs approval (control), and removing a teammate.
+- `work` — the surfaces where people and AI teammates get work done: channels,
+  1:1 threads, the inbox (approvals, updates, reminders), calendar, the shared
+  task board, automation (recurring and event-triggered work), and published
+  artifacts.
+- `connect` — connecting and extending: connect tools to AI teammates, pair
+  devices for local compute, Helio Browser, skills & plugins from the
+  marketplace, use your own provider keys, workspace and member settings, and
+  the credential vault.
 - `use-cases` — worked examples by category: R&D & product, GTM & growth,
-  design, content, research, team ops, industry.
-- `settings` — profile, workspace configuration, member access.
-- `troubleshoot` — solutions to common problems.
-- `whats-new` — the latest product updates.
+  research, design, industry-specialized, content, and team ops.
+- `guides` — help & reference: troubleshooting common problems and what's new.
 <!-- topic-map:end -->
 
 ## How to answer
@@ -89,8 +84,8 @@ no topic obviously fits.
   Never bridge a gap with how comparable products work.
 - **Answer in the user's language.** Chinese users get the `zh` page when
   one exists; otherwise translate yourself and cite the English page.
-- **When the docs don't cover it, say so.** Check `troubleshoot` first for
-  problem-shaped questions. Past that, name the gap plainly and route to
+- **When the docs don't cover it, say so.** Check the `guides` section
+  (troubleshoot) first for problem-shaped questions. Past that, name the gap plainly and route to
   support — never invent a setting, a button, or a limit. A docs gap you
   hit is worth reporting to the team as feedback in its own right.
 
