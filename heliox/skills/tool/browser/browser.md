@@ -134,7 +134,7 @@ type / get / wait / screenshot / eval).
 
 - Outward-facing actions in the user's real, logged-in browser (submitting
   forms, sending messages, making purchases, anything that mutates a live
-  account) follow the sensitive-operation rule from `../shared/SKILL.md` —
-  confirm before acting unless already authorized.
+  account) follow the sensitive-operation rule — confirm before acting unless
+  already authorized.
 - The injected CDP endpoint *is* the credential; heliox redacts it from
   passthrough output. Never try to reconstruct, log, or echo it.

@@ -86,6 +86,5 @@ Images go through `media upload` first; pass the returned media id via
 
 Posting, replying, quoting, reposting, liking, following, and DMs are all
 **public or outward-facing actions** on the user's real X account: follow the
-sensitive-operation rule from `../shared/SKILL.md` — confirm with the user
-before first-of-kind outward actions in a session, and never post content the
-user has not sanctioned.
+sensitive-operation rule — confirm with the user before first-of-kind outward
+actions in a session, and never post content the user has not sanctioned.

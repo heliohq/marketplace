@@ -8,8 +8,6 @@ metadata:
 
 # Heliox Capability Installer
 
-Start by reading `../shared/SKILL.md`.
-
 ## Mental model
 
 You run **inside** one engine — Claude Code or Codex. There is **no install/

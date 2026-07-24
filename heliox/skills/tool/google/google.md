@@ -30,6 +30,7 @@ heliox tool google gmail --account work@corp.com -- messages list --max 10
 
 | App | Reference | What it does |
 | --- | --- | --- |
+| analytics | [analytics.md](./analytics.md) | GA4 read-only reporting — traffic, engagement, and conversion reports plus realtime; discover property ids and valid metric/dimension names |
 | calendar | [calendar.md](./calendar.md) | Create, list, update, and delete events; check free/busy; read-only list of your calendars |
 | contacts | [contacts.md](./contacts.md) | Search and read the user's contacts (read-only — can't create or edit them) |
 | docs | [docs.md](./docs.md) | Create, read, and edit Google Docs; insert and format text content |

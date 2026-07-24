@@ -11,9 +11,13 @@ do not borrow Claude Code's verbs.
 ## skill (`skill:…`)
 
 There is no `codex skill` subcommand — a skill is a folder with `SKILL.md` at its
-root. Codex's canonical, portable skills root is `$HOME/.agents/skills`.
+root. Install it under the engine's real skills dir: `${CODEX_HOME:-$HOME/.codex}/skills/<name>`.
+Never hardcode `$HOME/.codex` or `$HOME/.agents`: a managed runtime redirects
+`CODEX_HOME` to a per-runtime home, and a guessed absolute path lands where neither
+Codex nor Helio's reporter looks — the skill installs but is invisible (it neither
+loads nor shows in the read view). Always resolve through `$CODEX_HOME`.
 
-**Install** — idempotent **by revision**: if `$HOME/.agents/skills/<name>` already
+**Install** — idempotent **by revision**: if `${CODEX_HOME:-$HOME/.codex}/skills/<name>` already
 exists, compare its checked-out commit to `$REV`; equal → "already installed",
 stop; different → the pinned catalog revision moved, so replace it (below) rather
 than leaving the old skill active. The clone lands in a temp dir and only the
@@ -21,7 +25,7 @@ requested `<path>` subtree (root ⇒ whole repo) is copied in, so a non-root sou
 like `.../skills/foo` installs with its `SKILL.md` at the destination root.
 
 ```bash
-DEST="$HOME/.agents/skills/<name>"
+DEST="${CODEX_HOME:-$HOME/.codex}/skills/<name>"
 # Revision marker survives the subpath copy (which drops the repo's .git).
 if [ "$(cat "$DEST/.helio-skill-rev" 2>/dev/null)" = "$REV" ]; then
   echo "already installed at $REV"; exit 0
@@ -41,7 +45,7 @@ test -f "$DEST/SKILL.md" || { echo "SKILL.md not at root — check the source <p
 Never remove a skill dir that a plugin owns — remove the plugin instead.
 
 ```bash
-DEST="$HOME/.agents/skills/<name>"
+DEST="${CODEX_HOME:-$HOME/.codex}/skills/<name>"
 test -d "$DEST" || { echo "not installed"; exit 0; }
 rm -rf "$DEST"
 ```
