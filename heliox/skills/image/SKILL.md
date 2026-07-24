@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Image Generation
 
-Start by reading `../shared/SKILL.md`.
-
 Generation is synchronous — `create` blocks until the image is ready (typically 5–90 s, up to ~3 min). Every image costs the org real money, so the recovery rules below matter: never regenerate what already succeeded.
 
 ## Pick a model, then create

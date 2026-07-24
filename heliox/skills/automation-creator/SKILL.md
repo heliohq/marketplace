@@ -9,15 +9,13 @@ metadata:
 
 # Heliox Automation Creator
 
-Start by reading `../shared/SKILL.md`.
-
 ## Model
 
 - An automation = a trigger (cron / one-shot / event) + a procedure document + AI executors. Verbs address it by 24-hex id; people are `@handle`, channels `#name` — reads return the vocabulary the flags take.
 - Created DISABLED, always. Enabling is the user's decision after proof: `automation update <id> --enable true`.
 - The procedure document is a fresh executor's complete brief (`heliox document read|edit <document_id>`). Cross-run knowledge lives there, not in prior transcripts.
 - `--owner @handle` (required) = the human it serves; lets them pause/edit/delete later. Subscribers want run results; the owner is always implicit (`automation subscriber list|add|remove`).
-- Run lifecycle: fired → started → success | failed | skipped (or died). The run's process has one source of truth — its thread in the automation channel. `run show <execution_id>` is the fire record; `--transcript` renders the thread.
+- Run lifecycle: fired → started → success | failed | skipped (or died). The run's process has one source of truth — its thread in the automation channel. `run show <execution_id>` is the fire record (including how it fired — schedule / trigger / manual); `--transcript` renders the thread's newest messages (`--tail N`, default 30 — the result and terminal state live at the end) and says so when older ones are omitted.
 - Reads (`list`/`show`/`runs`): plain text is the cheap recall mode; add `--json` when acting on field values.
 
 ## Do the work once first
@@ -99,8 +97,8 @@ heliox automation run skip <execution_id> --reason "<checked what; why quiet>" #
 ```bash
 heliox automation list                      # ID STATUS NAME OWNER NEXT_RUN DOCUMENT
 heliox automation show <id>
-heliox automation runs <id>                 # newest 10; --limit up to 100; a full page may continue
-heliox automation run show <execution_id> --transcript --json
+heliox automation runs <id>                 # ID FIRED_AT SOURCE STATUS ...; newest 10, --limit up to 100; a full page may continue
+heliox automation run show <execution_id> --transcript --tail 30 --json
 heliox document edit <document_id>
 heliox automation update <id> --enable false
 ```
@@ -113,7 +111,9 @@ Choose from the source, not the phrasing: time itself → `--cron`/`--start`; so
 
 ## Output language
 
-The automation's name, description, and procedure follow the language of the user's own instruction — never a wrapper or bootstrap sentence around it; a mixed instruction follows its dominant language. Too short to tell (a one-line edit)? Fall back to the room language per the brain's rule. Artifacts only — conversational replies keep the room language, so the two can differ.
+- Name, description, and procedure follow the **user's own instruction** language — never a wrapper or bootstrap sentence around it; a mixed instruction follows its dominant language.
+- Too short to tell (a one-line edit)? Fall back to the room language, per the brain's rule.
+- Artifacts only — conversational replies keep the room language, so the two can differ.
 
 ## Boundaries
 

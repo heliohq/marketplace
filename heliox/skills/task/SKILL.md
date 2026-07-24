@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Task
 
-Start by reading `../shared/SKILL.md`.
-
 ## Model
 
 - Tasks are org-scoped. Every verb addresses them by key (`HEL-415`) or 24-hex ObjectID; the key prefix is server-assigned.
@@ -41,7 +39,7 @@ heliox task create "<title>" --channel '#engineering' -d "<plain-text body>" --j
 heliox task create "Visual bug" --channel '#engineering' -a ./shot1.png -a ./shot2.png --json
 ```
 
-`-d/--description` takes plain text (newlines become paragraphs); the CLI wraps it into the Tiptap wire doc — never pass JSON. `-a/--attachment` (repeatable) uploads files: image refs embed inline in the description (`![name](helio://attachment/...)`, after any `-d` paragraphs), non-image refs ride `attachments[]`; both surface as `attachments[].uri`, fetchable via `heliox blob get` (see `heliox:shared` §Attachments).
+`-d/--description` takes plain text (newlines become paragraphs); the CLI wraps it into the Tiptap wire doc — never pass JSON. `-a/--attachment` (repeatable) uploads files: image refs embed inline in the description (`![name](helio://attachment/...)`, after any `-d` paragraphs), non-image refs ride `attachments[]`; both surface as `attachments[].uri`, fetchable via `heliox blob get` (see `heliox:message` §Attachments).
 
 ## Show
 

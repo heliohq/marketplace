@@ -9,13 +9,11 @@ metadata:
 
 # Heliox Message
 
-Start by reading `../shared/SKILL.md`.
-
 ## Model
 
 - Messages are addressed by per-channel `seq` — the coordinate every verb takes (`--seen`, `--around`, `--thread`, `--in-reply-to`, `--before`, `--after`, `cede`). Raw 24-hex ids are not part of this surface.
 - Targets are `'#<channel-name>'` (group) or `@<handle>` (DM). Quote `#name` in shell — unquoted `#` starts a comment. Bare strings and 24-hex ids are rejected.
-- Text is the default mode for both reads and sends — rows are `<seq>  <time>  <sender>  <text>` and a send ack prints the assigned seq. Add `--json` only when you need `attachments[].uri`, structured payloads (cards / question options), or you are piping output (same doctrine as `heliox:task` / `heliox:workspace` reads).
+- Two read shapes: text rows (`<seq>  <time>  <sender>  <text>`) for a quick scan, `--json` when you'll parse fields — `attachments[].uri`, structured payloads (cards / question options), or the seq twins. A send ack prints the assigned seq either way.
 - `sender` resolves `@handle` → display name → bare id; never blank. A bare 24-hex sender means "unresolved" — identify it via `heliox workspace members get <id>`.
 
 ## Routing a reply
@@ -38,13 +36,25 @@ heliox message send @alice "ping when free" --seen "$LATEST_SEQ"
 heliox message send '#eng' "see attached" -a ./report.pdf --seen "$LATEST_SEQ"   # -a repeatable; body optional with -a
 ```
 
-`--seen` (required) declares the latest seq you observed; the gateway CAS-fences concurrent sends on it. A stale `--seen` fails with the missed messages and the exact retry — follow it, don't guess. Before sending into a busy group channel run the freshness check above: no newer messages → send; a peer covered the point → short add-on or cede; new context changes the answer → revise first.
+- `--seen` (required) declares the latest seq you observed; the gateway CAS-fences concurrent sends on it. A stale `--seen` fails with the missed messages and the exact retry — follow it, don't guess.
+- Before sending into a busy group channel, run the freshness check above, then act on what came back:
+  - no newer messages → send
+  - a peer already covered the point → short add-on, or cede
+  - new context changes your answer → revise first
+
+Rich or multi-line body — backticks, `$`, apostrophes, newlines — gets shell-mangled. Don't hand-escape or flatten to plain text to dodge it; use `--args-file` instead:
+
+- Write the whole invocation as a JSON array to a file: `["message","send","#eng","…full markdown body…","--seen","<seq>"]`.
+- Run `heliox --args-file <path>` — nothing else on the line.
+- The array holds the **literal body text**, never a draft-file path in a value (`--body` / `--procedure` / `--content`) — a future runtime can't read a file that only existed here.
+
+## Cede — decline the turn
 
 ```bash
 heliox message cede --reason "peer covered" --seen "$LATEST_SEQ"
 ```
 
-A cede declines the whole current turn; `--reason` and `--seen` are the only required arguments.
+Declines the whole current turn — the most common message verb. Only `--reason` and `--seen` are required.
 
 ## Native threads
 
@@ -60,16 +70,15 @@ heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --thread "$PARENT_SEQ" 
 ## Reading history
 
 ```bash
-heliox message list '#eng'                                  # newest 10
-heliox message list '#eng' --limit 50
-heliox message list '#eng' --around 482                     # recall window around a seq (GAP markers point here)
-heliox message list '#eng' --grep 'deploy' --grep 'rollback'   # keyword recall (repeatable = OR, max 5)
-heliox message list '#eng' --since 2026-07-21T09:00:00Z     # time window (RFC3339 — compute with date -u; no relative forms)
-heliox message threads list '#eng'                          # thread roots, newest reply first
-heliox message threads get '#eng' <root-seq>                # one thread's replies
+heliox message list '#eng'                    # newest 10 (--limit N for more)
+heliox message list '#eng' --around 482       # recall window around a seq (GAP markers point here)
+heliox message threads list '#eng'            # thread roots, newest reply first
+heliox message threads get '#eng' <root-seq>  # one thread's replies
 ```
 
-Rows are `<seq>  <YYYY-MM-DD HH:MM>  <sender>  <text>`, with `(thread N)` / `(reply-to N)` marks on replies — every value you need for `--seen` / `--thread` / `--around` is in the row. Scans keep at most `--limit` newest rows (default 10) and always disclose the full in-window count; truncated output embeds the exact continue command — follow it only if you still need older rows. An empty `--since` window IS the answer: never widen to an unfiltered read. `--grep` and `--since` combine.
+Rows are `<seq>  <YYYY-MM-DD HH:MM>  <sender>  <text>`, with `(thread N)` / `(reply-to N)` marks on replies — every value you need for `--seen` / `--thread` / `--around` is in the row.
+
+Recall filters (rare): `--grep <pat>` (repeatable = OR, max 5) for a keyword, `--since <RFC3339>` for a time window. Both scan recent history, keep the newest `--limit` rows, disclose the full in-window count, and embed the exact continue command when truncated. An empty `--since` window IS the answer — never widen to an unfiltered read.
 
 ## Deep-read one message
 
@@ -78,8 +87,27 @@ heliox message get '#eng' <seq>
 heliox message get 'turn:<id>'      # one of YOUR OWN turns (global; no channel operand)
 ```
 
-`get <target> <seq>` additionally shows the turn pivots: `produced by turn:` (the turn behind the message — dereference your own via `heliox me turns get 'turn:<id>'`) and `processed by N turn(s)` (non-empty means the message has been picked up). Turn ids come from system output (GAP markers, `heliox me turns list`) — never hand-assemble one.
+`get` also shows turn pivots: `produced by turn:` (the turn behind the message — dereference your own via `heliox me turns get`) and `processed by N turn(s)` (non-empty = picked up). Turn ids come from system output; never hand-assemble one.
+
+## Attachments
+
+- **Incoming**: may already be materialized under `.helio/attachments/…` (prefer the path in the runtime message context). Otherwise fetch by URI — a row's `attachments[].uri` (from `--json`) → `heliox blob get <uri> -o <file>` (binary-safe; omit `-o` for stdout). Not materialized? `heliox channel attachments download '#eng' <seq> --json`.
+- **Sending**: `-a <file>` on `message send` (repeatable, order preserved; body optional with `-a`).
+- Keep generated files in the workspace, not `/tmp`, when they may be reused.
 
 ## JSON shape (tooling)
 
-`--json` rows are the same vocabulary, machine-shaped: `seq`, `sender`, `text`, `created_at`, `thread_root_seq` / `in_reply_to_seq` (feed `--thread` / `--in-reply-to` directly; absent on non-thread rows and rows whose referent predates seq numbering), `type` (present only for non-default rows — absent means `channel_text`), and `content` / `typed_content` / `attachments` / `reactions` when set (`attachments[].uri` feeds `heliox blob get`). List pages carry `next_cursor` only when more history exists; continue in the direction you were paging — `--after <next_cursor>` for a forward (`--after`) read, `--before <next_cursor>` otherwise (an `--after` read's cursor is the newest shown seq; passing it to `--before` walks back into the page you just read). `message get --json` adds `produced_by_turn` / `processed_by`. Rare fallback: a row may carry a 24-hex `thread_id` / `in_reply_to_id` INSTEAD of the seq twin (server not yet resolving twins) — `threads get <target> <24-hex>` accepts that form directly. Otherwise the `sender` fallback is the only place a bare id can appear.
+`--json` rows carry the same vocabulary as the text rows, machine-shaped.
+
+Fields:
+
+- `seq`, `sender`, `text`, `created_at` — always present. `sender` is the only field a bare 24-hex id can surface in (its last-resort fallback).
+- `thread_root_seq` / `in_reply_to_seq` — feed `--thread` / `--in-reply-to` directly; absent on non-thread rows.
+- `type` — present only for non-default rows; absent means `channel_text`.
+- `content` / `typed_content` / `attachments` / `reactions` — only when set (`attachments[].uri` feeds `heliox blob get`).
+- `message get --json` also adds `produced_by_turn` / `processed_by`.
+
+Paging — a page carries `next_cursor` only when more history exists; continue in the direction you were paging:
+
+- `--after` read → continue `--after <next_cursor>` (the cursor is the newest shown seq; `--before` would walk back into the page you just read).
+- any other read → continue `--before <next_cursor>`.

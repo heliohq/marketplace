@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Vault And Approval
 
-Start by reading `../shared/SKILL.md`.
-
 Use Helio vault for secret material. Use Helio approvals when a credential owner must decide whether to delegate a requestable credential. Vault discovery is org-scoped; plaintext access is still limited to owners and active delegates.
 
 ## Operating Rules
@@ -145,7 +143,9 @@ heliox vault delete <credential_id> --yes --json
 
 When passing `--metadata`, include every metadata key that should remain. The metadata map is replaced when set.
 
-`--requestable-name` and `--requestable-description` must be provided together; they publish the credential to the request catalog, or rewrite the preview if it is already published (the existing request ref stays valid). `--clear-requestable` unpublishes it and cannot be combined with the preview flags. Updates that pass none of these flags leave the published state untouched.
+- `--requestable-name` + `--requestable-description` must come **together** — they publish the credential to the request catalog, or rewrite the preview if it's already published (the existing request ref stays valid).
+- `--clear-requestable` unpublishes it and can't be combined with the preview flags.
+- An update passing none of these flags leaves the published state untouched.
 
 ## Sharing And Revoking
 
@@ -176,15 +176,13 @@ heliox approval get <approval_id> --json
 
 `--role` is required: `asker` or `approver`. Filters are `--status pending|decided`, `--limit`, and `--cursor`. Owner-side decisions happen through the desktop approval card today; the CLI surface creates domain requests and inspects/polls approvals.
 
-Approvals also carry tool-execution requests (the tool approval gate): a
-policy-gated `heliox tool` command exits with `APPROVAL_REQUIRED`, you create
-the request with `heliox approval request`, and replay the identical command
-with `--approval <id>` once approved. On those approvals, `approval get <id>`
-reports a derived `Status` (pending / approved / denied / cancelled / expired /
-consumed — approved credentials expire when the execution window lapses), and
-`--json` exposes the frozen command under `payload.extends` (`tool`, `account`,
-`argv`) so you can recover the exact command to replay when it has fallen out
-of context. The full gate flow lives in the `heliox:tool` skill.
+Approvals also carry **tool-execution** requests (the tool approval gate):
+
+- A policy-gated `heliox tool` command exits `APPROVAL_REQUIRED`; you create the request with `heliox approval request`, then replay the identical command with `--approval <id>` once approved.
+- `approval get <id>` reports a derived `Status` (pending / approved / denied / cancelled / expired / consumed — approved credentials expire when the execution window lapses).
+- `--json` exposes the frozen command under the top-level `extends` object (`tool`, `account`, `argv`) — recover the exact command to replay when it has fallen out of context.
+
+Full gate flow: the `heliox:tool` skill.
 
 Wait outcome codes for `vault request --wait`:
 
@@ -200,18 +198,23 @@ Wait outcome codes for `vault request --wait`:
 
 ## External-Service Credential Ladder
 
-Follow this ladder for GitHub, Slack, Linear, OpenAI, and similar providers:
+For GitHub, Slack, Linear, OpenAI, and similar providers, first name the
+provider, credential type, needed scope, and risk level, then run the
+**Credential Access Flow** above (owned/delegated → search requestable →
+request → resolve → get plaintext). Beyond that Flow:
 
-1. Name the provider, credential type, needed scope, and risk level.
-2. Check owned/delegated vault rows.
-3. Search requestable previews when access is not already available.
-4. Request by `request_ref` with a specific reason.
-5. Resolve the credential id after approval.
-6. Fetch plaintext only for the provider call.
-7. Create a new provider account/token only when no suitable credential is available or requestable.
-8. Store new provider tokens as `type=token` with `access_token=<value>`.
-9. Publish safe requestable preview text only when future agents should discover the credential.
-10. Ask a human in DM/channel if signup blocks on CAPTCHA, missing invite permission, verification trouble, or unclear provider forms.
-11. Outward-facing actions on connected tools are gated automatically by `heliox tool` (`APPROVAL_REQUIRED` — see `heliox:tool`); for destructive provider actions outside that gate (e.g. raw-credential calls), ask a human before acting.
+- **Nothing available or requestable** → create a new provider account/token,
+  store it as `type=token` with `access_token=<value>`, and publish safe
+  requestable preview text only when future agents should discover it.
+- **Signup blocks** (CAPTCHA, a missing invite permission, verification
+  trouble, an unclear provider form) → ask a human in DM/channel.
+- **Acting with the credential** → outward-facing actions on connected tools
+  are gated automatically by `heliox tool` (`APPROVAL_REQUIRED` — see
+  `heliox:tool`); for destructive provider actions outside that gate (e.g.
+  raw-credential calls), ask a human first.
 
-Routine reads, clone, branch push, PR creation, issue comments, and non-destructive API calls usually do not need a separate approval after credential access is granted. Destructive or authority-changing actions do: repo deletion, org settings, admin-scope token creation, force-pushing protected branches, billing changes, access grants, and secret rotation.
+Routine reads, clone, branch push, PR creation, issue comments, and
+non-destructive API calls usually do not need a separate approval after
+credential access is granted. Destructive or authority-changing actions do:
+repo deletion, org settings, admin-scope token creation, force-pushing
+protected branches, billing changes, access grants, and secret rotation.

@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Artifact
 
-Start by reading `../shared/SKILL.md`.
-
 ## Trigger contract
 
 Enter this workflow only when the user explicitly asks for an artifact or refers
@@ -93,9 +91,8 @@ heliox artifact restore --artifact <id-or-view-url> --to 3
 ```
 
 Restore fetches version 3's content and republishes it as a **new** version —
-history is append-only, the link is unchanged, and open tabs refresh to the
-restored content. A version outside the retained window is an explicit
-not-found error.
+history is append-only (same link, live refresh, like any republish). A version
+outside the retained window is an explicit not-found error.
 
 ## List
 
@@ -161,6 +158,4 @@ URL. **Never put org-private data in a temporary deploy; use an artifact.**
 
 - Publishing makes the page viewable by every member of the org — do not publish
   content that should stay in a private channel.
-- The link is durable and lands in chat history; republish to the same id rather
-  than churning new links — viewers refresh in place.
 - Delete is sensitive; confirm intent unless already asked.
