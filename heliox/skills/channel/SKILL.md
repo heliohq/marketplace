@@ -9,7 +9,7 @@ metadata:
 
 # Heliox Channel
 
-Start by reading `../shared/SKILL.md` (posture, addressing, attachments); message-plane rules — send, list, threads, cede, freshness — live in `heliox:message`. This skill covers channel objects and their membership, not messages flowing through them.
+This skill covers channel objects and their membership, not the messages flowing through them; message-plane rules — send, list, threads, cede, freshness, attachments — live in `heliox:message`.
 
 ## Commands
 

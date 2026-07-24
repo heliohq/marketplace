@@ -9,8 +9,6 @@ metadata:
 
 # Heliox Assistant
 
-Start by reading `../shared/SKILL.md`.
-
 Surface split — three questions, three surfaces:
 
 - *Who are the AI teammates?* → `heliox workspace members list --json` (rows carry `type: human|ai`, `handle`, `bio`). `assistant list` is retired.

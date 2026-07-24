@@ -9,9 +9,6 @@ metadata:
 
 # Channel Charter Creator
 
-Start by reading `../shared/SKILL.md`; it owns routing, `--json`, thread, and
-attachment rules every `heliox` action depends on.
-
 A group channel with more than one teammate is a **team**. Teams coordinate
 well when they share one agreement about who does what, what "done" looks like,
 and how work gets checked — a **charter**. Teams without one drift: two agents
@@ -151,10 +148,8 @@ team's scarcest resource, and drip-questioning burns it:
 - **Scope** — what this channel owns, bounded. "This channel, not everything."
 - **North-star** — the team's goal, stated so success or failure is
   *countable*, not a vibe. "Zero shipped bugs from a known drift class" is
-  measurable; "high quality" is not. The north-star isn't only a gate to measure
-  against — it's what lets teammates act *proactively*: knowing the goal, an
-  agent can decide on its own whether a piece of work moves the team forward and
-  surface it, instead of waiting to be told.
+  measurable; "high quality" is not. (It doubles as each teammate's proactive
+  license — see *Operate under the charter*.)
 - **Who may proactively propose work** toward the north-star. The human names
   which teammates can suggest new workstreams on their own vs. only execute what
   they're handed. Without this, agents either sit idle or over-reach.
@@ -185,8 +180,7 @@ Do not record a charter that fails the **quality bar in
 member has a role; every role has an artifact; an independent verifier exists;
 the north-star is countable; scope is bounded) is what protects a human who
 doesn't know charter-craft from getting a bad one. It lives once, next to the
-template shape it validates — this is the same "define once, reference" rule the
-charter itself follows.
+template shape it validates.
 
 If something fails, it's usually because Step 1 or 2 is incomplete — go back and
 ask, don't paper over it.
@@ -254,11 +248,9 @@ edit the document in place
 one document keeps it the single source of truth — do not fork a new copy or
 paste the charter into a message.
 
-## What goes in your own memory vs. the charter
+## What goes where
 
-The charter is shared team state and lives in the shared document. What's
-*yours* — the lessons and missteps you accumulate operating under it, your
-role-specific notes, the trust you've built — is private and belongs in your own
-memory (`heliox memory`), not in the charter. Shared agreement → the document;
-private learning → your memory. Don't put private notes in the shared charter,
-and don't copy the shared charter into your private memory.
+Shared team agreement → the shared document. What's *yours* — the lessons,
+missteps, role notes, and trust you accumulate operating under it → your own
+`heliox memory`. Don't put private notes in the charter, and don't copy the
+charter into your memory (a copy is a fork that drifts).
