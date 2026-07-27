@@ -60,5 +60,15 @@ heliox tool kustomer -- search customers --data '<query-json>' --json    # POST 
   before sending. Use `note create` for anything that should stay internal.
 - **`--query key=value`** (repeatable) adds arbitrary filters to any list/get
   command beyond `--page` / `--page-size`.
-- On `401 reconnect required`, the token expired for good (Kustomer refresh
-  tokens die after ~2 weeks unused) — relay a fresh `auth` link.
+- **The connection is a Kustomer API key the user creates**, not an OAuth
+  grant, so there is no auth link to relay. A key comes from Settings >
+  Security > API Keys > Add API Key inside their own Kustomer org, and the
+  admin picks its roles there. Ask for the capability roles the work needs
+  (`org.permission.customer.read`, `.conversation.read/.create`,
+  `.message.read/.create`, `.note.read/.create`) **plus `org.user`** — that
+  last one is not optional and is not obvious: Helio verifies the key against
+  `/v1/users/current` before storing it, and a key without `org.user` is
+  refused at connect with an error that does not name the missing role.
+  `org.admin` is never needed.
+- On `401`, the key was deleted or its roles were narrowed — the user replaces
+  it in Kustomer and reconnects with the new value.

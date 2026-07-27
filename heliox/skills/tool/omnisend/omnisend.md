@@ -9,9 +9,14 @@ heliox tool omnisend [--account <key>] -- <resource> <verb> [flags...]
 ```
 
 The tool wraps Omnisend's **dated API line** (`https://api.omnisend.com/api`,
-`Omnisend-Version: 2026-03-15`) with the OAuth bearer token. Commands are
+`Omnisend-Version: 2026-03-15`) with the connected credential. Commands are
 grouped by resource: `contact`, `event`, `campaign`, `segment`, `product`,
 `batch`, `brand`.
+
+**Omnisend is not connectable right now** — the provider is withheld from the
+catalog while its credential form changes, so `heliox tool omnisend auth` has
+nothing to offer. If a user asks for Omnisend, say it is unavailable rather
+than walking them through a connect flow that cannot complete.
 
 ## The mental model
 
