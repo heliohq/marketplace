@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Our nightly inventory automation is sending duplicate alerts. Inspect its recent runs and fix the procedure without changing its webhook URL.",
+    "should_trigger": true
+  },
+  {
+    "query": "Please pause auto_7f3 for the holiday, show me its last five runs, and update the SOP so empty reports stay silent.",
+    "should_trigger": true
+  },
+  {
+    "query": "The weekly sales digest is including data from the wrong date range — the read window seems off by one day, can you fix it?",
+    "should_trigger": true
+  },
+  {
+    "query": "auto_9c2 failed its last three runs with a 403 from the GitHub API. Figure out what happened and repair it.",
+    "should_trigger": true
+  },
+  {
+    "query": "Look at how the compliance-check automation has been running over the past few weeks and tell me if anything needs attention.",
+    "should_trigger": true
+  },
+  {
+    "query": "The Monday standup digest is way too long and hard to scan. Make it more concise without changing what it covers.",
+    "should_trigger": true
+  },
+  {
+    "query": "Someone renamed #incidents to #incident-response and now the alert automation is posting to nowhere. Fix the channel reference.",
+    "should_trigger": true
+  },
+  {
+    "query": "The report automation has subscribers but results are not reaching @mei — check the subscriber list and fix it.",
+    "should_trigger": true
+  },
+  {
+    "query": "I just created the daily customer-health automation. Run it once as a rehearsal so I can see the output before enabling it.",
+    "should_trigger": true
+  },
+  {
+    "query": "The deploy-summary automation started including test environments in its count after we added a new cluster. Remove them from the filter.",
+    "should_trigger": true
+  },
+  {
+    "query": "Every weekday before standup, pull yesterday's failed CI jobs, group them by team, and post a digest in #engineering.",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up a webhook listener for Stripe payment failures and notify the finance team whenever one arrives.",
+    "should_trigger": false
+  },
+  {
+    "query": "Schedule a one-shot task for next Tuesday at 3pm to verify the database migration completed successfully.",
+    "should_trigger": false
+  },
+  {
+    "query": "I want a Monday-morning customer-health report with churn risks and expansion signals posted to #growth.",
+    "should_trigger": false
+  },
+  {
+    "query": "Summarize the support tickets in this CSV right now and give me the top three recurring themes.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a calendar event called Sprint Retro for Thursday at 2pm and invite the whole engineering team.",
+    "should_trigger": false
+  },
+  {
+    "query": "Draft an SOP for how a human support agent should handle escalated refund requests; do not schedule anything.",
+    "should_trigger": false
+  },
+  {
+    "query": "Watch https://status.acme.com and alert #ops whenever the incident status changes from investigating to resolved.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run the existing data-quality validation script once right now and paste the output into this chat.",
+    "should_trigger": false
+  },
+  {
+    "query": "Explain the difference between a cron trigger and a webhook trigger so I can decide which one to use.",
+    "should_trigger": false
+  }
+]

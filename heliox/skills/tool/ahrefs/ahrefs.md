@@ -2,7 +2,10 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. Ahrefs is a
 **flat provider** (not grouped like `google`): everything after `--` is the
-ahrefs tool's own CLI. It is **read-only** — SEO data in, no writes.
+ahrefs tool's own CLI. Every command here is **read-only** — SEO data in, no
+writes. (The credential itself is broader than this command surface; see
+[Connect notes](#connect-notes).) Auth is an Ahrefs API v3 key the user
+supplies; the tool injects the `Authorization: Bearer` header for you.
 
 ```bash
 heliox tool ahrefs [--account <key>] -- <group> <verb> [flags...]
@@ -75,14 +78,25 @@ same filter grammar:
 `competitors`, `keyword overview/ideas/volume-history`, and `serp`; optional
 elsewhere.
 
-## Connect / reconnect notes
+## Connect notes
 
-- Connect via `heliox tool ahrefs auth` and relay the link (per
-  [../SKILL.md](../SKILL.md)). Ahrefs access is all-or-nothing (a single scope);
-  consent grants read access to the account's SEO data.
-- Ahrefs issues **no refresh token** — a token lives ~1 year. When it expires
-  (or is revoked) you get **401 reconnect required**; ask the user to reconnect
-  via a fresh auth link. There is no silent refresh.
+- The user supplies an **Ahrefs API v3 key**, created at Account settings >
+  API keys. Only workspace owners and admins can reach that screen, so relay
+  that requirement when you ask for one — a member seat cannot produce a key.
+- **The key is account-wide, and you should say so when asking for it.** Ahrefs
+  offers no scope, permission, or read-only choice at creation: the only inputs
+  are a name and a monthly API-unit cap. One key reaches every product the
+  workspace subscription includes — Site Explorer, Rank Tracker, Site Audit,
+  Management (including its project-write endpoints), GSC Insights, Social
+  Media — which is strictly more than the read-only commands above use. Ahrefs'
+  own OAuth path is no narrower (a single fixed scope that mints the same
+  account-wide key), so there is no tighter alternative to offer.
+- The admin's real levers are the **per-key monthly API-unit cap** and deleting
+  the key. Suggest a dedicated key for Helio with a cap, rather than reusing one
+  that other integrations already spend.
+- A key lives **1 year**, then expires. Expiry and revocation both surface as
+  **401 reconnect required**; ask the user to create a fresh key and reconnect.
+  There is no refresh cycle and no silent renewal.
 - Requests are rate-limited (default 60/min); a `429` surfaces verbatim with the
   HTTP status. Re-invoke later rather than tight-looping.
 - Add `--json` to render any error as a `{"error":{message,kind,status}}`

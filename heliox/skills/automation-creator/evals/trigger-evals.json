@@ -24,11 +24,11 @@
     "should_trigger": true
   },
   {
-    "query": "Our nightly inventory automation is sending duplicate alerts. Inspect its recent runs and fix the procedure without changing its webhook URL.",
+    "query": "Set up a daily 6pm check: if the staging deploy has been red for more than an hour, send a DM to the on-call engineer with the failure link.",
     "should_trigger": true
   },
   {
-    "query": "Please pause auto_7f3 for the holiday, show me its last five runs, and update the SOP so empty reports stay silent.",
+    "query": "Every morning at 8am, scan the #support channel for unanswered questions from the past 24 hours and post a summary to #support-leads.",
     "should_trigger": true
   },
   {
@@ -60,19 +60,19 @@
     "should_trigger": false
   },
   {
+    "query": "Our nightly inventory automation is sending duplicate alerts. Inspect its recent runs and fix the procedure without changing its webhook URL.",
+    "should_trigger": false
+  },
+  {
+    "query": "Please pause auto_7f3 for the holiday, show me its last five runs, and update the SOP so empty reports stay silent.",
+    "should_trigger": false
+  },
+  {
     "query": "Look at the failed release job on my screen and diagnose why it broke. Don't set up ongoing monitoring.",
     "should_trigger": false
   },
   {
-    "query": "Draft an SOP for how a human support agent should escalate refund requests; we are not scheduling or executing it yet.",
-    "should_trigger": false
-  },
-  {
-    "query": "Run the existing data-quality script once now and paste the output here.",
-    "should_trigger": false
-  },
-  {
-    "query": "Add a due date of Friday to HEL-914 and assign it to Travis.",
+    "query": "Run the existing data-quality script once right now and paste the output here.",
     "should_trigger": false
   },
   {

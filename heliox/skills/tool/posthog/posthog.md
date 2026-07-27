@@ -9,8 +9,17 @@ heliox tool posthog [--account <key>] -- <group> <verb> [flags...]
 ```
 
 PostHog is product analytics: events, insights, dashboards, feature flags,
-annotations, persons/cohorts, experiments, and ad-hoc HogQL queries. Auth works
-identically for an OAuth access token or a personal API key.
+annotations, persons/cohorts, experiments, and ad-hoc HogQL queries.
+
+The connection is a **personal API key** the user creates at Settings > Personal
+API keys, not an OAuth grant — there is no auth link to relay. PostHog makes
+them pick the key's scopes, and there is a trap worth stating when you ask for
+one: besides the analytics scopes the commands below need, the key must also
+carry **`user:read`**. Helio verifies the key against `/api/users/@me/` before
+storing it, and a key scoped only to analytics is refused at connect with an
+error that does not name the missing scope. Keys can also be limited to
+specific projects or organizations; a key scoped to one project cannot reach
+another.
 
 ## The mental model (read this first)
 

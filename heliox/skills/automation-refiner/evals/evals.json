@@ -1,0 +1,145 @@
+{
+  "skill_name": "automation-refiner",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Our existing support-digest automation sometimes posts 'no urgent tickets' when the Zendesk API times out. Improve the existing automation without replacing it. In this evaluation, describe the maintenance and evaluation work only; do not call APIs.",
+      "expected_output": "Gathers evidence from failing runs through Entry 1, identifies the root cause as a missing distinction between no-result and dependency-failure in the procedure, edits the bound procedure in place to add an explicit timeout-handling path, and validates the fix while preserving the automation and trigger identities.",
+      "files": [],
+      "expectations": [
+        "Gathers evidence first: inspects the current procedure and recent failing runs through the run show command with --transcript --json, treating the production failure as baseline evidence.",
+        "Identifies the Zendesk timeout as a method-layer problem (how the procedure handles dependency failure) that the refiner can fix without involving the owner.",
+        "Edits the bound procedure document in place rather than recreating the automation, preserving its identity and run history.",
+        "Adds an explicit distinction in the procedure between a genuine zero-ticket period and a Zendesk API failure, so timeouts stop producing false 'no urgent tickets' output.",
+        "Validates the fix with at least a rehearsal run and transcript inspection, comparing the new behavior against the baseline failure.",
+        "Disables the automation before the behavioral edit when leaving it live could send incorrect output, or explicitly justifies leaving it enabled"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Assume the surrounding conversation with this user has been entirely in Chinese. The user now says only: 'auto_4d1: 8:45'. Make that timing edit and update the automation's wording accordingly; describe the change only, do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that the terse edit instruction 'auto_4d1: 8:45' is too short to determine its own language, so any artifact wording the edit touches falls back to the room language — Chinese — following the output-language rule rather than defaulting to English because the handle and numbers are ASCII.",
+      "files": [],
+      "expectations": [
+        "Recognizes the terse edit instruction carries no determinable language of its own.",
+        "Falls back to the room language (Chinese) for any artifact wording it changes.",
+        "Applies the output-language rule's room-language fallback rather than choosing a language arbitrarily.",
+        "Does not default to English merely because the handle and time are ASCII characters.",
+        "Preserves the automation and trigger identities for a simple timing edit.",
+        "Changes the schedule and only the wording the time change touches — no unrelated field or procedure rewrites"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I just created a daily 9am customer-health automation with three data sources. Before I enable it, run it once and tell me whether the output looks right. Describe the validation work only; do not call APIs in this evaluation.",
+      "expected_output": "Enters through Entry 2 (testing a newly created automation), runs it manually while still disabled, fetches the transcript with --json to inspect all three data sources, and reports whether the output matches what the creator step produced — without enabling the automation.",
+      "files": [],
+      "expectations": [
+        "Enters through Entry 2: the refiner is testing an automation that already exists but has never been enabled.",
+        "Runs the automation manually with heliox automation run <id> and fetches the transcript through heliox automation run show with --transcript --json.",
+        "Inspects the output from all three data sources, checking both the text portion and the structured --json payload for completeness.",
+        "Compares the rehearsal output against the creator's approved example or the procedure's expected output to judge quality.",
+        "Addresses the subscriber-delivery reality: if the automation has subscribers, notes that a manual run will deliver to them and recommends clearing the audience first if the user wants a silent rehearsal.",
+        "Does not enable the automation — leaves enablement to the user's decision after reviewing the rehearsal results"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Look at how the weekly infrastructure-cost automation has been running over the past month and tell me if anything needs attention. Describe the review process only; do not call APIs in this evaluation.",
+      "expected_output": "Enters through Entry 3 (cross-run retrospective), fetches multiple recent runs to distinguish one-off glitches from systemic decay, and reports patterns rather than reacting to a single run's outcome.",
+      "files": [],
+      "expectations": [
+        "Enters through Entry 3: a cross-run review requested by the user, gathering evidence from multiple past runs rather than a single one.",
+        "Uses heliox automation runs <id> to list recent executions, then heliox automation run show on representative runs to inspect transcripts.",
+        "Distinguishes a one-off glitch (a source failing once and recovering) from systemic decay (the same failure repeating across runs).",
+        "Does not propose a procedure change for a one-off failure — reports it as a single bad run and moves on.",
+        "Identifies systemic patterns (if any) and classifies them using the decay table: source API changes, renamed references, vague steps, or missing access.",
+        "Reports findings to the owner with evidence from specific runs, rather than a vague summary"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "The GitHub token our deploy-status automation uses was rotated last week and now every run fails with a 401. Fix it. Describe the repair process only; do not call APIs in this evaluation.",
+      "expected_output": "Identifies the 401 as a revoked-credential problem from the decay table, recognizes it cannot self-repair because restoring access requires a human action, and escalates to the owner with the specific access that needs to be restored.",
+      "files": [],
+      "expectations": [
+        "Gathers evidence from recent failing runs showing the 401 error, confirming the root cause is a revoked or rotated credential.",
+        "Classifies this as 'Expired credentials, or access that was revoked' from the decay table — a problem the refiner cannot fix on its own.",
+        "Does not attempt to edit the procedure or work around the missing credential — the fix requires a human to provide or reconnect access.",
+        "Escalates to the owner with a specific description of what access is needed: the GitHub token needs to be reconnected or the new token configured.",
+        "Does not disable the automation preemptively without telling the owner, but recommends disabling to stop noisy failures until the credential is restored.",
+        "Explains why it cannot fix this itself rather than saying 'I cannot fix this' without a reason"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "The daily standup digest works fine, but I want it to also include a section on open blockers from the task board. Describe how you would handle this change; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes the request as an intent-layer change — what the automation produces — and brings the recommendation back to the owner rather than editing the procedure unilaterally, because adding a new output section changes the contract the owner agreed to at creation.",
+      "files": [],
+      "expectations": [
+        "Classifies the change as intent-layer: adding a new section changes what the automation produces, not how it reads existing sources.",
+        "Brings a concrete recommendation to the owner (how the blockers section would work, where the data comes from, what the output would look like) rather than editing the procedure directly.",
+        "Waits for the owner's approval before writing the edit, because intent-layer changes need the owner's sign-off to be legitimate.",
+        "If the requester is not the owner, confirms with the owner before proceeding — the request comes from someone who may not set the automation's scope.",
+        "Plans to capture the new source in the procedure's Inputs and freshness section so the executor knows where to read and what window to apply.",
+        "Considers whether the change also needs a failure path for the new data source and plans to add one"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "The #incidents channel was renamed to #incident-response and now the monitoring automation posts to nowhere. Fix the automation so it posts to the right channel. Describe the fix only; do not call APIs in this evaluation.",
+      "expected_output": "Identifies the renamed channel as a method-layer decay problem — a reference the procedure points to has moved — and self-repairs by updating the channel name in the procedure without involving the owner for approval, because the fix restores the original intent without changing it.",
+      "files": [],
+      "expectations": [
+        "Gathers evidence from recent runs showing the delivery failure caused by the renamed channel.",
+        "Classifies this as method-layer decay: 'A channel, document, or person it points at was renamed or moved' — fixable without owner involvement.",
+        "Edits the procedure in place using heliox document edit to update the channel reference from #incidents to #incident-response.",
+        "Does not recreate the automation or its trigger — preserves identity and run history for a simple reference update.",
+        "Validates the fix by checking the procedure reads back correctly with the updated channel name.",
+        "Tells the owner about the change afterwards, since the automation is already enabled and the next run will use the new procedure"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Also send the weekly sales report to @jordan — they just joined the revenue team. Describe the change only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that adding a subscriber is state stored on the automation, not in the procedure document. Uses the subscriber CLI command rather than editing the procedure text, because writing 'send this to Jordan too' into the steps changes nothing — the fired-time audience snapshot comes from the stored subscriber list.",
+      "files": [],
+      "expectations": [
+        "Recognizes that adding a recipient is a subscriber-list change, not a procedure edit — the audience is stored on the automation, not in the document.",
+        "Uses heliox automation subscriber add <id> @jordan rather than editing the procedure document.",
+        "Does not write 'send this to Jordan too' into the procedure steps, because the executor snapshots the stored subscriber list at fire time.",
+        "Verifies the change landed by checking heliox automation subscriber list <id> to confirm @jordan appears in the effective audience.",
+        "Tells the owner that @jordan has been added, especially since this changes who receives the output going forward.",
+        "Treats this as an intent-layer change — adding a recipient exposes the output to someone new. If the requester is not the owner, confirms with the owner before running subscriber add"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "The hourly log-anomaly scan could not reach the source at 03:00 — the connection timed out — and finalized as failed. The next run at 04:00 connected normally and completed a clean scan. Should the procedure be changed? Describe your reasoning; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes this as a one-off failure that does not justify a procedure change. The source failed once and recovered — adding a workaround would permanently hide the real health of the automation. Reports the 03:00 run as a single failed run and moves on.",
+      "files": [],
+      "expectations": [
+        "Gathers evidence from both the 03:00 and 04:00 runs to confirm the failure was transient and the source recovered.",
+        "Classifies this as 'The source failed just this once' from the decay table — do not touch the procedure.",
+        "Explains that adding a workaround for a one-off failure hides the real health of the automation and makes future systemic decay invisible.",
+        "Reports the 03:00 run as a single bad run, not as a reason to redesign the procedure.",
+        "Does not propose widening the search window, adding a retry, or any other procedure change in response to a single transient failure.",
+        "Distinguishes this outcome from systemic decay — repeated failures across runs would warrant a procedure change, but one failure does not"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "The competitor-analysis automation reads from a third-party API that just switched from REST to GraphQL. The old endpoint returns 404. Fix the procedure to use the new endpoint. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Identifies the 404 as a method-layer decay: the source changed its API. Self-repairs by updating the procedure's steps to match the new GraphQL interface, driven by the observed 404 evidence rather than a preference for the new endpoint.",
+      "files": [],
+      "expectations": [
+        "Gathers evidence from recent runs showing the 404 error on the old REST endpoint.",
+        "Classifies this as method-layer decay: 'The service it reads changed its API, its URL, or its response shape' — fixable without owner involvement.",
+        "Updates the procedure steps to use the new GraphQL endpoint and adjusts the field mapping to match the new response shape.",
+        "Motivates the change with observed evidence (the 404 and the endpoint migration) rather than a preference for GraphQL over REST.",
+        "Captures the baseline (current broken procedure + failing run) before editing, so the fix can be compared against both the failure and a representative successful run.",
+        "Preserves the automation and trigger identities — does not recreate for an API migration"
+      ]
+    }
+  ]
+}

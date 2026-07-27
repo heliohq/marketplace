@@ -1,6 +1,6 @@
 ---
 name: automation-creator
-description: "Create, evaluate, and maintain Helio automations: AI work that runs later from a schedule, reminder, webhook, or monitored condition. Use whenever the user asks to schedule or automate AI work, send a recurring report or digest, watch or monitor something, notify people when an event happens, follow up later, or inspect and repair an existing automation—even if they never say 'automation'. Do not use for a one-off task to complete now, a human calendar event, or an SOP with no future AI execution. An automation binds a trigger to a self-contained procedure document and one or more AI executors."
+description: "Create a Helio automation: AI work that runs later from a schedule, reminder, webhook, or monitored condition. Use whenever the user asks to schedule or automate AI work, send a recurring report or digest, watch or monitor something, notify people when an event happens, or follow up later—even if they never say 'automation'. Do not use for a one-off task to complete now, a human calendar event, or an SOP with no future AI execution. For validating, repairing, or improving an automation that already exists, use automation-refiner instead."
 metadata:
   requires:
     bins: ["heliox"]
@@ -9,20 +9,113 @@ metadata:
 
 # Heliox Automation Creator
 
-## Model
+This skill turns a request into an automation — a trigger, a procedure document, and an AI that executes it. Your scope ends at "it exists and the procedure reads back correctly." Validation, rehearsal, and ongoing maintenance belong to `heliox:automation-refiner`.
 
-- An automation = a trigger (cron / one-shot / event) + a procedure document + AI executors. Verbs address it by 24-hex id; people are `@handle`, channels `#name` — reads return the vocabulary the flags take.
-- Created DISABLED, always. Enabling is the user's decision after proof: `automation update <id> --enable true`.
-- The procedure document is a fresh executor's complete brief (`heliox document read|edit <document_id>`). Cross-run knowledge lives there, not in prior transcripts.
-- `--owner @handle` (required) = the human it serves; lets them pause/edit/delete later. Subscribers want run results; the owner is always implicit (`automation subscriber list|add|remove`).
-- Run lifecycle: fired → started → success | failed | skipped (or died). The run's process has one source of truth — its thread in the automation channel. `run show <execution_id>` is the fire record (including how it fired — schedule / trigger / manual); `--transcript` renders the thread's newest messages (`--tail N`, default 30 — the result and terminal state live at the end) and says so when older ones are omitted.
-- Reads (`list`/`show`/`runs`): plain text is the cheap recall mode; add `--json` when acting on field values.
+Creating an automation goes like this:
 
-## Do the work once first
+- Pin down what the user actually wants — what it produces, when it runs, who receives it
+- Do the work once, right here in the conversation, and get their sign-off on the real output
+- Write down what happens on the paths you did not just see
+- Pick the trigger from where the signal comes from
+- Create it (disabled) and read the procedure back to confirm it landed
+- Hand it over, naming what is still unproven
 
-An automation is work you agree to own, not a form whose schedule fields need filling. Execute the request once in the conversation first (a labeled historical example if the real event can't be produced now) and refine it with the user — a real deliverable reveals preferences faster than a setup questionnaire. Then capture the approved method as the procedure. If the user brings an approved example or existing automation, start there.
+Work out where the user already is before you start. Three common openings:
 
-## Create
+1. **If nothing exists yet** — start at step 1. This is the default path.
+2. **If the user brought an approved example** — they pasted or described the output they want. The "do the work once" step is already done; align on any gaps, then move straight to step 3.
+3. **If installing from the catalog** — catalog automations are installed through the product's Start flow, which forks the template procedure, records provenance, and fires the first run. That path is outside this skill's scope; this skill covers automations built from a conversation.
+
+A note on vocabulary: when talking with the user, say "the steps" instead of "procedure," "who runs it" instead of "executor," and "who gets the results" instead of "subscriber." The internal terms are for your CLI calls, not the conversation.
+
+## 1. Pin down what they want
+
+Four questions drive the rest of the process. Ask them in the conversation (not as a form), and explain why each answer matters:
+
+1. **What should this automation produce?** A summary, a status report, a notification, a document — this sets the shape of the procedure and the output format.
+2. **What makes it run?** You should ask for the occasion, not a cron expression — "every Monday morning before standup" or "whenever a new issue is labeled urgent." Converting that into a cron string or a webhook filter is your job, not the user's.
+3. **What does the result look like, and who receives it?** This determines the output section of the procedure and whether you need subscribers.
+4. **How much proof does this need before it goes live?** Give a one-sentence recommendation with a reason (e.g., "this reads public data and posts to a private channel — a single dry run should be enough") and let the user decide. The depth tiers and the actual validation process belong to `heliox:automation-refiner`; here you just need the user's intent so you can pass it along at handover.
+
+Sensible defaults — state them and only ask about what remains: destination is the current conversation, owner is the person asking, executor is you, no additional subscribers beyond the owner (who receives the result of successful runs and a notice when one fails; quiet runs notify nobody).
+
+Do not create anything until all four questions have answers. A half-understood request becomes a half-correct procedure, and unlike a one-off task, this one will run on its own, repeatedly, without anyone watching.
+
+## 2. Do the work once, here
+
+At creation time you have zero run data. A real output exposes preferences, format issues, and missing context faster than any questionnaire.
+
+Execute the request once in the current conversation. If the real event cannot be produced right now (e.g., the source only updates on weekdays), use a clearly labeled historical example and tell the user it is historical.
+
+Show the output to the user and get their sign-off. Pay attention to what they change — those corrections are constraints that belong in the procedure. If they rephrase a heading, tighten a filter, or drop a column, capture that in the procedure's instructions, not just in this conversation.
+
+If the user brought an approved example or has an existing automation to work from, start there instead of redoing the work.
+
+## 3. Write down the paths you did not see
+
+This is the most important section of the whole process. Step 2 exercised exactly one path: the one where everything worked and data was available. But an automation runs unattended, often at odd hours, and the paths you did not see are the ones that will cause problems. Every procedure needs explicit handling for these four situations.
+
+### Nothing found
+
+A bounded read that returns no results within the time window is a normal outcome — "nothing happened this period" — not an error, and not a reason to widen the search. The procedure should spell out what "nothing found" looks like and what to report.
+
+Bad:
+> "If no results are found, try expanding the search window or removing filters."
+
+Good:
+> "If no messages match the filter in the last 24 hours, post a one-line summary to #ops-daily: 'No new incidents since yesterday's report.' Do not extend the window or loosen the filter — a quiet period is a valid result."
+
+The key distinction: an empty result from looking at the right window is data, not a malfunction. Dropping filters or paging backwards to force a non-empty result is a bug — it turns a "nothing to report" into a stale or misleading output.
+
+### A step fails
+
+A mid-procedure failure (API error, permission denied, unexpected format) should not silently swallow the error or produce a partial output without flagging it. The procedure should name what counts as a failure and who to notify.
+
+Bad:
+> "Handle errors appropriately."
+
+Good:
+> "If the GitHub API returns a non-200 status, stop the run, send a DM to the owner with the status code and endpoint, and finalize the run as failed with the reason 'GitHub API error: {status} on {endpoint}'."
+
+### Partial success
+
+Some sources may return data for three out of four channels, or a report may render correctly except for one chart. The procedure should define whether a partial result ships (with a note about what is missing) or counts as a failure.
+
+Bad:
+> "If some data sources are unavailable, include whatever data is available."
+
+Good:
+> "If one of the three source channels returns an error while the others succeed, include the data from the working channels and add a note at the top: 'Data from #frontend-alerts was unavailable — this report covers the other two channels only.' Finalize as success. If two or more channels fail, finalize as failed and DM the owner with the list of errors."
+
+### The source is unreachable
+
+DNS failures, expired tokens, rate limits, and maintenance windows all look different from "nothing found." The procedure should distinguish "I checked and nothing was there" from "I could not check at all" — and say what to do in the second case (retry? notify? skip?).
+
+Bad:
+> "If the source is unavailable, retry later."
+
+Good:
+> "If the source returns a connection error or a 5xx status, wait 60 seconds and retry once. If the retry also fails, DM the owner with the error and finalize the run as failed with reason 'Source unreachable: {error}'. Do not produce a partial report from cached data."
+
+When working through these paths with the user, ask concrete questions: "What should happen if the Slack channel has zero messages this week?", "If the GitHub API returns an error halfway through, should the automation stop completely or try to finish with whatever it has?", "If one of your three data sources fails but the other two work, do you want the partial report or nothing?", or "If the API is down at 3 AM, should it retry or just tell you in the morning?" Their answers become the procedure's failure and no-result sections.
+
+## 4. Pick the trigger
+
+Choose the trigger type based on where the signal comes from, not on how the user phrased the request:
+
+- **Time itself is the signal** — the automation should run on a schedule. Use `--cron` for recurring or `--start` for a one-shot.
+- **The source pushes a signed event** — use a webhook trigger. The source notifies Helio when something happens.
+- **The source has no reliable push mechanism** — use a poll trigger. A lightweight check runs on a cron schedule and fires the automation only when it finds something worth acting on.
+
+"Checking every five minutes works fine" is a statement about acceptable delay, not a reason to poll instead of using a webhook. If the source supports webhooks, prefer them — they are fresher and avoid wasted checks.
+
+Pass the source's stable delivery id as `fire_key` — it is the idempotency boundary that prevents duplicate runs on retries.
+
+For the full handler contract, signature verification, packaging, fixtures, deployment, and logging details, read [`references/event-triggers.md`](references/event-triggers.md).
+
+## 5. Create it
+
+Build the argument array as JSON and pass it through the args-file transport:
 
 ```json
 ["automation", "create", "<name>", "--cron", "0 9 * * 1-5", "--owner", "@<requester>",
@@ -33,14 +126,30 @@ An automation is work you agree to own, not a form whose schedule fields need fi
 heliox --json --args-file /absolute/path/create-automation.json
 ```
 
-- `--cron` XOR `--start "<rfc3339>"` (one-shot). A named clock time is exact ("every day at 9am" = `0 9 * * *`); add an off-minute only for approximate wording ("every morning") so approximate jobs don't all fire together.
-- State the defaults, ask only what remains: destination = this conversation, owner = requester, executor = you, subscribers = none; confirm cadence.
-- `--procedure` takes the markdown BODY, never a filename — a later executor cannot read a runtime-local path. Draft in a local `.md` if you like, but paste its contents into the argv JSON; the file is only `--args-file` transport.
-- The procedure write is a second request after create. Verify: `heliox document read <document_id>` must show the approved procedure, not an empty body or a path. Repair before rehearsal or enablement.
+Use either `--cron` or `--start` (one-shot), not both. When converting the user's phrasing to a cron expression: an explicit clock time is an exact cron ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset so that all loosely-timed automations do not fire at the same second.
+
+`--procedure` takes the markdown BODY, never a filename — the AI that executes this procedure days or weeks later cannot read a file path that existed on your runtime at creation time. Draft in a local file if it helps, but paste its contents into the argument JSON; the file serves only as `--args-file` transport.
+
+The procedure write is a second request after create. After creating the automation, verify the procedure landed correctly: `heliox document read <document_id>` should show the approved procedure text, not an empty body or a file path. If it does not match, fix it before moving on — do not hand over an automation whose procedure is blank or wrong.
+
+Every automation is created disabled. Enabling it is the user's decision, not yours — they may want to validate it first, or they may want to enable it immediately. Either way, the choice is theirs.
+
+## 6. Hand it over
+
+Tell the user what now exists and what is still unproven:
+
+- The automation id and its name
+- How it triggers (schedule, webhook, or poll) and the cadence or event
+- Where results go and who receives them
+- Which paths from step 3 have not been exercised yet
+
+The next step — validating the automation with real or simulated runs, tuning the procedure, enabling it, and maintaining it over time — belongs to `heliox:automation-refiner`. Point the user there if they want to go further.
+
+Enabling is the user's call. If they say "turn it on," go ahead. If they do not, leave it disabled and tell them how to enable it when they are ready.
 
 ## The procedure document
 
-Self-contained markdown from the approved execution, using the parts that apply:
+Self-contained markdown from the approved execution, using the sections that apply:
 
 ```markdown
 # <name>
@@ -52,70 +161,31 @@ Self-contained markdown from the approved execution, using the parts that apply:
 ## Done when
 ```
 
-For recurring scans/digests/watches, `## Inputs and freshness` pins the read scope: exact sources + filters derived from the cadence (`--channel`, `--status`, `--since` of one cadence period — a daily scan reads the last day, not everything). A bounded read that finds nothing IS the no-result path; never page past the window or drop filters because a period was quiet. Keep eval cases, grades, and execution ids OUT of the procedure — authoring evidence, not per-run instructions.
+For recurring scans, digests, or watches, `## Inputs and freshness` pins the read scope: the exact sources to check, the filters to apply, and a time window derived from the cadence. A daily scan reads the last day's data, not everything ever written. A weekly digest covers the last week. The window matches the cadence so that each run sees exactly its own period and nothing from the previous one.
 
-## Evaluate before enabling
+A bounded read that finds nothing within that window is the no-result path — it means this period was quiet. The procedure should describe what to report in that case (see step 3). It should not page past the window or drop filters to manufacture a non-empty result.
 
-Recommend the lightest depth that gives honest confidence — one sentence with the reason — and let the user choose:
-
-| Depth | When | What it takes |
-| --- | --- | --- |
-| skip | deterministic, low-risk, undoable; the approved example proves it | a success condition; note the trigger path stays unverified |
-| light | simple or subjective work | approved example + one disabled rehearsal |
-| structured | variable inputs, monitoring, dedup, meaningful no-result | representative + boundary/no-op + failure case, observable checks |
-| strict | side effects, sensitive data, auth, money, broad audience | fixtures/sandbox; verify authorization, idempotency, failures; no enable until green |
-
-Assertions only for observables (freshness, counts, destination, delivery totals); the user judges taste — never force numeric scores onto it. Rehearse while still disabled:
-
-```bash
-heliox automation run <id>
-heliox automation run show <execution_id> --transcript --json
-```
-
-Transcript inspection is an evidence read, so it takes `--json`: cards, approvals, and attachments have no text twin, and grading a rehearsal without them can pass a broken run.
-
-The transcript shows whether a FRESH executor understood the procedure, hid a broken dependency behind a fallback, or delivered wrong. For structured/strict, follow the baseline → run → grade → aggregate → analyze → review loop in [`references/evaluation.md`](references/evaluation.md). If the user skips evaluation, respect it — and report exactly what stays unverified.
-
-Hand over: id, trigger, destination, evaluation result, remaining proof gap. Enabling is the user's call.
-
-## Executing a run
-
-- Work in the run's own thread — it is the run's audit record, never left empty. Long output goes in a document; its reference goes in the thread.
-- The procedure is the authority. If unreadable, report to the owner and stop — don't improvise.
-- Finalize with exactly one terminal verb; the worth-sharing judgment is success-vs-skip, not per-subscriber:
-
-```bash
-heliox automation run success <execution_id>                                   # needs: result in thread + digest DM to EVERY subscriber first
-heliox automation run failed <execution_id> --reason "<what broke>"            # needs: owner DM'd what broke (thread mention doesn't count)
-heliox automation run skip <execution_id> --reason "<checked what; why quiet>" # quiet run: one-line all-clear in thread, no digests
-```
-
-`--reason` is required on `failed`/`skip` — omitting it leaves the run unfinalized. A failure must never masquerade as "nothing found"; cover every terminal state of a watched system.
-
-## Maintain
-
-```bash
-heliox automation list                      # ID STATUS NAME OWNER NEXT_RUN DOCUMENT
-heliox automation show <id>
-heliox automation runs <id>                 # ID FIRED_AT SOURCE STATUS ...; newest 10, --limit up to 100; a full page may continue
-heliox automation run show <execution_id> --transcript --tail 30 --json
-heliox document edit <document_id>
-heliox automation update <id> --enable false
-```
-
-Start from current evidence, not recreation. Edit the bound procedure in place; preserve automation and trigger identities unless the change truly requires new ones. Before a behavioral edit, keep the current procedure + a representative run as baseline, then run the same case against the candidate. A production bug: turn the failure into a regression case, prove the smallest general fix, replay a prior representative case — never patch only the sample that failed. Loop details: [`references/evaluation.md`](references/evaluation.md).
-
-## Event triggers
-
-Choose from the source, not the phrasing: time itself → `--cron`/`--start`; source pushes a signed event → webhook; no reliable push → poll. "Checking every five minutes is fine" is a latency budget, not a webhook veto. Pass the source's stable delivery id as `fire_key` — the idempotency boundary for retries. Handler contract, signature verification, packaging, fixtures, deploy, logs: [`references/event-triggers.md`](references/event-triggers.md).
+Keep evaluation cases, grades, and execution ids out of the procedure. The procedure is what the executor reads to do the work; test artifacts belong alongside the automation, not inside its instructions.
 
 ## Output language
 
-- Name, description, and procedure follow the **user's own instruction** language — never a wrapper or bootstrap sentence around it; a mixed instruction follows its dominant language.
-- Too short to tell (a one-line edit)? Fall back to the room language, per the brain's rule.
-- Artifacts only — conversational replies keep the room language, so the two can differ.
+- Name, description, and procedure follow the user's own instruction language — not a wrapper sentence around it. A mixed-language instruction follows its dominant language.
+- If the instruction is too short to tell (a one-line edit), fall back to the language the conversation is in.
+- This applies to artifacts only — conversational replies stay in the conversation's language, so the two can differ.
 
 ## Boundaries
 
-- A procedure is a maintained document, not a rules engine or DAG.
-- One automation = one coherent job; different work is a different automation, not hidden branches.
+A procedure is a maintained document, not a program. It describes what to do in prose that an AI executor reads and follows. If you find yourself writing conditional logic, loops, or branching control flow inside the procedure, you are building something that should be code, not a procedure.
+
+One automation is one coherent job. If the user asks for two different things on two different schedules, those are two automations, not one automation with internal branching.
+
+---
+
+Keep these six steps in your working list so you do not skip step 3 (the unseen paths) or the procedure readback in step 5:
+
+1. Pin down what they want
+2. Do the work once, here
+3. Write down the paths you did not see
+4. Pick the trigger
+5. Create it
+6. Hand it over

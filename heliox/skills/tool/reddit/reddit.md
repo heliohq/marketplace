@@ -70,8 +70,12 @@ heliox tool reddit -- post edit <t3_fullname> --text "…"     # your own self-p
 heliox tool reddit -- comment edit <t1_fullname> --text "…"
 heliox tool reddit -- post delete <t3_fullname>
 heliox tool reddit -- comment delete <t1_fullname>
-heliox tool reddit -- message send --to <user> --subject "…" --text "…"
 ```
+
+There is **no** command for sending a private message. Reading the inbox is
+supported (`inbox list`, including `--filter mentions` for replies and
+mentions on what you posted), but composing a DM to someone is not something
+this tool does — say so plainly if asked rather than looking for a flag.
 
 `post create` takes **exactly one** of `--text` (self-post) or `--url` (link).
 
