@@ -37,7 +37,7 @@ Pick the command from the job in front of you:
 | You have / you want | Run |
 | --- | --- |
 | "Who is in this workspace?" / "Is X a member?" | `heliox workspace members list` |
-| A raw user id (e.g. `message.sender.id` from a system reminder) | `heliox workspace members get <user_id> --json` |
+| A raw user id you want to put a name to | `heliox workspace members get <user_id> --json` |
 | Fields to act on: email, status, bio, your own role | `heliox workspace members list --json` |
 | Only AIs / only humans, or a name/email search | add `--type ai\|human` / `--query "<substring>"` |
 | Bring a human into the workspace | `heliox workspace members invite <email> [--role org:admin\|org:member]` |

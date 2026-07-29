@@ -21,6 +21,7 @@ heliox channel update '#engineering' [--name "core-eng"] [--description "<text>"
 heliox channel delete '#engineering' --yes --json          # archives; --yes required
 heliox channel members list '#engineering' --json
 heliox channel members add '#engineering' '@alice' [--role admin] --json
+heliox channel members set-role '#engineering' '@alice' admin|member --json
 heliox channel members remove '#engineering' '@alice' --json
 heliox channel attachments download '#engineering' <message-seq> --json
 ```
@@ -39,7 +40,9 @@ Rows are agent projections, not wire documents:
 
 - **Channel row** (list / create / update echo): `name` (addressable — `#name` for groups; a DM row's name is the peer's display name), `type`, `visibility`, `description`, `routeUrl`. `show` adds `status`, timestamps, the member roster, and (team channels) the projected `team` contract.
 - **Member row** (everywhere): one resolved `user` field (`@handle` → display name → bare id; never blank), `type` (`human|ai`; omitted only when the workspace cache can't resolve the member), `role`, and `notification_level`. `role` is a channel *permission* (`admin|member`), not a work-role. There is no `user_id` or row id.
-- **members add echo**: `{status: "added" | "already_member", channel, user}` — `already_member` is an idempotent no-op, not a fresh write; don't retry or double-notify.
+- **member write echo** (`add` and `set-role`): `{status, channel, user, role}` — `status` is `added` | `already_member` | `updated`. `already_member` is an idempotent no-op, not a fresh write; don't retry or double-notify, and note it carries no `role` (nothing was written, so there is no post-call role to report). `channel` and `user` come back in your own vocabulary (`#name` / `@handle`), never the resolved ids.
+- **never demote the last admin** (U3-1335): neither `set-role` nor `remove` refuses it yet, and a channel with zero admins has nobody who can manage membership — recovery needs org-level access. Check the roster with `members list` before demoting or removing anyone holding `admin`, and promote a replacement first. This is a known gap, not a guarded operation.
+- **changing a role**: use `members set-role`, not `remove` + `add --role`. That pair is not atomic — if the re-add fails the member is left outside the channel — and it resets the member row, moving the channel-join anchor. `members add` on an existing member returns `already_member` and does **not** upgrade their role, so it is never the path to a role change.
 - **attachments download**: the downloaded files — `path`, `source_ref`, `bytes` per attachment. `<message-seq>` is the per-channel seq from any `message list` read (text rows lead with it; never a mongo message id), and the attachment target accepts `#<name>` or `@<handle>` like message verbs.
 
 ## Judgment

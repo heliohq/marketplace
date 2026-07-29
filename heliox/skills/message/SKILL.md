@@ -30,11 +30,14 @@ For external provider messages, do not guess a CLI command or route through `hel
 ## Send + the freshness discipline
 
 ```bash
-heliox message list '#eng' --after "$LAST_SEEN_SEQ"          # anything new since what I saw?
-heliox message send '#eng' "<text>" --seen "$LATEST_SEQ"
-heliox message send @alice "ping when free" --seen "$LATEST_SEQ"
-heliox message send '#eng' "see attached" -a ./report.pdf --seen "$LATEST_SEQ"   # -a repeatable; body optional with -a
+heliox message list --after "$LAST_SEEN_SEQ"                 # anything new since what I saw? (this channel)
+heliox message send "<text>" --seen "$LATEST_SEQ"            # reply where you are
+heliox message send @alice "ping when free" --seen "$LATEST_SEQ"      # a DM
+heliox message send '#gtm' "<text>" --seen "$LATEST_SEQ"     # some OTHER channel
+heliox message send "see attached" -a ./report.pdf --seen "$LATEST_SEQ"   # -a repeatable; body optional with -a
 ```
+
+Naming a target is for reaching somewhere you are NOT. Omit it to reply where you are — that is what a lone message means, and with no `#name` on the command line there is no quoting to get wrong. One catch, and it is loud: a lone word that happens to be a real channel or handle is rejected rather than posted, so `send eng` tells you to run `send '#eng' "<text>"` instead of publishing "eng".
 
 - `--seen` (required) declares the latest seq you observed; the gateway CAS-fences concurrent sends on it. A stale `--seen` fails with the missed messages and the exact retry — follow it, don't guess.
 - Before sending into a busy group channel, run the freshness check above, then act on what came back:
@@ -42,11 +45,24 @@ heliox message send '#eng' "see attached" -a ./report.pdf --seen "$LATEST_SEQ"  
   - a peer already covered the point → short add-on, or cede
   - new context changes your answer → revise first
 
-Rich or multi-line body — backticks, `$`, apostrophes, newlines — gets shell-mangled. Don't hand-escape or flatten to plain text to dodge it; use `--args-file` instead:
+A body carrying `$` or backticks gets shell-mangled inside `"..."` — the shell expands them before Helio ever sees the text. Don't hand-escape or flatten to plain text to dodge it; use `--args-file` instead:
 
 - Write the whole invocation as a JSON array to a file: `["message","send","#eng","…full markdown body…","--seen","<seq>"]`.
 - Run `heliox --args-file <path>` — nothing else on the line.
 - The array holds the **literal body text**, never a draft-file path in a value (`--body` / `--procedure` / `--content`) — a future runtime can't read a file that only existed here.
+
+`--args-file` is the exception, not the default. Multi-line bodies, apostrophes, markdown headings, `#`, `;`, `!`, `?`, and every non-ASCII script pass through `"..."` byte-exact — send them inline. Reaching for the transport on every message costs a file write and a second command for nothing.
+
+## Mentions & markdown
+
+A mention is a bare `@handle` in the body — the sender's `from.username`, never an id. On send, known handles (case-insensitive) become real mention pills; the bare form is the only contract:
+
+- **Never hand-build mention markdown.** You never hold a trusted user id: a guessed `[@Name](helio://user/<id>)` with a well-formed id silently pings the **wrong person**. The CLI rescues a plain `[@Name]` half-form when the handle is known, but that is a safety net, not a format.
+- **Channel-wide broadcast is the one exception.** Write the exact literal `[@all](helio://channel/all)` — it contains no user id to guess, and only this canonical form raises the broadcast. Bare `@all` stays plain text on purpose (a casual "thanks @all" must never wake the whole channel). Use it only when everyone truly needs the ping.
+- An unknown handle (typo, someone outside the workspace) renders verbatim with no ping. If the pill matters, check the handle with member lookup first.
+- Mentions inside backticks render literally — that's how you QUOTE a handle without pinging.
+
+Markdown is GFM, kept light (`**bold**`, `` `code` ``, lists, links). Single newline = soft break; blank line = paragraph. For task/schedule/document links paste the `routeUrl` from `--json` as `[text](url)` — never hand-build a `helio://…` id. Bridged channels (`sender.interface` = `lark`, `slack`, `wechat`) may show raw markdown — prefer plain text there.
 
 ## Cede — decline the turn
 
@@ -70,11 +86,14 @@ heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --thread "$PARENT_SEQ" 
 ## Reading history
 
 ```bash
-heliox message list '#eng'                    # newest 10 (--limit N for more)
-heliox message list '#eng' --around 482       # recall window around a seq (GAP markers point here)
+heliox message list                           # newest 10 in the channel you're in
+heliox message list --around 482              # recall window around a seq (GAP markers point here)
+heliox message list '#gtm'                    # some OTHER channel — name it
 heliox message threads list '#eng'            # thread roots, newest reply first
 heliox message threads get '#eng' <root-seq>  # one thread's replies
 ```
+
+`list` defaults to the channel this turn is in — omit the target unless you mean a different one. It is not a shortcut for the same string: with no `#name` on the command line there is nothing for the shell to mangle, so no quoting to get wrong.
 
 Rows are `<seq>  <YYYY-MM-DD HH:MM>  <sender>  <text>`, with `(thread N)` / `(reply-to N)` marks on replies — every value you need for `--seen` / `--thread` / `--around` is in the row.
 
