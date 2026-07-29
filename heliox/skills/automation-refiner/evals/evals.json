@@ -30,20 +30,6 @@
       ]
     },
     {
-      "id": 3,
-      "prompt": "I just created a daily 9am customer-health automation with three data sources. Before I enable it, run it once and tell me whether the output looks right. Describe the validation work only; do not call APIs in this evaluation.",
-      "expected_output": "Enters through Entry 2 (testing a newly created automation), runs it manually while still disabled, fetches the transcript with --json to inspect all three data sources, and reports whether the output matches what the creator step produced — without enabling the automation.",
-      "files": [],
-      "expectations": [
-        "Enters through Entry 2: the refiner is testing an automation that already exists but has never been enabled.",
-        "Runs the automation manually with heliox automation run <id> and fetches the transcript through heliox automation run show with --transcript --json.",
-        "Inspects the output from all three data sources, checking both the text portion and the structured --json payload for completeness.",
-        "Compares the rehearsal output against the creator's approved example or the procedure's expected output to judge quality.",
-        "Addresses the subscriber-delivery reality: if the automation has subscribers, notes that a manual run will deliver to them and recommends clearing the audience first if the user wants a silent rehearsal.",
-        "Does not enable the automation — leaves enablement to the user's decision after reviewing the rehearsal results"
-      ]
-    },
-    {
       "id": 4,
       "prompt": "Look at how the weekly infrastructure-cost automation has been running over the past month and tell me if anything needs attention. Describe the review process only; do not call APIs in this evaluation.",
       "expected_output": "Enters through Entry 3 (cross-run retrospective), fetches multiple recent runs to distinguish one-off glitches from systemic decay, and reports patterns rather than reacting to a single run's outcome.",
@@ -108,7 +94,7 @@
         "Recognizes that adding a recipient is a subscriber-list change, not a procedure edit — the audience is stored on the automation, not in the document.",
         "Uses heliox automation subscriber add <id> @jordan rather than editing the procedure document.",
         "Does not write 'send this to Jordan too' into the procedure steps, because the executor snapshots the stored subscriber list at fire time.",
-        "Verifies the change landed by checking heliox automation subscriber list <id> to confirm @jordan appears in the effective audience.",
+        "Plans to confirm the change landed by checking heliox automation subscriber list <id> to see that @jordan appears in the effective audience.",
         "Tells the owner that @jordan has been added, especially since this changes who receives the output going forward.",
         "Treats this as an intent-layer change — adding a recipient exposes the output to someone new. If the requester is not the owner, confirms with the owner before running subscriber add"
       ]
@@ -137,7 +123,7 @@
         "Classifies this as method-layer decay: 'The service it reads changed its API, its URL, or its response shape' — fixable without owner involvement.",
         "Updates the procedure steps to use the new GraphQL endpoint and adjusts the field mapping to match the new response shape.",
         "Motivates the change with observed evidence (the 404 and the endpoint migration) rather than a preference for GraphQL over REST.",
-        "Captures the baseline (current broken procedure + failing run) before editing, so the fix can be compared against both the failure and a representative successful run.",
+        "Plans to capture the baseline (current broken procedure + failing run) before editing, so the fix can be compared against both the failure and a representative successful run.",
         "Preserves the automation and trigger identities — does not recreate for an API migration"
       ]
     }

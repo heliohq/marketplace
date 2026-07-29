@@ -33,7 +33,7 @@
   },
   {
     "query": "I just created the daily customer-health automation. Run it once as a rehearsal so I can see the output before enabling it.",
-    "should_trigger": true
+    "should_trigger": false
   },
   {
     "query": "The deploy-summary automation started including test environments in its count after we added a new cluster. Remove them from the filter.",

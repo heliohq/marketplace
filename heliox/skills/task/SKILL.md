@@ -13,7 +13,7 @@ metadata:
 
 - Tasks are org-scoped. Every verb addresses them by key (`HEL-415`) or 24-hex ObjectID; the key prefix is server-assigned.
 - The channel is set at create (`--channel`, required) and immutable after.
-- Status: `open | in_progress | blocked | done | cancelled` — `blocked` means stuck and still needing attention, not closed. Priority (optional): `low | normal | high | urgent`. Deadlines: RFC3339 (`2026-05-20T17:00:00Z`, stored UTC). Labels: comma-separated freeform strings.
+- Status: `open | in_progress | blocked | in_review | done | cancelled` — `blocked` means stuck and still needing attention, not closed; `in_review` means the work is finished and awaiting the requester's acceptance (move a task there when you consider it done but someone else should verify — the transition notifies them). Priority (optional): `low | normal | high | urgent`. Deadlines: RFC3339 (`2026-05-20T17:00:00Z`, stored UTC). Labels: comma-separated freeform strings.
 - Reads (`list` / `show`): plain text is the cheap recall mode — a fraction of the JSON tokens; add `--json` when you need `routeUrl`, description structure, or field values to act on. Writes: always `--json` — Helio renders structured task cards from it.
 
 ## List
@@ -26,7 +26,7 @@ heliox task list --since 2026-07-21T00:00:00Z --json # updated in a window, ALL 
 heliox task list --all                               # include recently closed
 ```
 
-Flag values are sigiled (`@handle` / `#name`); 24-hex ids are rejected. The bare list is a bounded page of ACTIVE tasks (open / in_progress / blocked, newest 50; `--limit 0` rejected); `--all` adds recently closed, `--cursor <next_cursor>` pages further.
+Flag values are sigiled (`@handle` / `#name`); 24-hex ids are rejected. The bare list is a bounded page of ACTIVE tasks (open / in_progress / blocked / in_review, newest 50; `--limit 0` rejected); `--all` adds recently closed, `--cursor <next_cursor>` pages further.
 
 JSON rows carry your vocabulary: `key` (the verb address), `routeUrl` (paste as `[HEL-415](routeUrl)` to link the task — the only field carrying the raw id), and `assignee`/`channel` resolved to `@handle`/`#name`. A bare name or hex there means the cache had no mapping — it is display-only; resolve via `workspace members` before using it in a command. `create`/`update` echo this same row shape; verify a description with `task show`.
 

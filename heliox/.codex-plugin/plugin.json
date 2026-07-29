@@ -1,6 +1,6 @@
 {
   "name": "heliox",
-  "version": "0.2.46",
+  "version": "0.2.48",
   "description": "Built-in Heliox agent-facing CLI plugin, organized as domain skills",
   "author": {
     "name": "Helio",

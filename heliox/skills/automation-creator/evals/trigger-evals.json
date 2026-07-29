@@ -78,5 +78,13 @@
   {
     "query": "Review this cron expression and tell me whether 0 9 * * 1-5 means weekdays at nine; don't create anything.",
     "should_trigger": false
+  },
+  {
+    "query": "I just created the daily customer-health automation. Run it once as a rehearsal so I can see the output before enabling it.",
+    "should_trigger": true
+  },
+  {
+    "query": "The weekly-report automation I set up with you last week is still not enabled. Run it once as a rehearsal so I can see whether the output is right.",
+    "should_trigger": false
   }
 ]

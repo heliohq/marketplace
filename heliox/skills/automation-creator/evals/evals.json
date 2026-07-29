@@ -4,43 +4,51 @@
     {
       "id": 1,
       "prompt": "Every Friday at 5pm, remind me in this chat to submit my timesheet. Set it up, but do not call Helio APIs in this evaluation.",
-      "expected_output": "Treats this as a simple one-shot-per-week message, drafts the reminder first, recommends at most lightweight validation, lets the user choose the depth, and does not invent a three-case benchmark for deterministic low-risk work.",
+      "expected_output": "Treats this as a simple one-shot-per-week message, drafts the reminder first, picks the lowest validation tier because the output is fixed text with no external side effect, and still fires one real run rather than treating the approved wording as proof. Does not invent a backtest window or failure scenarios for an automation that reads nothing.",
       "files": [],
       "expectations": [
         "Recognizes the request as an automation and preserves the exact Friday 5pm schedule.",
         "Drafts or proposes the actual reminder message before discussing creation machinery.",
-        "Explicitly considers whether evaluation is useful and recommends skip or lightweight evaluation because the work is deterministic and low-risk.",
-        "Lets the user choose the validation depth instead of imposing a representative/boundary/failure matrix.",
-        "If rehearsal is skipped, distinguishes approved wording from unverified scheduled delivery.",
-        "Describes the automation as created disabled, with enablement gated on the user's decision"
+        "Picks the lowest tier from step 7 (representative only) and says why: the output is fixed text with no external side effect.",
+        "Presents the tier as a one-sentence recommendation the user can adjust, rather than a fixed test matrix.",
+        "States that one real run is still required before handover, and that the approved wording on its own is not evidence that scheduled delivery works.",
+        "Does not invent a backtest window or a no-result scenario for an automation that reads no source.",
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this."
       ]
     },
     {
       "id": 2,
       "prompt": "Every weekday at 8:30am, send me a compact digest of urgent support tickets opened in the previous 24 hours. If there are none, don't wake me. Set it up but leave it disabled; do not call APIs in this evaluation.",
-      "expected_output": "Recommends structured evaluation because inputs vary and silence has meaning, while keeping the recommendation concise and user-adjustable. Covers representative, zero-result, and dependency-failure behavior plus a disabled rehearsal.",
+      "expected_output": "Writes all four unseen paths into the procedure but fires only the middle tier, and gets both inputs from real windows: the representative one by moving the read window to a past weekday, the no-result one from a window verified to be empty. Does not propose waiting for tomorrow's 8:30 run to get data.",
       "files": [],
       "expectations": [
         "Preserves the exact 8:30am weekday schedule and produces a representative digest before formalization.",
-        "Recommends structured evaluation because the data varies and no-result behavior differs from failure.",
-        "Offers the recommendation as a choice rather than forcing the user through a test-plan questionnaire.",
-        "Covers representative, zero-ticket no-op, and unavailable or stale data cases with observable checks.",
+        "Writes all four unseen paths into the procedure's failure and no-result section, including the source-unreachable path.",
+        "Selects the middle tier and names which scenarios it covers, giving a reason tied to this automation rather than a general rule.",
+        "Explains why the source-unreachable path is written into the procedure but not fired.",
+        "States that the representative input comes from moving the read window to a named past weekday, and rejects waiting for tomorrow's scheduled run as the way to get data.",
+        "States that the no-result input must be a window verified to be empty or a read narrowed to a quiet hour, and rules out fabricating an empty response.",
         "Uses a disabled rehearsal and transcript inspection before recommending enablement.",
-        "Describes the automation as created disabled, with enablement gated on the user's decision"
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this.",
+        "Describes the validation loop it would run rather than listing steps it is unable to perform; a response that predominantly frames the describe-only instruction as a limitation does not satisfy this."
       ]
     },
     {
       "id": 3,
       "prompt": "When Stripe sends a dispute over $5,000, email legal with the customer and charge details. Set this up for me, but only describe the work in this evaluation and do not create anything.",
-      "expected_output": "Recognizes a high-risk signed-webhook automation and recommends strict evaluation: authenticated fixtures, idempotency, sandboxed/intercepted email, failure cases, separate trigger/run evidence, and no enablement until checks pass.",
+      "expected_output": "Recognizes a high-blast-radius signed-webhook automation, picks the top tier including a baseline run, contains the outbound email before firing anything, makes the handler's don't-fire fixtures near misses rather than obvious noise, and names in plain words what this can do unattended.",
       "files": [],
       "expectations": [
         "Chooses a signed Stripe webhook based on source capability and verifies the signature.",
-        "Recommends strict evaluation because the automation handles sensitive data and sends external email.",
-        "Uses fixtures or a sandbox and intercepts email rather than sending a real test message to legal.",
-        "Verifies stable fire_key idempotency, irrelevant events, invalid signatures, duplicates, and upstream failures.",
+        "Picks the top tier (the full scenario set plus a baseline run) because the automation sends email outside the company.",
+        "Contains the side effects before firing: non-owner subscribers recorded and cleared, the legal email retargeted at itself or a scratch destination, and both restored at handover from where each was saved, the recorded subscriber list via `automation update --subscriber` and the destination via the saved procedure body.",
+        "Makes the handler's don't-fire fixtures near misses (right source, right shape, below the $5,000 threshold) rather than obviously irrelevant payloads, and covers stable fire_key idempotency, invalid signatures, and duplicate deliveries.",
         "Separates trigger-handler evidence from the disabled automation run transcript and does not enable until both pass.",
-        "Describes the automation as created disabled, with enablement gated on the user's decision"
+        "Names the blast radius at handover in one plain sentence: unattended, this emails legal with customer and charge details.",
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this."
       ]
     },
     {
@@ -50,25 +58,30 @@
       "files": [],
       "expectations": [
         "Preserves the exact weekday 8:52am schedule and keeps the automation disabled.",
-        "Reads or describes reading the draft file and uses its markdown contents as the procedure.",
+        "Treats the draft file's markdown contents as the source of the procedure body, rather than inventing procedure content independently of the draft.",
         "Never passes the local .md path as the value of --procedure.",
         "Uses a JSON argument array whose --procedure element contains the markdown body, with only the JSON path passed to heliox --args-file.",
-        "Reads the returned document_id and verifies that the canonical document contains the procedure body before rehearsal or enablement.",
-        "Describes the automation as created disabled, with enablement gated on the user's decision"
+        "States that the returned document_id gets read back to confirm the canonical document holds the procedure body, and frames that as a storage check rather than proof the procedure reads correctly to a stranger.",
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this.",
+        "Describes the validation loop it would run rather than listing steps it is unable to perform; a response that predominantly frames the describe-only instruction as a limitation does not satisfy this."
       ]
     },
     {
       "id": 5,
       "prompt": "Create a disabled weekday executive market brief automation. The facts are objective, but tone and story selection vary between AI runs, so I want confidence it will be consistently useful. Describe the creation and evaluation loop only; do not call APIs.",
-      "expected_output": "Uses an approved direct brief as the quality baseline, defines observable fact/freshness/format checks while leaving tone to human review, repeats representative candidate runs to expose variance, grades only after execution, aggregates consistency and transcript findings, presents outputs to the user, and revises and repeats before enablement.",
+      "expected_output": "Uses the approved output as the standard later runs are measured against, defines observable fact/freshness/format checks while leaving tone to human review, repeats the representative run to expose variance, fires a baseline run to find out which parts of the procedure are load-bearing, grades against what was delivered, aggregates consistency, presents outputs to the user, and revises before enablement.",
       "files": [],
       "expectations": [
-        "Produces or proposes an approved direct brief before formalizing the automation and treats it as the new automation's quality baseline.",
+        "Produces or proposes an approved output before formalizing the automation, and treats that approved output as the standard later runs are measured against.",
         "Separates objective checks such as freshness, required facts, citations, and delivery shape from subjective tone and story-selection review by the user.",
-        "Runs the representative disabled candidate three times by default because nondeterministic consistency matters, while allowing fewer runs only with an explicit safety or cost reason.",
-        "Grades each run after execution with exact output or transcript evidence, then aggregates pass rate and consistency and analyzes variance, hidden fallbacks, and weak checks.",
+        "States that the representative scenario must be run three times because the output is assembled rather than fixed, and that the spread is what gets reported rather than the best run.",
+        "Describes a baseline run whose procedure is replaced by the user's original one-line request, and explains that its purpose is to identify which parts of the procedure are load-bearing.",
+        "Grades each run after execution against what was actually delivered, with exact output or transcript evidence, then aggregates pass rate and consistency and looks for variance, hidden fallbacks, and checks that discriminate nothing.",
         "Shows representative outputs and the evaluation summary to the user, incorporates feedback, and repeats the loop before offering enablement.",
-        "Describes the automation as created disabled, with enablement gated on the user's decision"
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this.",
+        "Describes the validation loop it would run rather than listing steps it is unable to perform; a response that predominantly frames the describe-only instruction as a limitation does not satisfy this."
       ]
     },
     {
@@ -77,7 +90,7 @@
       "expected_output": "Treats the user's English instruction as the authoritative language source even though a Chinese wrapper sentence surrounds it, and writes the automation name, description, and procedure entirely in English. This pins the original bug: an English instruction entering through the automation hand-off must yield English artifacts, not Chinese ones inherited from the wrapper text.",
       "files": [],
       "expectations": [
-        "Treats the user's English instruction, not the surrounding Chinese wrapper sentence, as the authoritative language source — the wrapper text must not set the artifact language.",
+        "Treats the user's English instruction, not the surrounding Chinese wrapper sentence, as the authoritative language source. The wrapper text must not set the artifact language.",
         "Writes the automation name in English.",
         "Writes the automation description in English.",
         "Writes the procedure document in English.",
@@ -109,8 +122,67 @@
         "Writes the automation name, description, and procedure in English, the decided dominant language.",
         "Does not split the artifacts across two languages.",
         "Treats the embedded Chinese nouns as vocabulary within an otherwise English artifact, not as a signal to switch the artifact's language.",
-        "Preserves the exact Monday 9am schedule.",
         "Procedure pins the read window to one cadence period (previous week), not an unbounded read"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Earlier in this conversation you pulled the open pull requests in heliohq/helio, grouped them by author, and dropped the drafts because I said they were noise. I told you that version was exactly right. Now: 以后每周一早上都来一次。Describe the automation you would create; do not call APIs in this evaluation.",
+      "expected_output": "Treats the earlier exchange as the specification rather than re-interviewing the user. Puts what it extracted in front of them to confirm, asks only what the conversation did not settle, and applies the generalization probe to the correction about drafts instead of hard-coding it.",
+      "files": [],
+      "expectations": [
+        "Treats the earlier exchange as the specification and does not re-ask what the automation should produce, what the output looks like, or who receives it.",
+        "Restates what it extracted from the conversation as a short list for the user to confirm.",
+        "Applies the generalization probe to the earlier correction: asks whether dropping drafts is always right or was specific to that day, rather than silently hard-coding either reading.",
+        "Asks only about what the conversation genuinely did not settle, such as the exact Monday time or the blast radius.",
+        "Pins a one-week read window derived from the Monday cadence.",
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "We are most of the way through setting up the weekly revenue digest automation. While testing you pointed the delivery step at #scratch-tests and cleared the subscriber list; the real destination is #revenue and @mei and @jordan should receive it. All the scenarios passed. Finish the handover. Describe the exact steps; do not call APIs in this evaluation.",
+      "expected_output": "Restores the real configuration from the saved file before anything else, verifies what is actually stored rather than what it meant to store, and does not hand over while the delivery step still points at the scratch channel.",
+      "files": [],
+      "expectations": [
+        "Restores the approved procedure from the saved file rather than retyping it from memory.",
+        "Restores the real delivery destination (#revenue) and the real subscriber list (@mei and @jordan).",
+        "Names heliox document read and heliox automation subscriber list as the way to confirm what is actually stored, rather than assuming the edits took.",
+        "Does not hand over while the delivery step still points at #scratch-tests.",
+        "States the blast radius, which scenarios were run, and which paths remain unproven, with the workspace path so the evidence is findable later.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this."
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Set up a daily 7am automation that reads our Datadog monitors and posts a health summary to #sre. The executor should be @ops-bot, not me. Describe the setup; do not call APIs in this evaluation.",
+      "expected_output": "Notices before doing the work that the identity performing it in the conversation is not the identity that will run it later, checks whether @ops-bot actually has the Datadog access, and names the specific access needed instead of designing around an unconfirmed gap.",
+      "files": [],
+      "expectations": [
+        "Says an unconfirmed access gap would otherwise surface at the first run, and treats discovering it then as too late.",
+        "Notices that doing the work here would use the author's own credentials, which are not the ones the automation will run with.",
+        "Names the specific Datadog access @ops-bot needs, and says this must be confirmed before the work is done rather than assumed.",
+        "Lists the ground checks it would run before step 3, including whether #sre exists and whether the Datadog source returns what the user assumes.",
+        "States that the automation is created disabled.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this."
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Earlier in this conversation we built a daily 9am customer-health automation with three data sources. Before I enable it, run it once and tell me whether the output looks right. Describe the validation work only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes this as its own step 7 rather than refiner work, because the automation has never been delivered. Runs it manually while still disabled, inspects all three sources through the --json payload, compares against the approved output, and picks a tier that three data sources warrant rather than stopping at one run.",
+      "files": [],
+      "expectations": [
+        "Recognizes this as its own step 7 rather than handing it to automation-refiner: the automation has never been delivered, so proving it is still this skill's job.",
+        "Names heliox automation run for the manual fire and heliox automation run show --transcript --json for the evidence, rather than describing the loop in generic terms.",
+        "Says the evidence must be read from the structured --json payload, because cards and attachments have no plain-text equivalent.",
+        "Requires the output from all three data sources to be accounted for, not just the ones that returned data.",
+        "Compares the run output against the approved output from step 3 rather than judging it in isolation.",
+        "States that the subscriber list must be inspected before firing and that clearing it removes every recipient except the owner, who always receives the result, so a manual run is never silent.",
+        "Picks a tier that three data sources warrant, including the partial-source scenario, rather than stopping at one representative run.",
+        "States what the user must do to turn it on; a response that never mentions enabling does not satisfy this.",
+        "Describes the validation loop it would run rather than listing steps it is unable to perform; a response that predominantly frames the describe-only instruction as a limitation does not satisfy this."
       ]
     }
   ]
