@@ -28,9 +28,21 @@ heliox automation run failed <execution_id> --reason "<what broke>"
 heliox automation run skip <execution_id> --reason "<checked what; why quiet>"
 ```
 
-**success** — the result has been posted in the run thread, and you have
-already sent a summary DM to every subscriber. Both conditions are required;
+**success** — the result has been posted in the run thread, and every
+subscriber has already been given the summary. Both conditions are required;
 posting in the thread alone is not delivery.
+
+Delivering does not have to mean interrupting. Pick by what the reader has to
+do with it:
+
+```bash
+heliox feed note --to @handle --text "<digest>"   # they need to know; nothing to act on
+heliox message send @handle "<digest>" --seen <n> # it must interrupt them
+```
+
+A note lands on their Home and clears itself after a day. Either one counts as
+delivering to that subscriber — the question is whether the person heard, not
+which door carried it.
 
 **failed** — something went wrong that prevented a valid result. You have
 sent a DM to the owner describing what broke. Mentioning the owner in the
@@ -38,7 +50,8 @@ thread is not sufficient — the DM is what they will see.
 
 **skip** — you checked and there was nothing worth reporting this period. Leave
 a line in the thread explaining what you checked and why the period was quiet.
-Do not send a summary to subscribers; a quiet period is not a delivery.
+Do not push a summary to subscribers — not as a DM, not as a note; a quiet
+period is not a delivery.
 
 The judgment after every run is one question: is this result worth sending to
 subscribers? If it is, close with success. If there is nothing to send, close
