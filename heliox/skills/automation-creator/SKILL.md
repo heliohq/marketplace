@@ -75,6 +75,8 @@ Will the executor be able to do this? You are about to do the work yourself, in 
 
 Does the destination exist? The channel, document, or address the results go to.
 
+Does one of these already run? `heliox automation list --json` before you create a recurring one. A second automation covering the same ground is worse than none: both fire, the owner gets two digests that disagree, and neither is obviously the stale one. If something close already exists, refine it (`heliox:automation-refiner`) instead of adding a rival.
+
 Come to the user with this already done. Every check you skip becomes a question they have to answer or a failure they have to watch.
 
 ## 3. Do the work once, here
@@ -121,7 +123,7 @@ Bad:
 > "If no results are found, try expanding the search window or removing filters."
 
 Good:
-> "If no messages match the filter in the last 24 hours, post a one-line summary to #ops-daily: 'No new incidents since yesterday's report.' Do not extend the window or loosen the filter. A quiet period is a valid result."
+> "If no messages match the filter in the last 24 hours, post a one-line summary in the run's own thread: 'No new incidents since yesterday's report.' Do not extend the window or loosen the filter. A quiet period is a valid result, so close with `heliox automation run skip <execution_id> --reason \"checked #incidents for the last 24h; no matching messages\"`."
 
 The key distinction: an empty result from looking at the right window is data, not a malfunction. Dropping filters or paging backwards to force a non-empty result is a bug, because it turns "nothing to report" into a stale or misleading output.
 
@@ -187,6 +189,20 @@ Every section is required. `## Failure and no-result behavior` in particular is 
 
 `## Done when` is the finish line, stated so a run can be graded against it. This is the acceptance criterion: the conditions under which the executor should finalize as success. Without it, a run that quietly did half the job finalizes green.
 
+Write both of those last two sections in the vocabulary the executor actually closes a run with.
+
+**Every run leaves its result in the run's own thread.** That thread is the audit record. A result sent only as a DM leaves it blank, and a finished run whose thread shows nothing reads to its owner as a run that never happened. Long output goes in a document; the thread carries the reference. Write the delivery section so this is what the executor does, not something it may do.
+
+A run then ends with exactly one terminal verb, and each has a precondition it will not close without:
+
+```bash
+heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber has been DM'd a digest
+heliox automation run failed  <execution_id> --reason "<what broke>"      # the owner has been DM'd what broke; a thread mention does not count
+heliox automation run skip    <execution_id> --reason "<checked what; why quiet>"  # a one-line all-clear in the thread, no digests
+```
+
+So "if there are no tickets, post 'No urgent tickets'" is the wrong shape for a no-result path: it describes a message, not an ending, and the run has no way to close. Write it as *skip with a reason recording what was checked*. The same goes for failures: `## Done when` says who is told, not only what state the run lands in.
+
 ### How to write it
 
 Prefer the imperative, and explain the why. The reader is a capable model, not an interpreter. A step it understands the purpose of will be executed sensibly in circumstances you never imagined, while a step it can only obey literally will be obeyed literally in exactly the circumstance where that is wrong. Piling on capitalized MUSTs is a symptom of not having explained the reason.
@@ -217,23 +233,31 @@ so anything older was covered by yesterday's digest.
    current status, and a link to the originating message.
 
 ## Output and delivery
-Post to #ops-daily as a single message titled "Incidents, <date>". One section
-per service, incidents as bullets under it. Keep the whole message under 300
-words; if there is more than that, summarize the long tail as a count.
+Post the digest in the run's own thread as a single message titled "Incidents,
+<date>". One section per service, incidents as bullets under it. Keep the whole
+message under 300 words; if there is more than that, summarize the long tail as
+a count. Then DM the same digest to every subscriber. The thread copy is the
+record; the DMs are the delivery, and `run success` will not close without both.
 
 ## Failure and no-result behavior
-If no messages match the filter in the last 24 hours, post one line to
-#ops-daily: "No new incidents since yesterday's report." Do not extend the
-window or loosen the filter. A quiet period is a valid result.
+If no messages match the filter in the last 24 hours, post one line in the run's
+own thread: "No new incidents since yesterday's report." Do not extend the
+window or loosen the filter. A quiet period is a valid result, so close with
+`heliox automation run skip <execution_id> --reason "checked #incidents for the
+last 24h; no matching messages"`.
 
 If #incidents cannot be read at all (permission error, connection error, 5xx),
-wait 60 seconds and retry once. If the retry fails, DM the owner with the error
-and finalize as failed with reason "Source unreachable: {error}". Do not post a
-digest assembled from anything but a successful read.
+wait 60 seconds and retry once. If the retry fails, post the failure in the run's
+own thread ("Could not read #incidents: {error}"), DM the owner the same line,
+then close with `heliox automation run failed <execution_id> --reason "Source
+unreachable: {error}"`. The verb checks for both the thread record and the DM,
+so a run that only DMs is rejected. Do not post a digest assembled from anything
+but a successful read.
 
 ## Done when
-The digest (or the quiet-period line) is posted to #ops-daily, and every
-incident cited falls inside the 24-hour window.
+The digest is in the run's own thread, every subscriber has received it, every
+incident cited falls inside the 24-hour window, and the run is closed with
+`heliox automation run success <execution_id>`.
 ```
 
 ## 6. Create it, disabled
@@ -261,7 +285,7 @@ For the full handler contract, signature verification, packaging, fixtures, depl
 Build the argument array as JSON and pass it through the args-file transport:
 
 ```json
-["automation", "create", "<name>", "--cron", "0 9 * * 1-5",
+["automation", "create", "<name>", "--cron", "0 9 * * 1-5", "--owner", "@<requester>",
  "--procedure", "# <name>\n\n## Objective\n<approved objective>\n\n## Procedure\n<approved steps>"]
 ```
 
@@ -270,11 +294,6 @@ heliox --json --args-file /absolute/path/create-automation.json
 ```
 
 Use either `--cron` or `--start` (one-shot), not both. When converting the user's phrasing to a cron expression: an explicit clock time is an exact cron ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset so that all loosely-timed automations do not fire at the same second.
-
-Owner defaults to the human who directly triggered the current turn. Omit
-`--owner` when the automation is for the person asking. If the request clearly
-says it is for someone else, pass that beneficiary explicitly with
-`--owner @<handle>`; explicit owner always wins.
 
 `--procedure` takes the markdown BODY, never a filename. The AI that executes this procedure days or weeks later cannot read a file path that existed on your runtime at creation time. Draft in a local file if it helps, but paste its contents into the argument JSON; the file serves only as `--args-file` transport.
 
@@ -285,6 +304,8 @@ Every automation is created disabled, which is exactly what makes the next step 
 ## 7. Run the scenarios
 
 Step 3 proved that *you* could produce the output, with the whole conversation in your head. This step asks the question that actually matters: does a fresh executor, reading only the procedure, reproduce it?
+
+A run you fire here is a real run and closes like one: `success` once the result is in the run's own thread and every subscriber has a digest, `failed --reason` with the owner told what broke, `skip --reason` for a period that was genuinely quiet. Grade against that too. A scenario that produced the right text but left the thread empty, or finalized green while a delivery failed, is a failing scenario however good the output reads.
 
 The mechanics live in [`references/evaluation.md`](references/evaluation.md): containment, the serial edit/fire/capture/restore loop, how to write expectations that can fail, how to grade, how to show results. Read it before your first fire. Three things are yours to decide, and they are below.
 

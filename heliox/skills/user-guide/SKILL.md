@@ -44,7 +44,7 @@ no topic obviously fits.
   one, choose a model, give instructions, share context, memory, edit
   settings, autonomy vs approval (control), and removing a teammate.
 - `work` — the surfaces where people and AI teammates get work done: channels,
-  1:1 threads, the inbox (approvals, updates, reminders), calendar, the shared
+  1:1 threads, the inbox (approvals, updates, reminders), the shared
   task board, automation (recurring and event-triggered work), and published
   artifacts.
 - `connect` — connecting and extending: connect tools to AI teammates, pair

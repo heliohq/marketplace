@@ -115,6 +115,8 @@ How much proof a change needs depends on what changed and what is at stake. Give
 - A typo fix or a renamed channel reference is low risk, and a single readback of the procedure may be enough.
 - A logic change to the procedure (new steps, changed filters, different formatting) benefits from at least one rehearsal run while the automation is still disabled.
 - A change prompted by a production failure should reproduce the failure on the current procedure, apply the smallest general fix, then replay both the failing case and a representative successful case to confirm the fix does not regress normal output.
+
+A rehearsal is a real run and closes like one. Judge it on its ending as well as its output: a rehearsal that produced the right text but finalized without the result reaching the thread, or closed green while a subscriber got nothing, has reproduced the defect rather than fixed it.
 - A behavioral redesign, meaning a change to what the automation produces or how it evaluates its sources, calls for the full evaluation loop.
 
 When you can rehearse, do it while the automation is disabled: `heliox automation run <id>`, then fetch the transcript through Entry 2's commands to read the result. Disabling stops the schedule from firing on its own, but a manual run is still a real run. A fresh executor wakes up in its own thread and follows the full contract, including delivering the result to every subscriber in the fired-time snapshot. You cannot intervene in that delivery from the outside.
@@ -135,7 +137,19 @@ Tell the owner, especially when the automation is already enabled, because the n
 
 ## Executing one run
 
-When you have been woken to execute a run rather than to change the automation, follow [`references/executing-a-run.md`](references/executing-a-run.md).
+When you have been woken to execute a run rather than to change the automation, follow [`references/executing-a-run.md`](references/executing-a-run.md). Its core is short enough to carry here, because every run you fire while refining closes the same way.
+
+**The result goes in the run's own thread.** That thread is the audit record and is never left empty: a result sent only as a DM leaves the owner opening a finished run and finding nothing.
+
+Then exactly one terminal verb ends it:
+
+```bash
+heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber has been DM'd a digest
+heliox automation run failed  <execution_id> --reason "<what broke>"      # the owner has been DM'd what broke; a thread mention does not count
+heliox automation run skip    <execution_id> --reason "<checked what; why quiet>"  # a one-line all-clear in the thread, no digests
+```
+
+Exactly one of them ends a run. `message cede` does not: it finalizes the turn while leaving no record, so the owner opens a finished run and finds nothing. A quiet period is a `skip` with a reason, not a decline.
 
 ## Output language
 

@@ -5,127 +5,672 @@
       "id": 1,
       "prompt": "Our existing support-digest automation sometimes posts 'no urgent tickets' when the Zendesk API times out. Improve the existing automation without replacing it. In this evaluation, describe the maintenance and evaluation work only; do not call APIs.",
       "expected_output": "Gathers evidence from failing runs through Entry 1, identifies the root cause as a missing distinction between no-result and dependency-failure in the procedure, edits the bound procedure in place to add an explicit timeout-handling path, and validates the fix while preserving the automation and trigger identities.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_supp1, bound to the support-digest automation)",
+          "content": "# Support digest\n\n## Objective\nGive @ops-lead a morning picture of urgent support load.\n\n## Inputs and freshness\nRead Zendesk tickets with priority=urgent created in the last 24 hours.\n\n## Procedure\n1. Fetch the matching tickets.\n2. Group by requester organisation.\n3. Write one line per ticket: id, org, subject.\n\n## Output and delivery\nPost the digest to #support-morning.\n\n## Failure and no-result behavior\nIf there are no tickets, post \"No urgent tickets.\"\n\n## Done when\nThe digest is posted."
+        },
+        {
+          "name": "run e-8814 (yesterday 08:30, finalized success)",
+          "content": "08:30:02 read Zendesk priority=urgent window=24h\n08:30:32 ERROR upstream request timed out after 30s\n08:30:32 no tickets collected\n08:30:33 posted to #support-morning: \"No urgent tickets.\"\n08:30:33 finalized: success"
+        }
+      ],
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Gathers evidence first: inspects the current procedure and recent failing runs through the run show command with --transcript --json, treating the production failure as baseline evidence.",
-        "Identifies the Zendesk timeout as a method-layer problem (how the procedure handles dependency failure) that the refiner can fix without involving the owner.",
-        "Edits the bound procedure document in place rather than recreating the automation, preserving its identity and run history.",
-        "Adds an explicit distinction in the procedure between a genuine zero-ticket period and a Zendesk API failure, so timeouts stop producing false 'no urgent tickets' output.",
-        "Validates the fix with at least a rehearsal run and transcript inspection, comparing the new behavior against the baseline failure.",
-        "Disables the automation before the behavioral edit when leaving it live could send incorrect output, or explicitly justifies leaving it enabled"
-      ]
+        "Identifies the `## Failure and no-result behavior` section as the place that is wrong, because it treats an empty collection as a quiet period without asking why it was empty.",
+        "States that the procedure has no branch for a source it could not reach, distinct from a source that returned nothing.",
+        "States that run e-8814 should have finalized as failed rather than success, since nothing was actually checked.",
+        "Proposes an edit to the failure section that names the unreachable case explicitly and says who is told.",
+        "Treats this as a method-layer change the refiner may make without going back to the owner.",
+        "Bases the change on run e-8814 as observed evidence rather than on a general preference for robustness.",
+        "Edits the bound procedure document in place rather than recreating the automation, so the run history survives.",
+        "States that the edit is made against a unique span of the existing text, not by rewriting the whole document.",
+        "Proposes proving the fix by replaying the unreachable condition while the automation is disabled, rather than waiting for the next timeout."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 2,
       "prompt": "Assume the surrounding conversation with this user has been entirely in Chinese. The user now says only: 'auto_4d1: 8:45'. Make that timing edit and update the automation's wording accordingly; describe the change only, do not call APIs in this evaluation.",
       "expected_output": "Recognizes that the terse edit instruction 'auto_4d1: 8:45' is too short to determine its own language, so any artifact wording the edit touches falls back to the room language — Chinese — following the output-language rule rather than defaulting to English because the handle and numbers are ASCII.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_4d1, bound to the daily ticket digest)",
+          "content": "# 每日工单摘要\n\n## Objective\n每天早上把前一天的紧急工单情况发给负责人。\n\n## Inputs and freshness\n读取前 24 小时内 priority=urgent 的工单。\n\n## Procedure\n1. 拉取符合条件的工单。\n2. 按组织分组，每条一行。\n\n## Output and delivery\n发到 #support-morning。\n\n## Failure and no-result behavior\n没有工单时发「昨天没有紧急工单」。9:00 的窗口读不到源时通知负责人并标记失败。\n\n## Done when\n摘要已发出。"
+        },
+        {
+          "name": "trigger (scheduled, attached to auto_4d1)",
+          "content": "cron: 0 9 * * *\ntimezone: Asia/Shanghai"
+        }
+      ],
+      "category": "brief",
+      "clarity": "vague",
+      "stage": "refine",
       "expectations": [
-        "Recognizes the terse edit instruction carries no determinable language of its own.",
-        "Falls back to the room language (Chinese) for any artifact wording it changes.",
-        "Applies the output-language rule's room-language fallback rather than choosing a language arbitrarily.",
-        "Does not default to English merely because the handle and time are ASCII characters.",
-        "Preserves the automation and trigger identities for a simple timing edit.",
-        "Changes the schedule and only the wording the time change touches — no unrelated field or procedure rewrites"
-      ]
+        "Interprets 'auto_4d1: 8:45' as a request to change the automation's firing time to 8:45.",
+        "Identifies the cron expression on the trigger as where the firing time lives, not the procedure document.",
+        "States that `heliox automation update` has no flag for the cron expression, so the time cannot be changed on the existing automation.",
+        "Names the replacement path: create a new automation at 8:45, validate it disabled, disable the old one, then enable the replacement.",
+        "Notices that the procedure text mentions a 9:00 window, so the document also needs editing to match the new time.",
+        "Writes the edited procedure text in Chinese, matching the language of the surrounding conversation and the existing document.",
+        "Confirms the intended time back to the user, since 'auto_4d1: 8:45' states a time without saying what about it changes.",
+        "Bases the document edit on the existing text's own wording rather than rewriting the document in a new style."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 4,
       "prompt": "Look at how the weekly infrastructure-cost automation has been running over the past month and tell me if anything needs attention. Describe the review process only; do not call APIs in this evaluation.",
       "expected_output": "Enters through Entry 3 (cross-run retrospective), fetches multiple recent runs to distinguish one-off glitches from systemic decay, and reports patterns rather than reacting to a single run's outcome.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_infracost, bound to the weekly infrastructure-cost automation)",
+          "content": "# Weekly infrastructure cost\n\n## Objective\nTell @platform-lead how last week's spend compared to the week before.\n\n## Inputs and freshness\nRead the cost report for the previous Monday-to-Sunday week.\n\n## Procedure\n1. Total spend by service.\n2. Compare each service against the prior week.\n3. List any service that moved more than 10%.\n\n## Output and delivery\nPost the comparison to #platform.\n\n## Failure and no-result behavior\nIf no service moved more than 10%, post \"No significant cost movement.\"\n\n## Done when\nThe comparison is posted."
+        },
+        {
+          "name": "run history, last four weeks",
+          "content": "e-8801  wk-1  success  posted: 2 services above 10%\ne-8830  wk-2  success  posted: \"No significant cost movement.\"\ne-8859  wk-3  success  posted: \"No significant cost movement.\"\ne-8888  wk-4  success  posted: \"No significant cost movement.\"\n\nnote: the cost report for wk-3 and wk-4 was itself incomplete upstream -- two of nine\nservices reported no data. The runs did not mention this."
+        }
+      ],
+      "category": "brief",
+      "clarity": "vague",
+      "stage": "refine",
       "expectations": [
-        "Enters through Entry 3: a cross-run review requested by the user, gathering evidence from multiple past runs rather than a single one.",
-        "Uses heliox automation runs <id> to list recent executions, then heliox automation run show on representative runs to inspect transcripts.",
-        "Distinguishes a one-off glitch (a source failing once and recovering) from systemic decay (the same failure repeating across runs).",
-        "Does not propose a procedure change for a one-off failure — reports it as a single bad run and moves on.",
-        "Identifies systemic patterns (if any) and classifies them using the decay table: source API changes, renamed references, vague steps, or missing access.",
-        "Reports findings to the owner with evidence from specific runs, rather than a vague summary"
-      ]
+        "Identifies that three consecutive quiet weeks are worth examining rather than accepting as a stable period.",
+        "Identifies that wk-3 and wk-4 ran against an incomplete cost report and reported no movement anyway.",
+        "States that the procedure has no branch for a source that returned partial data, so a partial read is indistinguishable from a complete one.",
+        "States that \"No significant cost movement\" was misleading in wk-3 and wk-4, because two services were not measured.",
+        "Proposes that the procedure check the report's completeness before comparing, and say what is missing when it is not complete.",
+        "Treats the partial-data handling as a method-layer change the refiner may make directly.",
+        "Names the specific runs as the evidence for the change rather than describing the risk in general terms.",
+        "Reports the finding to the owner, since the owner asked whether anything needs attention.",
+        "Notes that all four runs finalized as success, so run status alone would never have surfaced this."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 5,
       "prompt": "The GitHub token our deploy-status automation uses was rotated last week and now every run fails with a 401. Fix it. Describe the repair process only; do not call APIs in this evaluation.",
       "expected_output": "Identifies the 401 as a revoked-credential problem from the decay table, recognizes it cannot self-repair because restoring access requires a human action, and escalates to the owner with the specific access that needs to be restored.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_deploy2, bound to the deploy-status automation)",
+          "content": "# Deploy status\n\n## Objective\nReport the last 24 hours of deploys to the engineering channel.\n\n## Inputs and freshness\nRead GitHub deployments for the last 24 hours.\n\n## Procedure\n1. Fetch deployments and their statuses.\n2. Summarise successes and failures.\n\n## Output and delivery\nPost the summary to #eng.\n\n## Failure and no-result behavior\nIf there were no deploys, post \"No deploys in the last 24 hours.\"\n\n## Done when\nThe summary is posted."
+        },
+        {
+          "name": "runs e-9100 through e-9106 (last seven days)",
+          "content": "e-9100  failed  GitHub API 401 Unauthorized on /repos/../deployments\ne-9101  failed  GitHub API 401 Unauthorized\ne-9102  failed  GitHub API 401 Unauthorized\ne-9103  failed  GitHub API 401 Unauthorized\ne-9104  failed  GitHub API 401 Unauthorized\ne-9105  failed  GitHub API 401 Unauthorized\ne-9106  failed  GitHub API 401 Unauthorized"
+        }
+      ],
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Gathers evidence from recent failing runs showing the 401 error, confirming the root cause is a revoked or rotated credential.",
-        "Classifies this as 'Expired credentials, or access that was revoked' from the decay table — a problem the refiner cannot fix on its own.",
-        "Does not attempt to edit the procedure or work around the missing credential — the fix requires a human to provide or reconnect access.",
-        "Escalates to the owner with a specific description of what access is needed: the GitHub token needs to be reconnected or the new token configured.",
-        "Does not disable the automation preemptively without telling the owner, but recommends disabling to stop noisy failures until the credential is restored.",
-        "Explains why it cannot fix this itself rather than saying 'I cannot fix this' without a reason"
-      ]
+        "States that a rotated credential is not fixed by editing the procedure document, because the procedure does not hold the credential.",
+        "Names reconnecting or re-authorising the GitHub integration as the actual repair.",
+        "States that no procedure edit would have prevented this, so the document should be left alone.",
+        "Notes that the automation correctly finalized as failed on every run, so the failure path worked.",
+        "Asks whether the owner was notified on each of the seven failed runs, or observes that seven silent failures is itself a problem.",
+        "Proposes confirming the repair with one run while the automation is still disabled, rather than enabling it and waiting.",
+        "Bases the diagnosis on the repeated 401 in the run history rather than on the user's description alone."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 6,
       "prompt": "The daily standup digest works fine, but I want it to also include a section on open blockers from the task board. Describe how you would handle this change; do not call APIs in this evaluation.",
       "expected_output": "Recognizes the request as an intent-layer change — what the automation produces — and brings the recommendation back to the owner rather than editing the procedure unilaterally, because adding a new output section changes the contract the owner agreed to at creation.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_standup, bound to the daily standup digest)",
+          "content": "# Daily standup digest\n\n## Objective\nGive the team a picture of yesterday's movement before standup.\n\n## Inputs and freshness\nRead commits and merged pull requests from the previous day.\n\n## Procedure\n1. List merged pull requests with author.\n2. Note any branch with no activity for three days.\n\n## Output and delivery\nPost the digest to #standup at 09:00.\n\n## Failure and no-result behavior\nIf nothing merged yesterday, post \"Nothing merged yesterday.\"\n\n## Done when\nThe digest is posted."
+        },
+        {
+          "name": "heliox automation subscriber list auto_standup",
+          "content": "@tech-lead   (owner, implicit)\n@eng-manager"
+        }
+      ],
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Classifies the change as intent-layer: adding a new section changes what the automation produces, not how it reads existing sources.",
-        "Brings a concrete recommendation to the owner (how the blockers section would work, where the data comes from, what the output would look like) rather than editing the procedure directly.",
-        "Waits for the owner's approval before writing the edit, because intent-layer changes need the owner's sign-off to be legitimate.",
-        "If the requester is not the owner, confirms with the owner before proceeding — the request comes from someone who may not set the automation's scope.",
-        "Plans to capture the new source in the procedure's Inputs and freshness section so the executor knows where to read and what window to apply.",
-        "Considers whether the change also needs a failure path for the new data source and plans to add one"
-      ]
+        "Treats adding a blockers section as an intent-layer change, because it changes what the automation produces.",
+        "Brings the change back to the owner rather than editing the procedure on its own authority.",
+        "Asks which task board the blockers come from, since the procedure currently reads only commits and pull requests.",
+        "Notes that the new section needs a source the automation does not currently read, so access to it has to be confirmed.",
+        "Asks what counts as a blocker, rather than choosing a definition.",
+        "States what the blockers section says when nothing is blocked.",
+        "States that an empty blockers list does not cause the lookback to be widened to find something.",
+        "States what the digest does when the task board is readable but the commit source is not, or the reverse.",
+        "Proposes rehearsing the extended digest while the automation is disabled before it reaches #standup."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 7,
       "prompt": "The #incidents channel was renamed to #incident-response and now the monitoring automation posts to nowhere. Fix the automation so it posts to the right channel. Describe the fix only; do not call APIs in this evaluation.",
       "expected_output": "Identifies the renamed channel as a method-layer decay problem — a reference the procedure points to has moved — and self-repairs by updating the channel name in the procedure without involving the owner for approval, because the fix restores the original intent without changing it.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_mon5, bound to the monitoring automation)",
+          "content": "# Service monitoring\n\n## Objective\nTell the on-call channel when a service check fails.\n\n## Inputs and freshness\nRead the health endpoints listed in the runbook every 5 minutes.\n\n## Procedure\n1. Call each endpoint.\n2. Collect non-200 responses.\n\n## Output and delivery\nPost failures to #incidents. Include the endpoint and the status code.\n\n## Failure and no-result behavior\nIf every endpoint returns 200, finalize quietly. If an endpoint cannot be reached at all, treat it as a failure and include the connection error.\n\n## Done when\nFailures are posted, or the run finalized quietly."
+        },
+        {
+          "name": "run e-9440 (this morning, finalized success)",
+          "content": "09:15:01 called 6 endpoints\n09:15:04 1 non-200: /api/orders returned 503\n09:15:05 post to #incidents FAILED: channel_not_found\n09:15:05 finalized: success"
+        }
+      ],
+      "category": "watch",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Gathers evidence from recent runs showing the delivery failure caused by the renamed channel.",
-        "Classifies this as method-layer decay: 'A channel, document, or person it points at was renamed or moved' — fixable without owner involvement.",
-        "Edits the procedure in place using heliox document edit to update the channel reference from #incidents to #incident-response.",
-        "Does not recreate the automation or its trigger — preserves identity and run history for a simple reference update.",
-        "Validates the fix by checking the procedure reads back correctly with the updated channel name.",
-        "Tells the owner about the change afterwards, since the automation is already enabled and the next run will use the new procedure"
-      ]
+        "Identifies the channel name in `## Output and delivery` as the span to edit.",
+        "States that run e-9440 finalized as success while its delivery failed, so the done-when condition does not notice an undelivered post.",
+        "Proposes fixing the run's success condition so a failed delivery cannot finalize as success, in addition to fixing the channel name.",
+        "Treats the channel rename as a method-layer fix the refiner may make directly.",
+        "Edits the bound document in place against the existing span rather than recreating the automation.",
+        "Asks whether any other automation posts to the old channel name, or notes that this fix covers only this one.",
+        "Proposes reading the procedure back after the edit to confirm the new channel name is in place.",
+        "Bases the fix on the channel_not_found error in the run rather than on the report alone."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 8,
       "prompt": "Also send the weekly sales report to @jordan — they just joined the revenue team. Describe the change only; do not call APIs in this evaluation.",
       "expected_output": "Recognizes that adding a subscriber is state stored on the automation, not in the procedure document. Uses the subscriber CLI command rather than editing the procedure text, because writing 'send this to Jordan too' into the steps changes nothing — the fired-time audience snapshot comes from the stored subscriber list.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_sales2, bound to the weekly sales report)",
+          "content": "# Weekly sales report\n\n## Objective\nGive the revenue team last week's closed-won summary.\n\n## Inputs and freshness\nRead HubSpot deals with stage=closed-won closed in the previous Monday-to-Sunday week.\n\n## Procedure\n1. Total the deal values.\n2. List the five largest deals.\n\n## Output and delivery\nPost the report to #revenue. Send it to @maria and @dev-lead.\n\n## Failure and no-result behavior\nIf no deals closed, post \"No deals closed last week.\"\n\n## Done when\nThe report is posted."
+        },
+        {
+          "name": "heliox automation subscriber list auto_sales2",
+          "content": "@maria      (owner, implicit)\n@dev-lead"
+        }
+      ],
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Recognizes that adding a recipient is a subscriber-list change, not a procedure edit — the audience is stored on the automation, not in the document.",
-        "Uses heliox automation subscriber add <id> @jordan rather than editing the procedure document.",
-        "Does not write 'send this to Jordan too' into the procedure steps, because the executor snapshots the stored subscriber list at fire time.",
-        "Plans to confirm the change landed by checking heliox automation subscriber list <id> to see that @jordan appears in the effective audience.",
-        "Tells the owner that @jordan has been added, especially since this changes who receives the output going forward.",
-        "Treats this as an intent-layer change — adding a recipient exposes the output to someone new. If the requester is not the owner, confirms with the owner before running subscriber add"
-      ]
+        "States that adding @jordan to the procedure text would change nothing, because every fire snapshots the stored subscriber list.",
+        "Names `heliox automation subscriber add` as the command that actually changes who receives the report.",
+        "Notes that the procedure's `## Output and delivery` section already names recipients, which is misleading because that text does not drive delivery.",
+        "Treats who receives the output as an intent-layer property, so it is the owner's call rather than a self-edit.",
+        "Confirms the resulting audience rather than assuming the add succeeded.",
+        "States that the owner @maria receives the report regardless, because the owner is always implicit."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 9,
       "prompt": "The hourly log-anomaly scan could not reach the source at 03:00 — the connection timed out — and finalized as failed. The next run at 04:00 connected normally and completed a clean scan. Should the procedure be changed? Describe your reasoning; do not call APIs in this evaluation.",
       "expected_output": "Recognizes this as a one-off failure that does not justify a procedure change. The source failed once and recovered — adding a workaround would permanently hide the real health of the automation. Reports the 03:00 run as a single failed run and moves on.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_loganom, bound to the hourly log-anomaly scan)",
+          "content": "# Hourly log-anomaly scan\n\n## Objective\nSurface unusual log patterns to @sre-oncall within the hour.\n\n## Inputs and freshness\nRead application logs for the last 60 minutes.\n\n## Procedure\n1. Fetch the window's logs.\n2. Compare pattern counts against the trailing 7-day baseline.\n3. Report any pattern more than 3x its baseline.\n\n## Output and delivery\nPost findings to #sre-alerts.\n\n## Failure and no-result behavior\nIf no pattern exceeds the threshold, finalize quietly without posting. If the log source cannot be reached, retry once after 60 seconds; if the retry also fails, notify @sre-oncall and finalize as failed with the error.\n\n## Done when\nEither findings are posted or the run finalized quietly."
+        },
+        {
+          "name": "runs e-7761 and e-7762",
+          "content": "e-7761 03:00:01 read logs window=60m\ne-7761 03:00:31 ERROR connection timed out\ne-7761 03:01:31 retry: connection timed out\ne-7761 03:01:31 notified @sre-oncall\ne-7761 03:01:31 finalized: failed (source unreachable: connection timed out)\n\ne-7762 04:00:01 read logs window=60m\ne-7762 04:00:08 3 patterns checked against baseline, none above 3x\ne-7762 04:00:08 finalized: quietly, no post"
+        }
+      ],
+      "category": "watch",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Gathers evidence from both the 03:00 and 04:00 runs to confirm the failure was transient and the source recovered.",
-        "Classifies this as 'The source failed just this once' from the decay table — do not touch the procedure.",
-        "Explains that adding a workaround for a one-off failure hides the real health of the automation and makes future systemic decay invisible.",
-        "Reports the 03:00 run as a single bad run, not as a reason to redesign the procedure.",
-        "Does not propose widening the search window, adding a retry, or any other procedure change in response to a single transient failure.",
-        "Distinguishes this outcome from systemic decay — repeated failures across runs would warrant a procedure change, but one failure does not"
-      ]
+        "Concludes that no procedure change is warranted, because the procedure already specifies this path and the run followed it.",
+        "Points to the retry-then-notify-then-fail clause in `## Failure and no-result behavior` as evidence the behaviour was intended.",
+        "States that one transient failure is not evidence of a defect, so changing anything here would be a change without evidence.",
+        "Names what would make it evidence, such as the same failure recurring across runs or at a rate the owner cares about.",
+        "Notes that the 03:00 window's logs were never scanned and asks whether that gap needs covering, which is a separate question from the failure handling.",
+        "States that covering the missed hour needs the owner's agreement, because widening the next run's window changes what that run reports.",
+        "Reports the finding to the owner rather than closing silently, since the owner asked."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     },
     {
       "id": 10,
       "prompt": "The competitor-analysis automation reads from a third-party API that just switched from REST to GraphQL. The old endpoint returns 404. Fix the procedure to use the new endpoint. Describe the repair only; do not call APIs in this evaluation.",
       "expected_output": "Identifies the 404 as a method-layer decay: the source changed its API. Self-repairs by updating the procedure's steps to match the new GraphQL interface, driven by the observed 404 evidence rather than a preference for the new endpoint.",
-      "files": [],
+      "files": [
+        {
+          "name": "procedure document (auto_compete, bound to the competitor-analysis automation)",
+          "content": "# Competitor analysis\n\n## Objective\nTrack competitor pricing changes weekly for @product-lead.\n\n## Inputs and freshness\nRead the vendor's REST endpoint GET /v2/pricing for all tracked competitors.\n\n## Procedure\n1. Fetch pricing for each tracked competitor.\n2. Diff against last week's stored snapshot.\n3. Write up any change.\n\n## Output and delivery\nPost changes to #product. Store this week's snapshot for next week's diff.\n\n## Failure and no-result behavior\nIf no prices changed, post \"No competitor pricing changes.\"\n\n## Done when\nChanges are posted and the snapshot is stored."
+        },
+        {
+          "name": "run e-9520 (this week, finalized failed)",
+          "content": "10:00:01 GET /v2/pricing\n10:00:01 ERROR 404 Not Found\n10:00:01 notified @product-lead\n10:00:01 finalized: failed (source returned 404)\nnote: no snapshot was stored this week"
+        }
+      ],
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
       "expectations": [
-        "Gathers evidence from recent runs showing the 404 error on the old REST endpoint.",
-        "Classifies this as method-layer decay: 'The service it reads changed its API, its URL, or its response shape' — fixable without owner involvement.",
-        "Updates the procedure steps to use the new GraphQL endpoint and adjusts the field mapping to match the new response shape.",
-        "Motivates the change with observed evidence (the 404 and the endpoint migration) rather than a preference for GraphQL over REST.",
-        "Plans to capture the baseline (current broken procedure + failing run) before editing, so the fix can be compared against both the failure and a representative successful run.",
-        "Preserves the automation and trigger identities — does not recreate for an API migration"
-      ]
+        "Identifies the endpoint in `## Inputs and freshness` as the span to edit.",
+        "States that a GraphQL endpoint returns a different response shape, so the field mapping in the procedure has to change too, not just the URL.",
+        "Treats the endpoint change as a method-layer change the refiner may make directly.",
+        "Notes that no snapshot was stored this week, so next week's diff has no baseline to compare against.",
+        "Says what the first run after the fix does given the missing snapshot, rather than letting it report a spurious change.",
+        "Bases the change on run e-9520's 404 rather than on a preference for the newer API.",
+        "Edits the bound document against the existing span rather than recreating the automation.",
+        "Proposes proving the new endpoint against stored historical prices before the automation is re-enabled."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 11,
+      "prompt": "The quarterly board pack automation has been running for two quarters. The board says it is not useful. Fix it. Describe the maintenance and evaluation work only; do not call APIs in this evaluation.",
+      "expected_output": "Diagnoses what 'not useful' means by examining recorded run output before changing anything, compares against the live procedure rather than the original request, and works within the constraint of at most two quarterly data points. Isolates outward delivery and returns the proposed change to the owner.",
+      "files": [
+        {
+          "name": "procedure document (auto_boardpack, bound to the quarterly board pack)",
+          "content": "# Quarterly board pack\n\n## Objective\nProduce the quarterly pack for the board.\n\n## Inputs and freshness\nRead the quarter's revenue, headcount and pipeline figures.\n\n## Procedure\n1. Pull each figure.\n2. Lay them out in the standard template.\n\n## Output and delivery\nEmail the pack to the board distribution list.\n\n## Failure and no-result behavior\nIf a figure is unavailable, leave the field blank and note it at the bottom.\n\n## Done when\nThe pack is emailed."
+        },
+        {
+          "name": "runs e-7000 and e-8000 (the two quarters so far)",
+          "content": "e-7000  Q-1  success  emailed pack; 1 blank field (pipeline)\ne-8000  Q0   success  emailed pack; 2 blank fields (pipeline, headcount)"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "vague",
+      "stage": "refine",
+      "expectations": [
+        "Asks the board what 'not useful' means, rather than inferring which part to change.",
+        "Treats what the pack contains and what counts as good enough as intent-layer properties belonging to the owner and the board.",
+        "Notes that both runs shipped with blank fields, and raises that as a concrete candidate the board may be reacting to.",
+        "States that a blank field noted at the bottom is weaker than not shipping a figure the board relies on, or asks the board which they prefer.",
+        "Identifies that emailing the board is an outward action, so a changed pack needs approval before it is armed.",
+        "Notes that two runs is a thin evidence base for a redesign.",
+        "Names what further evidence would make the redesign better grounded.",
+        "Proposes verifying a revised pack against the two quarters already closed rather than waiting for the next.",
+        "States that the automation is disabled while the redesign is in progress, or that the next quarterly fire is held."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 12,
+      "prompt": "The weekly rebalance automation fired on Good Friday last week and submitted orders to a closed exchange. The orders were rejected. Fix the schedule logic. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms the holiday firing from recorded output, identifies the schedule logic gap, proposes a calendar-based fix rather than hard-coded dates, validates against a past holiday, and recommends disabling until the fix is verified because the automation moves money.",
+      "files": [
+        {
+          "name": "procedure document (auto_rebal7, bound to the weekly rebalance automation)",
+          "content": "# Weekly rebalance\n\n## Objective\nBring the portfolio back to target weights once a week.\n\n## Inputs and freshness\nRead current positions and target weights.\n\n## Procedure\n1. Compute the drift per holding.\n2. Submit orders to close the gap.\n\n## Output and delivery\nPost the submitted orders to #trading-desk.\n\n## Failure and no-result behavior\nIf drift is under 1% on every holding, post \"No rebalance needed.\"\n\n## Done when\nOrders are submitted and posted."
+        },
+        {
+          "name": "trigger (scheduled, attached to auto_rebal7)",
+          "content": "cron: 30 15 * * 5\ntimezone: America/New_York"
+        },
+        {
+          "name": "run e-9002 (Good Friday, finalized failed)",
+          "content": "15:30:01 computed drift: 4 holdings above 1%\n15:30:04 submitted 4 orders\n15:30:06 ERROR exchange rejected all 4 orders: market closed\n15:30:06 finalized: failed"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "Identifies the cron expression on the trigger, not the procedure document, as where the schedule lives.",
+        "States that `heliox automation update` cannot change the cron expression, because it accepts no such flag.",
+        "Names the actual path for a cadence change: create a new automation with the corrected schedule, validate it while disabled, disable the old one, then enable the replacement.",
+        "States that the replacement is enabled only after the original is disabled, because both being live fires the same job twice.",
+        "Names submitting duplicate orders to the exchange as what a double fire would cause here.",
+        "Prefers disabling the old automation over deleting it, so its run history stays readable.",
+        "Points out that a cron expression alone cannot express a market-holiday exception, so the calendar check belongs in the procedure.",
+        "Proposes that the procedure verify the exchange is open before submitting, rather than relying on the schedule to be right.",
+        "Treats the rejected-order outcome as evidence that the failure path worked, and does not change it.",
+        "Proposes proving the fix against a known holiday date rather than waiting for the next one."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 13,
+      "prompt": "We moved the post-close numbers automation from 4:05pm to 3:30pm last month and the summary in #trading-desk has been a day stale ever since. Fix it. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms same-day data is unavailable at 3:30pm from recorded output, presents the freshness-versus-delivery trade-off to the owner rather than silently reverting, and validates by comparing output timestamps against market close.",
+      "files": [
+        {
+          "name": "procedure document (auto_close3, bound to the post-close numbers automation)",
+          "content": "# Post-close numbers\n\n## Objective\nSummarise the trading day's closing numbers for the desk.\n\n## Inputs and freshness\nRead the published post-close figures for the window starting 4:00pm on the previous calendar day and ending 4:00pm today.\n\n## Procedure\n1. Pull the closing figures for the window.\n2. Write a one-paragraph summary.\n\n## Output and delivery\nPost the summary to #trading-desk.\n\n## Failure and no-result behavior\nIf the figures are not published yet, post \"Figures not available.\"\n\n## Done when\nThe summary is posted."
+        },
+        {
+          "name": "trigger (scheduled, attached to auto_close3)",
+          "content": "cron: 30 15 * * 1-5\ntimezone: America/New_York\nnote: changed from 05 16 * * 1-5 on the 3rd of last month"
+        },
+        {
+          "name": "run e-9310 (yesterday 15:30, finalized success)",
+          "content": "15:30:01 window = previous day 16:00 -> today 16:00\n15:30:01 today 16:00 has not happened yet\n15:30:02 latest figures in window: previous trading day's close\n15:30:03 posted to #trading-desk: summary of the PREVIOUS day's close\n15:30:03 finalized: success"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "Identifies that the read window in `## Inputs and freshness` still ends at 4:00pm while the trigger now fires at 3:30pm, so the run reads a window that has not closed.",
+        "States that the schedule was moved without moving the window, and that the window is the thing now wrong.",
+        "Locates the window in the procedure document and the firing time on the trigger, as two separate places.",
+        "Proposes editing the window rather than moving the schedule back, or asks the owner which of the two they want.",
+        "Points out that at 3:30pm the current day's close has not happened, so no edit to the window can make today's figures available.",
+        "Raises the timing conflict with the owner rather than silently picking a window that produces stale-but-plausible output.",
+        "Bases the diagnosis on run e-9310 rather than on the report of staleness alone.",
+        "States that the run finalized as success while delivering the wrong day's numbers, so the done-when condition does not detect this failure.",
+        "Proposes proving the fix by running the corrected window against a completed trading day."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 14,
+      "prompt": "A customer replied angry because our overdue-invoice automation emailed them about an invoice they paid two days ago. Fix the automation. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms the payment-timing gap from the erroneous run, recommends immediate disabling, notes the email integration is not connected and cannot be used until reconnected, and proposes a payment-recency check before the email step.",
+      "files": [
+        {
+          "name": "procedure document (auto_overdue, bound to the overdue-invoice automation)",
+          "content": "# Overdue invoice chase\n\n## Objective\nRemind customers about invoices past due.\n\n## Inputs and freshness\nEach morning, read invoices whose due date is more than 14 days ago and whose status is unpaid.\n\n## Procedure\n1. Build the list of overdue invoices.\n2. For each one, send the reminder email to the billing contact.\n\n## Output and delivery\nEmail the customer from the billing address. Post a summary of who was emailed to #finance.\n\n## Failure and no-result behavior\nIf no invoices are overdue, finalize quietly.\n\n## Done when\nAll reminders are sent and the summary is posted.\n"
+        },
+        {
+          "name": "run e-9701 (finalized success)",
+          "content": "07:00:01 read unpaid invoices due > 14 days ago -> 23 invoices\n07:00:02 building email list\n07:04:38 sent 23 reminder emails\n07:04:39 posted summary to #finance\n07:04:39 finalized: success\nnote: invoice INV-4471 was paid at 07:02:15, while the batch was sending"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "Identifies the gap between building the list and sending each email as the cause, rather than treating the paid-status filter as wrong.",
+        "States that the invoice's status must be re-checked immediately before each send, not only when the list is built.",
+        "Names INV-4471 being paid at 07:02 during a batch that ran until 07:04 as the concrete evidence.",
+        "Identifies emailing customers as an outward action whose mistakes cannot be recalled.",
+        "Treats tightening the pre-send check as a method-layer change the refiner may make directly.",
+        "Notes that the run finalized as success, so run status would never have surfaced this.",
+        "Proposes proving the fix by rehearsing against a paid invoice while the automation is disabled, so no real customer is emailed during the test.",
+        "States that the rehearsal is pointed at a scratch address rather than at a real billing contact."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": [
+          "email"
+        ]
+      },
+      "world": {
+        "connected": [
+          "billing"
+        ],
+        "connectable": [
+          "email"
+        ],
+        "absent": []
+      }
+    },
+    {
+      "id": 15,
+      "prompt": "The price-alert automation sent 14 alerts last week. Only two of them were about moves that actually affected our position. Dial it back. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Establishes what 'actually affected our position' means before adjusting, reviews all 14 alerts from recorded output, and proposes replaying data against a candidate threshold rather than choosing one.",
+      "files": [
+        {
+          "name": "procedure document (auto_pricealert, bound to the price-alert automation)",
+          "content": "# Price alert\n\n## Objective\nTell @pm when a tracked instrument moves sharply.\n\n## Inputs and freshness\nEvery 15 minutes, read the latest price for each instrument on the watchlist.\n\n## Procedure\n1. Compare the latest price against the price 24 hours earlier.\n2. If the move exceeds 2% in either direction, raise an alert.\n\n## Output and delivery\nSend the alert to @pm as a direct message.\n\n## Failure and no-result behavior\nIf nothing moved more than 2%, finalize quietly.\n\n## Done when\nAlerts are sent, or the run finalized quietly.\n"
+        },
+        {
+          "name": "last week's 14 alerts",
+          "content": "12 alerts: instruments on the watchlist that the portfolio holds no position in\n 2 alerts: instruments the portfolio actually holds\n\nnote: the watchlist has 31 instruments; the portfolio holds 4 of them.\nAll 14 alerts were correct about the price move."
+        }
+      ],
+      "category": "act_external",
+      "clarity": "vague",
+      "stage": "refine",
+      "expectations": [
+        "Identifies that the alerts were all correct, so the threshold is not the defect.",
+        "Identifies the mismatch between the 31-instrument watchlist and the 4 held positions as the actual cause.",
+        "Proposes narrowing what is alerted on to held positions, or asks the owner whether that is what they want.",
+        "Treats what is worth raising to the owner as an intent-layer property rather than a self-edit.",
+        "Asks what 'affected our position' means as a rule the automation can apply.",
+        "States that lowering the alert count by raising the 2% threshold would suppress correct alerts about held positions too.",
+        "Bases the change on the 12-versus-2 split rather than on the raw alert count.",
+        "Proposes verifying a revised rule against last week's prices, which already contain the 14 moves."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 16,
+      "prompt": "Last Monday the weekly-numbers automation published a negative MRR figure to the public changelog. It turned out to be a formula error in the source spreadsheet, but the number was live for six hours before anyone caught it. Fix the automation. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms the upstream data error from recorded output, recommends immediate disabling, proposes a validation gate rather than upstream repair, addresses the public correction problem, and returns the change to the owner.",
+      "files": [
+        {
+          "name": "procedure document (auto_wknum, bound to the weekly-numbers automation)",
+          "content": "# Weekly numbers\n\n## Objective\nPublish last week's headline metrics to the public changelog.\n\n## Inputs and freshness\nRead the metrics tab of the company spreadsheet.\n\n## Procedure\n1. Read MRR, signups and churn from the named cells.\n2. Format them into the changelog entry template.\n\n## Output and delivery\nPublish the entry to the public changelog.\n\n## Failure and no-result behavior\nIf a cell is empty, publish the entry with that metric omitted.\n\n## Done when\nThe entry is published.\n"
+        },
+        {
+          "name": "run e-9800 (last Monday, finalized success)",
+          "content": "09:00:01 read metrics tab\n09:00:01 MRR = -41822\n09:00:02 formatted changelog entry\n09:00:03 published to public changelog\n09:00:03 finalized: success\nnote: the spreadsheet's MRR cell contained a formula error that morning.\nCorrected upstream at 15:10. The entry was live for six hours."
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "States that the procedure has no check on whether a value is plausible, only on whether the cell is empty.",
+        "Proposes a validity check on the figures before publishing, such as rejecting a negative MRR.",
+        "Identifies publishing to a public changelog as an outward action that cannot be recalled once live.",
+        "States that an implausible figure should stop the run and notify the owner rather than publish with the metric omitted.",
+        "Distinguishes an empty cell from a cell holding a wrong value, and notes the procedure only handles the first.",
+        "Treats a validity gate as a method-layer change the refiner may make directly.",
+        "Raises whether the entry should be reviewed by a person before publishing, which is the owner's call.",
+        "Notes that the run finalized as success, so run status would never have surfaced this.",
+        "Asks how the already-published entry is corrected or retracted, separately from preventing a repeat.",
+        "Proposes proving the gate against the erroneous value from last Monday, which is already known."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 17,
+      "prompt": "A vendor replied saying they already sent the signed contract last Tuesday, but the chase-vendors automation followed up again on Wednesday asking for it. Fix the automation. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms the duplicate chase from recorded output, identifies the missing reply-check step, acknowledges that the email integration can search for incoming replies rather than concluding the capability is absent, and proposes adding a reply check before each follow-up.",
+      "files": [
+        {
+          "name": "procedure document (auto_chase, bound to the chase-vendors automation)",
+          "content": "# Chase vendors\n\n## Objective\nFollow up with vendors who have not returned a signed contract.\n\n## Inputs and freshness\nEach Wednesday, read the contracts tracker for rows where signed_received is empty.\n\n## Procedure\n1. Build the list of vendors with no signature recorded.\n2. Email each one a follow-up.\n\n## Output and delivery\nEmail the vendor contact. Post the chased list to #legal-ops.\n\n## Failure and no-result behavior\nIf every contract is signed, finalize quietly.\n\n## Done when\nFollow-ups are sent and the list is posted.\n"
+        },
+        {
+          "name": "run e-9900 (Wednesday, finalized success) and the tracker row",
+          "content": "e-9900 09:00:01 read contracts tracker -> 6 rows with signed_received empty\ne-9900 09:00:40 emailed 6 vendors\ne-9900 09:00:41 finalized: success\n\ntracker row for Northwind Ltd:\n  contract_sent: last Monday\n  signed_received: (empty)\n  note: signed PDF arrived by email on Tuesday; nobody updated the tracker"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "Identifies that the tracker was stale rather than that the automation misread it.",
+        "States that the automation read its source correctly, so no procedure edit fixes the underlying cause.",
+        "Names the gap between the signature arriving and the tracker being updated as the real defect.",
+        "Raises with the owner whether the automation should read a source closer to the truth than a hand-updated tracker.",
+        "Proposes a lower-cost mitigation the refiner can make, such as stating in the follow-up that it is automated and asking the vendor to ignore it if already sent.",
+        "Treats changing which source the automation trusts as an intent-layer decision for the owner.",
+        "Identifies emailing vendors as an outward action, so a wrong chase is visible to someone outside the company.",
+        "Bases the diagnosis on the Northwind tracker row rather than on the vendor's complaint alone."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": [
+          "email"
+        ]
+      },
+      "world": {
+        "connected": [
+          "email"
+        ],
+        "connectable": [],
+        "absent": []
+      }
+    },
+    {
+      "id": 18,
+      "prompt": "Three customers called in this week saying they got a renewal reminder after they already told their account manager they are not renewing. Fix the automation. Describe the repair only; do not call APIs in this evaluation.",
+      "expected_output": "Confirms the erroneous reminders from recorded output, identifies the data-source gap for account-manager-communicated non-renewals, recommends immediate disabling, and presents the gap to the owner before proposing a fix.",
+      "files": [
+        {
+          "name": "procedure document (auto_renewal, bound to the renewal-reminder automation)",
+          "content": "# Renewal reminders\n\n## Objective\nRemind customers whose subscription renews soon.\n\n## Inputs and freshness\nEach Monday, read accounts whose renewal date falls in the next 30 days.\n\n## Procedure\n1. Build the list of upcoming renewals.\n2. Email each account contact a renewal reminder.\n\n## Output and delivery\nEmail the account contact. Post the list to #customer-success.\n\n## Failure and no-result behavior\nIf no renewals fall in the window, finalize quietly.\n\n## Done when\nReminders are sent and the list is posted.\n"
+        },
+        {
+          "name": "run e-9950 (Monday, finalized success) and three of the accounts",
+          "content": "e-9950 08:00:01 read accounts renewing within 30 days -> 41 accounts\ne-9950 08:03:12 emailed 41 account contacts\ne-9950 08:03:13 finalized: success\n\nAcme Corp      renewal in 12 days   CRM stage: Closed Lost      note: told AM they are not renewing\nBorealis Inc   renewal in 19 days   CRM stage: Closed Lost      note: told AM they are not renewing\nCedar Systems  renewal in 27 days   CRM stage: Closed Lost      note: told AM they are not renewing"
+        }
+      ],
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "expectations": [
+        "Identifies that the procedure filters only on renewal date and ignores account stage.",
+        "States that the three accounts were already marked Closed Lost in the CRM at the time of the run.",
+        "Proposes excluding accounts whose stage says they are not renewing.",
+        "Names the CRM stage as the field the procedure has to start reading.",
+        "Treats adding the stage filter as a method-layer change the refiner may make directly.",
+        "Identifies emailing customers as an outward action, so the mistake was visible to three customers and cannot be recalled.",
+        "Notes that the run finalized as success, so run status would never have surfaced this.",
+        "Asks whether any other stage should also be excluded, rather than fixing only the three observed cases.",
+        "Bases the change on the three named accounts rather than on the complaint count.",
+        "Proposes proving the filter against last Monday's 41 accounts, where the three exclusions are already known."
+      ],
+      "mode": "describe",
+      "needs": {
+        "tools": [],
+        "integrations": []
+      },
+      "world": {
+        "connected": [],
+        "connectable": [],
+        "absent": []
+      }
     }
   ]
 }
