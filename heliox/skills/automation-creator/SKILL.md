@@ -372,6 +372,12 @@ Those last two are not optional and not a closing pleasantry. An automation the 
 
 Enabling is the user's call. If they say "turn it on," go ahead, and then say it is now live and when it will first fire.
 
+The automation carries a directory, not just its procedure. Two files in it
+matter to the owner from day one: **experience.md**, where whoever runs it
+records what it actually hit, and **feedback.md**, where the owner records what
+they count as good. Point the owner at feedback.md — what they put there is what
+every later refinement round treats as the target, and only they can write it.
+
 From here on, the automation belongs to `heliox:automation-refiner`, which repairs it when it decays, changes what it produces, and reviews how it has been running. Point the user there.
 
 ## When the loop does not run

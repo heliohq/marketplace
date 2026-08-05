@@ -11,21 +11,16 @@ metadata:
 
 ## Model
 
-- Messages are addressed by per-channel `seq` — the coordinate every verb takes (`--seen`, `--around`, `--thread`, `--in-reply-to`, `--before`, `--after`, `cede`). Raw 24-hex ids are not part of this surface.
+- Messages are addressed by per-channel `seq` — the coordinate every verb takes (`--seen`, `--around`, `--thread`, `--in-reply-to`, `--before`, `--after`, `cede`). Raw 24-hex ids are not part of this surface. Seqs are agent-internal: they live in flags and `--json`, NEVER in text a user reads (see Quoting a message).
 - Targets are `'#<channel-name>'` (group) or `@<handle>` (DM). Quote `#name` in shell — unquoted `#` starts a comment. Bare strings and 24-hex ids are rejected.
 - Two read shapes: text rows (`<seq>  <time>  <sender>  <text>`) for a quick scan, `--json` when you'll parse fields — `attachments[].uri`, structured payloads (cards / question options), or the seq twins. A send ack prints the assigned seq either way.
 - `sender` resolves `@handle` → display name → bare id; never blank. A bare 24-hex sender means "unresolved" — identify it via `heliox workspace members get <id>`.
 
 ## Routing a reply
 
-Read `message` from the incoming system-reminder and choose the send path from `message.sender.interface`:
+The reply path is the same wherever the message came from: `heliox message send` into the channel it landed in. There is no per-provider send command to look for, and nothing to detect first.
 
-| Interface | Reply command |
-| --- | --- |
-| native Helio or missing | `heliox message send '#<channel-name>' "<text>" --seen "$LATEST_SEQ"` (or `@<handle>` for DM) |
-| `lark` / `slack` / `wechat` | No supported heliox provider-send command yet |
-
-For external provider messages, do not guess a CLI command or route through `heliox assistant`. Use `message send` only when the user explicitly wants a native Helio-channel post; otherwise explain that provider sends need a supported integration surface.
+That includes bridged channels — ones mirrored from Slack / Lark, which the reminder shows as `channel.kind: external` with outside senders as `from: {…, type: external}`. Reply natively there too: the gateway's reply bridge relays your message back to the provider conversation, and replying in the thread you were addressed in (`--thread`) lands it in the same provider thread/topic. If you ever need the provider name itself, it's the `interface` field on `message list --json` rows — not something the reminder carries.
 
 ## Send + the freshness discipline
 
@@ -53,17 +48,6 @@ A body carrying `$` or backticks gets shell-mangled inside `"..."` — the shell
 
 `--args-file` is the exception, not the default. Multi-line bodies, apostrophes, markdown headings, `#`, `;`, `!`, `?`, and every non-ASCII script pass through `"..."` byte-exact — send them inline. Reaching for the transport on every message costs a file write and a second command for nothing.
 
-## Mentions & markdown
-
-A mention is a bare `@handle` in the body — the sender's `from.username`, never an id. On send, known handles (case-insensitive) become real mention pills; the bare form is the only contract:
-
-- **Never hand-build mention markdown.** You never hold a trusted user id: a guessed `[@Name](helio://user/<id>)` with a well-formed id silently pings the **wrong person**. The CLI rescues a plain `[@Name]` half-form when the handle is known, but that is a safety net, not a format.
-- **Channel-wide broadcast is the one exception.** Write the exact literal `[@all](helio://channel/all)` — it contains no user id to guess, and only this canonical form raises the broadcast. Bare `@all` stays plain text on purpose (a casual "thanks @all" must never wake the whole channel). Use it only when everyone truly needs the ping.
-- An unknown handle (typo, someone outside the workspace) renders verbatim with no ping. If the pill matters, check the handle with member lookup first.
-- Mentions inside backticks render literally — that's how you QUOTE a handle without pinging.
-
-Markdown is GFM, kept light (`**bold**`, `` `code` ``, lists, links). Single newline = soft break; blank line = paragraph. For task/schedule/document links paste the `routeUrl` from `--json` as `[text](url)` — never hand-build a `helio://…` id. Bridged channels (`sender.interface` = `lark`, `slack`, `wechat`) may show raw markdown — prefer plain text there.
-
 ## Cede — decline the turn
 
 ```bash
@@ -71,6 +55,16 @@ heliox message cede --reason "peer covered" --seen "$LATEST_SEQ"
 ```
 
 Declines the whole current turn — the most common message verb. Only `--reason` and `--seen` are required.
+
+## Quoting a message
+
+To reference an earlier message, quote it — `--in-reply-to <seq>` renders the quoted message above your reply in every client:
+
+```bash
+heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --in-reply-to "<seq>"
+```
+
+**NEVER expose a seq number to a user.** Seqs are internal plumbing — YOUR coordinates, shown to you alone; no client renders a message number to a human, so "as you said in 482" / "see message 483" / "(seq 482)" points at nothing the reader can see and leaks the machinery. This holds in every user-visible surface: message bodies, thread replies, task descriptions, documents. The seq goes in the flag; the reader's view of it is the rendered quote. If you also need the words in front of the reader, requote the relevant line as a `>` blockquote.
 
 ## Native threads
 
@@ -82,6 +76,24 @@ heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --thread "$PARENT_SEQ" 
 ```
 
 `--in-reply-to` alone is a quote reply in the channel scroll — it does not enter a thread. Never invent a thread seq or pass an empty `--thread`.
+
+## Mentions & markdown
+
+A mention is a bare `@handle` in the body — the sender's `from.username`, never an id. On send, known handles (case-insensitive) become real mention pills; the bare form is the only contract:
+
+- **Never hand-build mention markdown.** You never hold a trusted user id: a guessed `[@Name](helio://user/<id>)` with a well-formed id silently pings the **wrong person**. The CLI rescues a plain `[@Name]` half-form when the handle is known, but that is a safety net, not a format.
+- **Channel-wide broadcast is the one exception.** Write the exact literal `[@all](helio://channel/all)` — it contains no user id to guess, and only this canonical form raises the broadcast. Bare `@all` stays plain text on purpose (a casual "thanks @all" must never wake the whole channel). Use it only when everyone truly needs the ping.
+- An unknown handle (typo, someone outside the workspace) renders verbatim with no ping. If the pill matters, check the handle with member lookup first.
+- Mentions inside backticks render literally — that's how you QUOTE a handle without pinging.
+
+Markdown is GFM, kept light (`**bold**`, `` `code` ``, lists, links). Single newline = soft break; blank line = paragraph. For task/schedule/document links paste the `routeUrl` from `--json` as `[text](url)` — never hand-build a `helio://…` id. Bridged channels (`channel.kind: external` in the reminder) may show raw markdown on the provider side — prefer plain text there.
+
+## Attachments
+
+- **Incoming**: nothing arrives on disk — an attachment is a ref until you fetch it, so there is no directory to look in first. Whole message: `heliox channel attachments download '#eng' <seq> --json` writes every file into the workspace and reports each `path`. One file: a row's `attachments[].uri` (from `--json`) → `heliox blob get <uri> -o <file>` (binary-safe; omit `-o` for stdout).
+- **Sending**: `-a <file>` on `message send` (repeatable, order preserved; body optional with `-a`).
+- **Never put an internal attachment URI or path in a message body.** `helio://…` uris and workspace paths resolve only for you — a human clicking either gets nothing. To hand a user a file, attach it (`-a <file>`); to point at one already in the channel, name it in prose or quote its message with `--in-reply-to`.
+- Keep generated files in the workspace, not `/tmp`, when they may be reused.
 
 ## Reading history
 
@@ -108,12 +120,6 @@ heliox message get 'turn:<id>'      # one of YOUR OWN turns (global; no channel 
 
 `get` also shows turn pivots: `produced by turn:` (the turn behind the message — dereference your own via `heliox me turns get`) and `processed by N turn(s)` (non-empty = picked up). Turn ids come from system output; never hand-assemble one.
 
-## Attachments
-
-- **Incoming**: may already be materialized under `.helio/attachments/…` (prefer the path in the runtime message context). Otherwise fetch by URI — a row's `attachments[].uri` (from `--json`) → `heliox blob get <uri> -o <file>` (binary-safe; omit `-o` for stdout). Not materialized? `heliox channel attachments download '#eng' <seq> --json`.
-- **Sending**: `-a <file>` on `message send` (repeatable, order preserved; body optional with `-a`).
-- Keep generated files in the workspace, not `/tmp`, when they may be reused.
-
 ## JSON shape (tooling)
 
 `--json` rows carry the same vocabulary as the text rows, machine-shaped.
@@ -123,6 +129,8 @@ Fields:
 - `seq`, `sender`, `text`, `created_at` — always present. `sender` is the only field a bare 24-hex id can surface in (its last-resort fallback).
 - `thread_root_seq` / `in_reply_to_seq` — feed `--thread` / `--in-reply-to` directly; absent on non-thread rows.
 - `type` — present only for non-default rows; absent means `channel_text`.
+- `interface` — the provider a row arrived through (e.g. `slack` / `lark`); absent for native sends. The only surface that names the provider — the reminder's `channel.kind: external` says bridged without saying which.
+- `edited` / `deleted` / `updated_at` — only on rows that were edited or deleted.
 - `content` / `typed_content` / `attachments` / `reactions` — only when set (`attachments[].uri` feeds `heliox blob get`).
 - `message get --json` also adds `produced_by_turn` / `processed_by`.
 

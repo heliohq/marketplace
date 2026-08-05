@@ -11,8 +11,9 @@ surface or the user explicitly needs periodic observation.
 - A poll trigger lets a small Lambda check frequently and fire the AI only
   when something deserves attention. This avoids starting a full AI run just
   to discover that nothing changed.
-- A webhook trigger exposes `webhook.helio.im/<trigger_id>`. Configure that URL
-  at the source yourself; Helio does not configure the external system.
+- A webhook trigger exposes `webhook.helio.im/<trigger_id>` in production.
+  In test, configure the exact URL returned by `trigger create`; Helio does not
+  configure the external system.
 
 ## Handler contract
 
