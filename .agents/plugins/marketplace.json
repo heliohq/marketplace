@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "heliox",
-      "version": "0.2.51",
+      "version": "0.2.52",
       "source": {
         "source": "local",
         "path": "./heliox"

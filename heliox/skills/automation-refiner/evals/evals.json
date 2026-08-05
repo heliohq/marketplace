@@ -671,6 +671,103 @@
         "connectable": [],
         "absent": []
       }
+    },
+    {
+      "id": 19,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "mode": "describe",
+      "prompt": "Have another look at the weekly release digest and tell me what you would change. Someone raised a request in the run channel too. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Treats the owner's signed feedback entry as the target and the executor's signed experience entry as evidence about whether the procedure reaches it. Notices they pull in opposite directions and resolves in the owner's favour rather than averaging them. Relays the non-owner's request to the owner instead of recording it: an executor may record what the OWNER asked for, but @dev-lead is not the owner, so their request cannot be entered in the owner's name.",
+      "files": [
+        {
+          "name": "feedback.md (auto_reldigest)",
+          "content": "# feedback.md\n\n- — @maria · owner · 2026-07-22\n  This is too long. I want the three things that actually shipped, nothing else. I do not need the full commit list.\n"
+        },
+        {
+          "name": "experience.md (auto_reldigest)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9140 · 2026-07-30\n  The digest's length tracks the number of merged PRs, which has roughly doubled since the automation was created. The procedure lists every merged PR by design, so the growth is expected behaviour rather than a defect. The GitHub source has been stable across all 40 runs; no failures, no partial reads. Based on e-9100 through e-9140.\n"
+        },
+        {
+          "name": "run channel excerpt",
+          "content": "@dev-lead: Could we add a section listing every merged PR with its author? It would help my 1:1s."
+        }
+      ],
+      "expectations": [
+        "Treats the owner's feedback entry as the target the automation must meet, not as one opinion among several.",
+        "States that the executor's explanation of why the digest grew does not justify keeping it long, because it is evidence rather than a requirement.",
+        "Identifies that @dev-lead's request for a full PR list contradicts the owner's request for a shorter digest.",
+        "States that @dev-lead's request is taken to the owner rather than written into feedback, because @dev-lead is not the owner — not because the executor is barred from recording feedback.",
+        "Proposes narrowing what the procedure includes, which is the change the owner's target implies.",
+        "Treats what the digest contains as an intent-layer property, so the change goes back to the owner rather than being made on the refiner's own authority.",
+        "States that the source's clean record across 40 runs means no failure-handling change is warranted.",
+        "States that what it concluded is written to the experience ledger, not only to the reply.",
+        "States that the experience entry records what THIS round showed and does not restate what earlier entries already hold, because the file is a timeline rather than one rewritten slot."
+      ],
+      "needs": {"tools": ["automation", "document"], "integrations": ["github", "slack"]},
+      "world": {"connected": ["github", "slack"], "connectable": [], "absent": []}
+    },
+    {
+      "id": 20,
+      "category": "watch",
+      "clarity": "clear",
+      "stage": "refine",
+      "mode": "describe",
+      "prompt": "The disk-space alert fired again overnight. Look at it. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Reads the experience ledger, finds the pattern earlier rounds already characterised, and does not re-diagnose it from scratch. Acts on the recurrence rather than treating it as a first sighting, and notices feedback says nothing about it, so the fix is method-layer and the refiner's to make.",
+      "files": [
+        {
+          "name": "experience.md (auto_diskwatch)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-7760 · 2026-07-30\n  The threshold alert fires on the backup volume every Sunday between 02:00 and 04:00, while the weekly backup job is writing. It clears on its own by 05:00. Seen in e-7712, e-7729 and e-7744. Earlier rounds left the procedure alone because two occurrences could not distinguish a pattern from coincidence; three now can. The alert is correct about the number and wrong about it mattering.\n"
+        },
+        {
+          "name": "feedback.md (auto_diskwatch)",
+          "content": "# feedback.md\n\n- — @sre-lead · owner · 2026-06-02\n  Wake me for anything that will page someone. I would rather get a false alarm than miss a real one.\n"
+        }
+      ],
+      "expectations": [
+        "States that this is a fourth occurrence of a pattern the experience ledger already describes, rather than diagnosing it as a new problem.",
+        "Uses the recorded run ids as the evidence base rather than asking for fresh investigation.",
+        "Identifies the backup window as the cause already established by earlier rounds.",
+        "Treats suppressing the alert during the known backup window as a method-layer change the refiner may make.",
+        "Notes that the owner's standing instruction favours false alarms over misses, and does not read it as forbidding this narrowing.",
+        "Distinguishes narrowing when the alert fires from lowering what the automation watches for.",
+        "States that the experience ledger is revised to record the fix, so a fifth occurrence is not investigated again.",
+        "Proposes verifying the change against the Sunday window already in the run history rather than waiting for next Sunday."
+      ],
+      "needs": {"tools": ["automation", "document"], "integrations": ["slack"]},
+      "world": {"connected": ["slack"], "connectable": [], "absent": []}
+    },
+    {
+      "id": 21,
+      "category": "watch",
+      "clarity": "clear",
+      "stage": "refine",
+      "mode": "describe",
+      "prompt": "Take another look at the certificate expiry watcher. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Notices the owner has disputed the standing observation, treats it as unusable evidence rather than reasoning from it, and proposes rechecking against the cited runs before revising. Does not argue with the dispute and does not attempt to edit the owner's entry.",
+      "files": [
+        {
+          "name": "experience.md (auto_certwatch)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-5561 · 2026-07-25\n  The upstream CA reissues certificates 14 days before expiry, so the 30-day warning always fires twice for the same certificate. Recommend widening the dedup window to 30 days. Based on e-5510, e-5533 and e-5561.\n\n  > ⚠ Disputed — @maria · owner · 2026-07-28\n  > Two of those three were the same certificate reissued after a failed renewal, not the CA's normal schedule. e-5533 was me rotating it by hand.\n"
+        },
+        {
+          "name": "feedback.md (auto_certwatch)",
+          "content": "# feedback.md\n\n- — @maria · owner · 2026-05-14\n  I would rather see a duplicate warning than miss an expiry.\n"
+        }
+      ],
+      "expectations": [
+        "States that the disputed observation is not usable evidence and does not reason from its conclusion.",
+        "Does not propose widening the dedup window on the strength of the disputed observation.",
+        "Proposes rechecking e-5510, e-5533 and e-5561 against the owner's account before revising.",
+        "States that the correction is acted on by writing a corrected revision of the experience ledger, not by editing the owner's dispute.",
+        "Recognises that the owner's standing preference for duplicates over misses argues against widening the window regardless.",
+        "Does not treat the dispute as something to argue with in the ledger.",
+        "Attributes the observation to the executor and the dispute to the owner using the signatures rather than any name inside the bodies."
+      ],
+      "needs": {"tools": ["automation", "document"], "integrations": ["slack"]},
+      "world": {"connected": ["slack"], "connectable": [], "absent": []}
     }
   ]
 }

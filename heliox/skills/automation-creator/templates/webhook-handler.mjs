@@ -5,8 +5,8 @@
 // contain handler.mjs) as a zip and deploy:
 //   heliox automation trigger create --kind webhook --code code.zip --env WEBHOOK_SECRET=...
 //
-// The trigger's public URL is https://webhook.helio.im/<trigger_id> — a PUBLIC
-// address, NOT a secret. Anyone who learns it can POST to it, so the only thing
+// Use the public URL returned by `trigger create` — it is NOT a secret. Anyone
+// who learns it can POST to it, so the only thing
 // that proves an event is genuine is verifyWebhook(). Never skip it for a
 // webhook whose automation has side effects (sends mail, changes data, spends
 // money); a read-only/idempotent automation can be laxer, but verifying is the
