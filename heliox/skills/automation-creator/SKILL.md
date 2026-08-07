@@ -18,12 +18,12 @@ Creating an automation goes like this:
 - Do the work once, right here in the conversation, and get their sign-off on the real output
 - Write down what happens on the paths you did not just see
 - Write the procedure
-- Create it, disabled, with the trigger the signal calls for
+- Create it with the trigger the signal calls for (cron: disabled until armed; one-shot: enabled, it fires at its start)
 - Run it against real data and grade what comes back
 - Improve it until it holds
 - Hand it over, naming what is still unproven
 
-The middle of that list is the part people skip. At creation time you have zero run data, so everything you believe about this automation is a prediction. Steps 7 and 8 are where predictions become evidence, and they are cheap: you do not have to wait for next Monday to see what next Monday looks like.
+Steps 7 and 8 are the ones that get skipped. At creation time you have zero run data, so everything you believe about this automation is a prediction; those two steps are where predictions become evidence, and they are cheap: you do not have to wait for next Monday to see what next Monday looks like.
 
 Work out where the user already is before you start. Three common openings:
 
@@ -161,7 +161,7 @@ When working through these paths with the user, ask concrete questions: "What sh
 
 ## 5. Write the procedure
 
-The procedure is the whole product. The trigger decides *when* something happens; the procedure decides *what*. It is read from scratch by an executor who was not in this conversation, has none of your context, and cannot ask you a follow-up question.
+The procedure carries the whole job: the trigger decides *when* something happens; the procedure decides *what*. It is read from scratch by an executor who was not in this conversation, has none of your context, and cannot ask you a follow-up question.
 
 ### The shape
 
@@ -175,7 +175,7 @@ The procedure is the whole product. The trigger decides *when* something happens
 ## Done when            (required)
 ```
 
-Every section is required. `## Failure and no-result behavior` in particular is not optional garnish. It is the output of step 4, it is the half of the automation nobody watches, and a procedure without it is a procedure that will improvise at 3 AM.
+Every section is required. `## Failure and no-result behavior` is the output of step 4: it governs the runs nobody is watching, and a procedure without it improvises at 3 AM.
 
 `## Objective` is one or two sentences on what this produces and who it is for. Not the schedule, not the steps. An executor reads this to know whether it is on the right track.
 
@@ -189,7 +189,7 @@ Every section is required. `## Failure and no-result behavior` in particular is 
 
 `## Done when` is the finish line, stated so a run can be graded against it. This is the acceptance criterion: the conditions under which the executor should finalize as success. Without it, a run that quietly did half the job finalizes green.
 
-Write both of those last two sections in the vocabulary the executor actually closes a run with.
+Write `## Failure and no-result behavior` and `## Done when` using the three closing verbs below — success, failed, skip — so the executor can match its situation to an ending without translating.
 
 **Every run leaves its result in the run's own thread.** That thread is the audit record. A result sent only as a DM leaves it blank, and a finished run whose thread shows nothing reads to its owner as a run that never happened. Long output goes in a document; the thread carries the reference. Write the delivery section so this is what the executor does, not something it may do.
 
@@ -201,7 +201,7 @@ heliox automation run failed  <execution_id> --reason "<what broke>"      # the 
 heliox automation run skip    <execution_id> --reason "<checked what; why quiet>"  # a one-line all-clear in the thread, no digests
 ```
 
-So "if there are no tickets, post 'No urgent tickets'" is the wrong shape for a no-result path: it describes a message, not an ending, and the run has no way to close. Write it as *skip with a reason recording what was checked*. The same goes for failures: `## Done when` says who is told, not only what state the run lands in.
+So "if there are no tickets, post 'No urgent tickets'" is the wrong shape for a no-result path: it describes a message, not an ending, and the run has no way to close. Write it as *skip with a reason recording what was checked*. Failure paths follow the same rule: write who gets told and which verb closes the run, not only what state it lands in.
 
 ### How to write it
 
@@ -260,17 +260,19 @@ incident cited falls inside the 24-hour window, and the run is closed with
 `heliox automation run success <execution_id>`.
 ```
 
-## 6. Create it, disabled
+## 6. Create it
 
 ### Pick the trigger
 
-Choose the trigger type based on where the signal comes from, not on how the user phrased the request.
+Choose the trigger type based on where the signal comes from, not on how the user phrased the request. Every request names a signal, and the signal is one of three things: a moment, a rhythm, or an event in another system. Decide which one it is before reaching for a flag.
 
-When time itself is the signal, the automation should run on a schedule. Use `--cron` for recurring or `--start` for a one-shot.
+**A moment that will pass — `--start` (one-shot).** The user names a deadline the work must land before: a meeting to prepare for, an invoice due Friday, a launch on the 14th. The date is known in advance and the automation's whole job is to hit it once. A one-shot is created enabled and fires exactly once at its start time; after that its slot is spent and cannot be re-armed — "the same reminder again" is a different moment and gets its own automation. If you find yourself creating the same one-shot again for each new instance (one per invoice, week after week), the signal was never a moment but a standing rule — build it once, as cron or an event trigger.
 
-When the source pushes a signed event, use a webhook trigger. The source notifies Helio when something happens.
+**A rhythm — `--cron` (recurring).** Time itself is the content boundary: a Monday digest exists to summarize the week since the last one, a morning brief covers yesterday. Nothing external decides when to run — the value is the regularity. A cron automation is created disabled and armed deliberately after the procedure is written, because a recurring trigger keeps firing forever.
 
-When the source has no reliable push mechanism, use a poll trigger. A lightweight check runs on a cron schedule and fires the automation only when it finds something worth acting on.
+**An event in another system — an event automation.** Something happens at a time nobody can predict — an issue is labeled urgent, a payment fails, a form is submitted — and the work is about that thing. Do not approximate it with cron: a cron that checks for events buys you delay (the event waits for the next tick), waste (most ticks find nothing), and a dedup problem (which events did the last tick already handle?) — three costs an event trigger simply does not have. Create it with NEITHER `--cron` nor `--start` — the three trigger kinds are mutually exclusive, and a schedule-backed automation cannot take an event trigger — then attach the trigger. When the source pushes a signed event, attach a webhook trigger: the source notifies Helio when something happens. When the source has no reliable push mechanism, attach a poll trigger: a lightweight check runs on a cron schedule and fires the automation only when it finds something worth acting on — the poll's cron decides when to check; the event decides whether to fire.
+
+The most common misassignment is a rhythm phrase hiding an event signal. "Check every morning whether any ticket went urgent" names a cadence, but the signal is the urgent ticket, not the morning — built as an event trigger, the user hears about the ticket when it happens instead of reading a morning list of things that went urgent yesterday. The reverse also happens: "remind me before Thursday's review" is not a tiny cron — the review is a moment, so it is a one-shot. And a request you can complete right now is not an automation at all; do the work now instead of scheduling it.
 
 "Checking every five minutes works fine" is a statement about acceptable delay, not a reason to poll instead of using a webhook. If the source supports webhooks, which you established in step 2, prefer them. They are fresher and avoid wasted checks.
 
@@ -293,17 +295,17 @@ Build the argument array as JSON and pass it through the args-file transport:
 heliox --json --args-file /absolute/path/create-automation.json
 ```
 
-Use either `--cron` or `--start` (one-shot), not both. When converting the user's phrasing to a cron expression: an explicit clock time is an exact cron ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset so that all loosely-timed automations do not fire at the same second.
+Use `--cron` (recurring), `--start` (one-shot), or neither (event automation — attach its trigger next); the kinds are mutually exclusive. When converting the user's phrasing to a cron expression: an explicit clock time is an exact cron ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset so that all loosely-timed automations do not fire at the same second.
 
 `--procedure` takes the markdown BODY, never a filename. The AI that executes this procedure days or weeks later cannot read a file path that existed on your runtime at creation time. Draft in a local file if it helps, but paste its contents into the argument JSON; the file serves only as `--args-file` transport.
 
 After creating, confirm the procedure landed: `heliox document read <document_id>` should show the approved text, not an empty body or a file path. This is a storage check and nothing more. It proves the bytes arrived, not that they make sense to a stranger. That question is step 7's.
 
-Every automation is created disabled, which is exactly what makes the next step safe: nothing fires on its own while you work.
+A `--cron` automation is created disabled, which is exactly what makes the next step safe: nothing fires on its own while you work. A `--start` one-shot is created ENABLED and will fire at its start time — it exists to hit a deadline, so creation arms it. If you intend to rehearse it first, disable it now (`heliox automation update <id> --enable false`) and re-enable it at handover; `references/evaluation.md` treats it as already live.
 
 ## 7. Run the scenarios
 
-Step 3 proved that *you* could produce the output, with the whole conversation in your head. This step asks the question that actually matters: does a fresh executor, reading only the procedure, reproduce it?
+Step 3 proved that *you* could produce the output, with the whole conversation in your head. This step asks: does a fresh executor, reading only the procedure, reproduce it?
 
 A run you fire here is a real run and closes like one: `success` once the result is in the run's own thread and every subscriber has a digest, `failed --reason` with the owner told what broke, `skip --reason` for a period that was genuinely quiet. Grade against that too. A scenario that produced the right text but left the thread empty, or finalized green while a delivery failed, is a failing scenario however good the output reads.
 
@@ -339,11 +341,11 @@ Fire the automation once with the procedure body replaced by the one-line reques
 
 If the procedure's outward effects cannot be contained, because retargeting is impossible or the only safe target is the real one, do not fire a baseline. Note the gap in the results and move on. The approved output from step 3 remains the only evidence for that path, and step 9's handover must say so.
 
-Two outcomes, both useful. If the baseline produces roughly the same output, most of the procedure is not earning its place and can be cut. If the baseline drifts, using the wrong window or the wrong format, or inventing a summary when there was nothing to summarize, you now know exactly which parts are load-bearing and you will not delete them by accident in step 8.
+If the baseline produces roughly the same output, most of the procedure is not earning its place and can be cut. If the baseline drifts, using the wrong window or the wrong format, or inventing a summary when there was nothing to summarize, you now know exactly which parts are load-bearing and you will not delete them by accident in step 8.
 
 ## 8. Improve until it holds
 
-You are iterating on two or three windows of data, and the automation will run on hundreds. Everything here exists to keep that gap from biting. The replay mechanics and the stop conditions are in [`references/evaluation.md`](references/evaluation.md); what follows is how to decide *what to change*.
+You are iterating on two or three windows of data, and the automation will run on hundreds. The replay mechanics and the stop conditions are in [`references/evaluation.md`](references/evaluation.md); what follows is how to decide *what to change*.
 
 Generalize rather than tuning to the window. The failure you just watched is an instance of something. Fix the smallest general defect that covers it, not the instance. A procedure that handles last Tuesday because you wrote last Tuesday into it has learned nothing.
 
@@ -365,12 +367,11 @@ Then tell the user what now exists:
 - What it can do on its own: the blast radius from question 4, in plain terms. If it emails people outside the company, writes to a shared system, or moves money, say so here, in a sentence, without hedging. This is the last moment before it can act unattended.
 - Which scenarios were run and what held, with the workspace path so the evidence is findable later
 - Which paths from step 4 are still unproven
-- That it is still disabled, so nothing has fired on its own and nothing will
-- The exact command that turns it on: `heliox automation update <id> --enable true`, with the real id filled in
+- Its live state. A `--cron` automation is still disabled: nothing has fired on its own and nothing will until it is turned on — write out the exact command that turns it on, `heliox automation update <id> --enable true`, with the real id filled in. A `--start` one-shot is enabled — say plainly when it will fire. If you disabled it to rehearse, re-enable it ONLY while its start is still in the future: enabling a one-shot whose start has passed fires it immediately, turning the rehearsal into a late production run. Past the deadline, ask for a new time or explicit confirmation instead.
 
-Those last two are not optional and not a closing pleasantry. An automation the user cannot start is not delivered, and "let me know when you want it enabled" does not tell them what to do. Write the command out.
+Do not drop or soften that bullet. A recurring automation the user cannot start is not delivered — "let me know when you want it enabled" names no command; the written-out command does. An armed one-shot must be named as armed: this is the last moment before it acts unattended.
 
-Enabling is the user's call. If they say "turn it on," go ahead, and then say it is now live and when it will first fire.
+Do not enable a recurring automation until the user says to. When they say "turn it on," do it, then tell them it is live and when it will first fire.
 
 The automation carries a directory, not just its procedure. Two files in it
 matter to the owner from day one: **experience.md**, where whoever runs it
@@ -434,7 +435,7 @@ Put these nine steps in your working list before you start, so that steps 7 and 
 3. Do the work once, here
 4. Write down the paths you did not see
 5. Write the procedure
-6. Create it, disabled
+6. Create it
 7. Run the scenarios
 8. Improve until it holds
 9. Hand it over

@@ -17,7 +17,9 @@ between the two cases. The skill that sent you here defines them:
 
 Check these; do not assume them.
 
-The automation must be disabled. `heliox automation create` leaves it that way.
+The automation must be disabled. `heliox automation create` leaves a `--cron`
+automation that way; a `--start` one-shot is created ENABLED and will fire at
+its start time — treat it as already live.
 For one that is already live, disable it before a meaningful behavioral change:
 `heliox automation update <id> --enable false`. Disabling is what stops the
 schedule from firing underneath you while you work. Record that it was live:
