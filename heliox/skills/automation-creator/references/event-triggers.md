@@ -2,6 +2,10 @@
 
 Read this reference only when an automation needs a poll or webhook trigger.
 
+The parent automation must be EVENT-ONLY: created with neither `--cron` nor
+`--start`. The three trigger kinds are mutually exclusive, and the server
+rejects attaching an event trigger to a schedule-backed automation.
+
 ## Pick webhook or poll
 
 Prefer `webhook` when the source can push a signed, stable event. It is fresher
