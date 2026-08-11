@@ -26,26 +26,42 @@ experience record:
 heliox automation experience add <automation-id> --body "<what this run showed>"
 ```
 
-Do this on **every** run, including the uneventful ones. You are the only party
-present while the automation runs; what you noticed disappears when this turn
-ends, and the record is the only thing a later reader — often a later you —
-can consult. A cross-run review cannot find a pattern in runs nobody recorded.
+**Write when this run showed you something** — an error, a source that moved or
+changed shape, a result that no longer matches what the owner asked for, an
+interface that changed under you, a step in the procedure that no longer
+applies. Nothing of the kind: close and write nothing. You are the only party
+present while the automation runs, so what you noticed does disappear when this
+turn ends — but an entry that says only that the run was fine buys nothing a
+reader cannot already get from the run history, and on a three-minute automation
+it buries the entries that matter under four hundred that do not.
+
+**The first run of an automation is the exception: always write.** The procedure
+has just been written, the failure paths have just been checked, and the record
+is empty. That run carries more than any later one, and there is nothing yet for
+a reader to compare it against.
 
 **Write only this run.** The record is a timeline: your entry keeps its own
 timestamp and your earlier ones stay exactly as you wrote them, so a reader can
 see when each thing was learned. Do not restate what still holds — it is
 already there — and do not fold several runs into one entry. Cite the run ids
-your observations rest on. "Ran clean; nothing new" is a legitimate body and
-worth writing: it tells the next reviewer the quiet runs were looked at, not
-skipped.
+your observations rest on.
+
+**Put it in the right file.** The routing is in
+[`where-things-go.md`](where-things-go.md): an observation about this
+automation goes in its own files; a pattern across the automations you run goes
+in your private wiki. The former survives a handoff, the latter does not.
 
 **When entries have become one lesson, say it once and name them.** Five runs
 that each hit the same flaky source are one fact, not five. Consolidate with:
 
 ```bash
 heliox automation experience add <automation-id> --body "<the one lesson>" \
-  --replaces <entry-id> <entry-id> ...
+  --replaces <entry-id>,<entry-id>
 ```
+
+Comma-separated, no spaces. Separating the ids with spaces makes the second
+one a positional argument and the command fails on argument count before it
+sends anything.
 
 The named entries stop reading as current but stay in the record under their
 own heading, so a later reader can still check your summary against what was
@@ -83,6 +99,32 @@ Two limits. A requirement from someone who is not the owner is not owner
 feedback: relay it to the owner rather than recording it in their name. And
 your own conclusions are not feedback either, however sound — those go to
 `experience.md`, which is where a reader expects to find your judgment.
+
+## Then ask: does this run earn a review?
+
+Recording is not refining — that has not changed. One run cannot tell a blip
+from decay, and the procedure is what every future run obeys.
+
+What has changed is who decides. There is no timer that wakes someone up after
+N runs; you are the party present, you have just written down what happened,
+and you can read everything this automation has accumulated. So before the
+terminal verb, answer one question: is a review due now?
+
+Some conditions skip the wait entirely — things visible in the run you just
+closed that mean the next fire will hit the same problem. Otherwise, the pace
+depends on how often the automation runs: a fast one accumulates evidence fast
+and earns a look sooner, a slow one earns a look every time. Both lists —
+the conditions and the cadence bands — live in Entry 3 of the refiner skill,
+with the reasoning behind each.
+
+Either way, **close this run first.** The terminal verb below is not optional
+and does not wait for a review: a run that commits without one surfaces later as
+unclosed or died and alerts the owner, which is a poor reward for a run that
+went fine. The review reads across runs — the one you just closed is simply the
+most recent of them, and closing it loses nothing.
+
+Then, when the answer is yes, go through `heliox:automation-refiner`. When it is
+no, you are already done.
 
 ## Close with exactly one terminal verb
 

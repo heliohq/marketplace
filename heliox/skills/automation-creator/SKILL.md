@@ -343,6 +343,18 @@ If the procedure's outward effects cannot be contained, because retargeting is i
 
 If the baseline produces roughly the same output, most of the procedure is not earning its place and can be cut. If the baseline drifts, using the wrong window or the wrong format, or inventing a summary when there was nothing to summarize, you now know exactly which parts are load-bearing and you will not delete them by accident in step 8.
 
+### Record what the rehearsal taught you
+
+The loop ends by writing what it taught into the automation's experience record —
+which paths held, which are still unproven, what a scenario made you change, and
+what the sources actually do rather than what their docs claim. The full list,
+and why the pass rate is not part of it, is in
+[`references/evaluation.md`](references/evaluation.md).
+
+For a new automation this is its FIRST entry, and step 9 hands that record to the
+owner. Skip it and you hand over an empty one: everything this rehearsal learned
+leaves with your context, and the refiner inherits nothing to reason from.
+
 ## 8. Improve until it holds
 
 You are iterating on two or three windows of data, and the automation will run on hundreds. The replay mechanics and the stop conditions are in [`references/evaluation.md`](references/evaluation.md); what follows is how to decide *what to change*.
@@ -374,10 +386,11 @@ Do not drop or soften that bullet. A recurring automation the user cannot start 
 Do not enable a recurring automation until the user says to. When they say "turn it on," do it, then tell them it is live and when it will first fire.
 
 The automation carries a directory, not just its procedure. Two files in it
-matter to the owner from day one: **experience.md**, where whoever runs it
-records what it actually hit, and **feedback.md**, where the owner records what
-they count as good. Point the owner at feedback.md — what they put there is what
-every later refinement round treats as the target, and only they can write it.
+matter to the owner from day one. **experience.md** already has the rehearsal
+entry you wrote in step 7 — show it to them, so they can see what this thing
+learned about itself before it ever ran unattended. **feedback.md** is theirs:
+what they put there is what every later refinement round treats as the target,
+and only they can write it. Point them at it by name.
 
 From here on, the automation belongs to `heliox:automation-refiner`, which repairs it when it decays, changes what it produces, and reviews how it has been running. Point the user there.
 

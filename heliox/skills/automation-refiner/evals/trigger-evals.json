@@ -78,5 +78,29 @@
   {
     "query": "Explain the difference between a cron trigger and a webhook trigger so I can decide which one to use.",
     "should_trigger": false
+  },
+  {
+    "query": "This thing has been running every three minutes for a week now, take a look at how it's been doing.",
+    "should_trigger": true
+  },
+  {
+    "query": "It's been twenty-odd runs since anyone checked the deploy-status automation — worth a review?",
+    "should_trigger": true
+  },
+  {
+    "query": "The nightly digest has been quiet for a month; is it actually still working or just not finding anything?",
+    "should_trigger": true
+  },
+  {
+    "query": "The 3am run failed, can you tell me what the error was in that execution?",
+    "should_trigger": false
+  },
+  {
+    "query": "Set up something that emails me a summary of open tickets every Monday at 9.",
+    "should_trigger": false
+  },
+  {
+    "query": "How often does this automation actually fire? I just want the schedule.",
+    "should_trigger": false
   }
 ]
