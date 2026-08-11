@@ -1,6 +1,6 @@
 ---
 name: automation-refiner
-description: "Refine a Helio automation from a prior conversation or one already delivered: repair it when it stopped working, change what a recurring job produces or who receives it, or review how it has been running and improve it. Covers automations from earlier conversations regardless of their enabled state — creator's context is gone once that conversation ends. Use whenever someone is unhappy with a recurring report, a scheduled job broke or started returning errors, a run exposed a problem in its own procedure, or they come back to an automation from an earlier conversation, even if they never say 'automation'. Do not use to build a new automation in this conversation; that is automation-creator."
+description: "Refine a Helio automation from a prior conversation or one already delivered: repair it when it stopped working, change what a recurring job produces or who receives it, or review how it has been running and improve it. Covers automations from earlier conversations regardless of their enabled state — creator's context is gone once that conversation ends. Use whenever someone is unhappy with a recurring report, a scheduled job keeps breaking or returning errors, a run exposed a problem in its own procedure, or they return to one from an earlier conversation, even if they never say 'automation'. Do not use to build a new automation in this conversation (that is automation-creator), or to just read back one run's error or the schedule."
 metadata:
   requires:
     bins: ["heliox"]
@@ -25,9 +25,9 @@ Three entry points feed the same loop. The only difference between them is where
 
 ## 1. Gather the evidence
 
-Whatever the entry, read all three of the automation's files before judging
-anything. `heliox automation file list <id>` gives you the directory; the three
-that are always there are:
+Whatever the entry, read the automation's files before judging anything.
+`heliox automation file list <id>` gives you the directory. Three are always
+there:
 
 - **procedure.md** — what the automation is currently told to do. Read it with
   `heliox document read <document_id>` using the id from the listing.
@@ -60,6 +60,26 @@ With only two of the three you can compute neither gap. Knowing what happened
 and what the owner wants, without knowing what the procedure currently says,
 leaves you unable to tell a procedure that is being disobeyed from one that is
 being obeyed and is wrong.
+
+When two files disagree, the order is feedback, then the procedure, then experience, then the wiki.
+Feedback is the target and run data does not overturn it. The procedure is the
+only authority on what a run does. Experience
+is evidence, to be explained rather than obeyed — and an entry carrying a
+dispute is not usable evidence at all. The wiki ranks last because a fact a run
+just disproved is simply out of date: correct it and move on, since changing a
+fact changes nothing about what the automation does.
+
+The wiki and the procedure are the one pair that should never disagree. If they
+do, something written as an instruction ended up in the wiki, and the fix is to
+move it back into the procedure rather than to decide which wins. Leaving it
+there leaves a second authority, and it will disagree again at 3 AM.
+
+The listing may also carry `wiki/` and `scripts/` files (design 350). Read the
+wiki pages bearing on this review — `heliox automation file read <id>
+wiki/<topic>.md` — and any script the procedure names: a page you never opened
+cannot be found stale, and the ranking below asks you to place the wiki against
+the other files. [`references/where-things-go.md`](references/where-things-go.md)
+says which file holds what.
 
 An automation that has never been reviewed has empty ledgers. That is normal,
 not a fault: read the procedure and start the experience ledger with what this
@@ -94,14 +114,60 @@ A single run cannot distinguish a one-off glitch from a pattern. A source that f
 
 When the user asks for a review ("look at how this has been running lately"), gather the evidence through the `runs` and `run show` commands above: list recent executions, inspect representative transcripts, and look for repeated patterns versus one-off glitches.
 
-This entry has evidence to read because every run records what it saw before
-closing (see "Executing one run"). Runs nobody wrote down leave nothing to
-review.
+### How often to look
 
-The automatic trigger, something that wakes you up after N runs to do this
-review without being asked, is not yet enabled. Until it is, cross-run reviews
-happen when the user asks or when you notice something yourself. Recording is
-already automatic; deciding to change the automation is still deliberate.
+Nobody schedules this review, so the pace is yours to set, and the two ways to
+get it wrong are opposite. Editing a procedure every run, when the automation
+fires every three minutes, means a single flaky afternoon becomes a permanent
+workaround. Never looking at a weekly digest means a year of runs nobody read.
+
+Scale the gap to the cadence. The cost of a review is fixed — three files and
+some recent runs — while what it buys grows with the evidence available, and a
+fast automation accumulates evidence fast:
+
+| How often it runs | How long to let it run before a review |
+| --- | --- |
+| Every few minutes, or hourly | a day, or 20 runs, whichever comes first |
+| Daily | about a week |
+| Weekly or slower | every run is worth a look |
+
+Treat these as the right order of magnitude rather than a count to keep. The
+difference between 20 runs and 25 does not matter; the difference between 20
+and 2 is the whole point.
+
+### What does not wait
+
+The table above is for when nothing has gone wrong. Any of these, and the
+review happens now:
+
+- **Wrong output reached real subscribers.** Whatever produced it will produce
+  it again on the next fire.
+- **An outward or irreversible effect happened, or nearly did** — mail sent, a
+  payment moved, something published. This is the blast radius the automation
+  was created with, and it is why that question gets asked at creation.
+- **The same failure twice in a row.** Once is weather; twice is the procedure.
+- **The owner has said something.** A new entry in feedback means the target
+  moved, and running to an old target is not worth waiting out a budget for.
+- **A run closed failed for a reason that will repeat.** When you cannot tell
+  whether it will, look — one extra review costs less than a month of a decay
+  nobody caught.
+
+These are things you can see in the run in front of you, rather than a severity
+score. A score needs a scale, a scale needs a judgment call, and there is
+nobody awake at 3 AM to check that judgment. The third is the one exception —
+it needs the previous run — but that is exactly what experience.md is for: the
+earlier entry is already there with its own timestamp.
+
+Being due is a reason to look, not a reason to change. Everything below about
+what justifies an edit applies unchanged: a review that finds nothing is a
+finished review.
+
+**A review that changed nothing does not go to the owner.** Write what you
+looked at into experience, so the next one does not re-read the same history,
+and stop there. Step 7's "tell the owner" is about changes: on a three-minute
+automation, a message per uneventful review carries no decision and teaches the
+owner to stop reading them. Someone who asked for the review still gets an
+answer — replying to a person who asked is not an owner notification.
 
 ## 2. Record it before you act on it
 
@@ -111,6 +177,13 @@ owner asked for; writing those down first is what makes that true rather than
 merely claimed. Do it in the other order and the edit rests on your memory of
 this conversation, which ends with it — leaving a changed procedure whose reason
 exists nowhere.
+
+**Acting starts before the edit does.** Reading the runs and settling on what
+should change is already acting on them. Once you hold a candidate rule, the
+owner's words arrive as support for it rather than as the thing it has to meet,
+and you will not notice the difference — the reading feels like observation
+right up until it decides what you record. Write both ledgers before you
+interpret, not merely before you edit.
 
 **The owner's words go into feedback.** When the owner has stated something
 durable — what the output should contain, when it should stay quiet, what counts
@@ -138,11 +211,7 @@ current executor, and let one of them record it.
 This is the same write the end of every run performs; here it carries the
 cross-run reading a single run could not produce.
 
-Only then edit the procedure, and only for what those two now say. Before each
-edit, name the entry it comes from. If there is no entry to name, the reason for
-that edit exists only in this conversation, and it goes away when the
-conversation does — leaving the next person a changed procedure and no way to
-find out why.
+Only then edit the procedure, and only for what those two now say.
 
 ## 3. Find out whether you can fix it yourself
 
@@ -158,6 +227,7 @@ The question is simple: can the problem be solved by editing the procedure?
 | Expired credentials, or access that was revoked | No | Tell the owner, name the specific access you need |
 | The source is gone and picking a replacement is a decision only a person can make | No | Tell the owner, bring your recommendation for what to use instead |
 | The source failed just this once | Do not change it | Report this run as failed and move on |
+| A past run closed `success` while what it delivered was wrong | Not the verb — a closed run stays closed | Say the close was wrong. A run that delivered a mistake is a failed run whatever its push returned, and left alone the history reads cleaner than it was — including to the cadence budget, which counts those runs |
 
 When you escalate, say why you cannot fix it yourself, whether it is a missing permission, a revoked credential, or a judgment call that needs a person. "I cannot fix this" without a reason gives the owner nothing to act on.
 
@@ -168,6 +238,8 @@ The last row deserves emphasis. When a source fails once and recovers, do not to
 The method layer is how the automation reads its sources, where it reads from, how it formats the output, how it decides a period was quiet, and how it retries on transient errors. These are the means of getting the owner's intended result. You can change them yourself.
 
 The intent layer is what the automation produces, who receives it, what counts as good enough, and what counts as something worth raising to subscribers. These are the things the owner agreed to when the automation was created. Bring your recommendation back to the owner rather than changing them on your own.
+
+When a change needs you to settle what the owner meant, that is intent whichever layer the mechanism belongs to. "Dial it back" and "only the ones that matter" name a result without giving the rule that produces it, and inventing the missing rule decides what counts as worth raising. Ask for it. The same holds when an edit changes what the output is evidence of — reading the system of record instead of a tracker someone updates by hand is a read-path change on paper, and a change of authority in practice.
 
 Every self-edit requires evidence. Change something because of something you observed, like a step that failed, a source that returned an unexpected shape, or a format that lost information. Do not change it because you think it could be nicer. No one is watching in real time to catch a well-intentioned tweak that silently changes the output, and the next run delivers directly to subscribers.
 
@@ -195,6 +267,8 @@ What an event trigger's handler code does lives in the deployed handler, not in 
 
 The schedule itself lives on the underlying trigger, not in the procedure document. The CLI does not currently support changing the cron expression on an existing scheduled automation: `heliox automation update` accepts `--name`, `--executor`, `--subscriber`, and `--enable`, but not `--cron`. If the owner asks to change the cadence, the current path is to create a new automation with the updated schedule, validate it while it is still disabled, disable the old one with `heliox automation update <old-id> --enable false`, then enable the replacement. That order matters: enabling the replacement before disabling the original leaves both schedules live and fires the same job twice, including every external side effect. Disabling beats deleting because the old run history stays readable and the cutover is reversible if the replacement misbehaves. Writing "run at 8:30 instead of 9:00" into the procedure does not change when the trigger fires.
 
+Before each edit, name the experience or feedback entry it comes from — an edit with no entry to cite rests on this conversation alone, and the conversation ends.
+
 Before editing, capture your baseline: the current procedure text and at least one representative recent run. You need both so that after the change you can tell whether things improved, and if something regresses you can trace it back.
 
 ## 6. Prove it
@@ -210,21 +284,24 @@ A rehearsal is a real run and closes like one. Judge it on its ending as well as
 
 When you can rehearse, do it while the automation is disabled: `heliox automation run <id>`, then fetch the transcript through Entry 2's commands to read the result. Disabling stops the schedule from firing on its own, but a manual run is still a real run. A fresh executor wakes up in its own thread and follows the full contract, including delivering the result to every subscriber in the fired-time snapshot. You cannot intervene in that delivery from the outside.
 
-The loop itself is shared with `heliox:automation-creator`: containment, the serial edit/fire/capture/restore cycle, writing expectations that can fail, grading against what was delivered, and replaying with a regression check. Read [`../automation-creator/references/evaluation.md`](../automation-creator/references/evaluation.md). Three things are yours to decide rather than its.
+The loop itself is shared with `heliox:automation-creator` — read [`../automation-creator/references/evaluation.md`](../automation-creator/references/evaluation.md). Three things are yours to decide:
 
-Your scenarios are the failure you are fixing, plus one case that was working before. You are not proving the automation from scratch; you are proving this change did what you intended and broke nothing else.
+Your proving plan needs two scenarios: the failure you are fixing, and one case that was passing before. Test both — a fix that never reproduces the failure is a guess, and one that regresses a passing case is incomplete.
 
-Your inputs are the real conditions that produced the failure. Reproduce the failing case against the *current* procedure before you edit anything, because a fix for a failure you never reproduced is a guess.
+Your inputs are the real conditions that produced the failure. Reproduce the failing case against the *current* procedure before you edit anything.
 
-Your baseline is the current production procedure, retained verbatim before the edit and labelled `baseline`. When replaying the old version would repeat a harmful side effect, the observed production failure *is* the baseline. Do not re-fire the damage to obtain a cleaner one.
+Your baseline is the current production procedure, retained verbatim before the edit and labelled `baseline`. When replaying would repeat a harmful side effect, the observed production failure *is* the baseline. Do not re-fire the damage to obtain a cleaner one.
 
 ## 7. Leave a trace and tell the owner
 
 Write what you learned into the automation's experience ledger:
 
 ```bash
-heliox automation experience add <automation-id> --body "<what you now understand>"
+heliox automation experience add <automation-id> --body "Derives from <entry-id>. <what this change concluded, not what still holds> (runs <run-id>, <run-id>)"
 ```
+
+Good:
+> "Derives from exp-12. The /v2 endpoint now paginates at 50 — procedure assumed a flat list and dropped page 2. (runs e-7760, e-7814)"
 
 **Only if you are this automation's current executor.** experience.md is the
 executor's testimony and the server enforces that: it is where the observations
@@ -235,14 +312,7 @@ watch it 403 at the very end. Put what you concluded in your reply to the owner
 instead, addressed to the executor, and let them record it. The observation is
 theirs to sign.
 
-That ledger is the only thing that survives this conversation. The run threads
-hold what happened, but nothing holds what you concluded from them, and the
-next executor to look at this automation may not be you.
-
-**A write appends; retiring is a separate, explicit act.** Write what you
-concluded from THIS change, and cite the run ids it rests on so a later reader
-can check them rather than take your word for it. Do not restate what still
-holds — it is already recorded, with its own timestamp.
+**A write appends; retiring is a separate, explicit act.**
 
 What this change made **obsolete** is the part that needs saying out loud. An
 observation your fix resolved stays live evidence until you name it, and the
@@ -251,7 +321,7 @@ the same write:
 
 ```bash
 heliox automation experience add <automation-id> --body "<what you now understand>" \
-  --replaces <entry-id> ...
+  --replaces <entry-id>,<entry-id>
 ```
 
 The named entries stay in the record under their own heading, so the fix and
@@ -263,6 +333,27 @@ run belongs in procedure.md, and putting it there is this step's real work.
 Experience is raw material; the procedure is the finished thing. A note in
 experience saying "the source is flaky on Wednesdays" with no matching handling
 in the procedure reads to the next maintainer as though it were already handled.
+
+Before finishing, ask three questions of every entry you just wrote — skip none:
+
+1. Does every future run need this, and is it an instruction?
+   It **belongs in the procedure** — move it there.
+2. Does every future run need this, and is it a fact — how a source behaves,
+   what a term means, which ids matter? It **belongs in the wiki**,
+   at `wiki/<topic>.md`.
+3. Does every future run re-derive this same computation?
+   It **belongs in a script**, at `scripts/<name>` — extract it and point
+   the procedure at it.
+
+Each destination has its own command and proof obligation.
+[`references/where-things-go.md`](references/where-things-go.md) has both.
+
+Then retire what you promoted, in the same write:
+
+```bash
+heliox automation experience add <automation-id> --body "<where it went>" \
+  --replaces <entry-id>,<entry-id>
+```
 
 **Feedback belongs in step 2.** The owner's words go into feedback when you
 first record evidence, not here at the end. If the owner stated something
@@ -278,27 +369,32 @@ When you have been woken to execute a run rather than to change the automation, 
 
 **The result goes in the run's own thread.** That thread is the audit record and is never left empty: a result sent only as a DM leaves the owner opening a finished run and finding nothing.
 
-**Then record what the run taught you**, before the terminal verb and on every
-run, uneventful ones included:
+**Then record what the run showed you** — the run hit something abnormal (an
+error, an API that refused, a tool you had to work around), or the result does
+not hold up against the procedure and the owner's feedback — before the
+terminal verb:
 
 ```bash
 heliox automation experience add <automation-id> --body "<what THIS run showed>"
 ```
 
-You are the only party present while it runs, and what you noticed dies with
-the turn. Write only what this run showed, and cite the run ids it rests on.
-Do not restate what you already recorded: this appends, so every earlier entry
-is still there with its own timestamp, and a reader can see when each thing was
-learned. "Ran clean; nothing new" is worth writing: it tells a later reviewer
-the quiet runs were looked at.
+Nothing of the kind: close and write nothing. An entry saying only that the run
+was fine buys nothing a reader cannot get from the run history. The first run is
+the exception: always write.
+
+You are the only party present while it runs, and what you noticed dies with the
+turn. Write only what this run showed, and cite the run ids it rests on. Do not
+restate what you already recorded: this appends.
 
 Recording is not refining. One run cannot tell a blip from decay, so this step
-observes and does not edit the procedure; a change goes through the entry points
-above, where the evidence spans more than one run. What the owner has to decide
-— a failure that will repeat, a source that has gone away, a result that no
-longer matches what they asked for — gets a mention, not just a ledger line.
+observes and does not edit the procedure. What it does decide is whether a
+review is due now — by the conditions and the pace in Entry 3. What the owner
+has to decide gets a mention, not just a ledger line.
 
-Then exactly one terminal verb ends it:
+**Close this run first, whichever the answer is.** The terminal verb does not
+wait for a review. When a review is due, enter it after the close.
+
+Exactly one terminal verb ends it:
 
 ```bash
 heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber has been DM'd a digest
@@ -306,7 +402,7 @@ heliox automation run failed  <execution_id> --reason "<what broke>"      # the 
 heliox automation run skip    <execution_id> --reason "<checked what; why quiet>"  # a one-line all-clear in the thread, no digests
 ```
 
-Exactly one of them ends a run. `message cede` does not: it finalizes the turn while leaving no record, so the owner opens a finished run and finds nothing. A quiet period is a `skip` with a reason, not a decline.
+`message cede` does not: it finalizes the turn while leaving no record, so the owner opens a finished run and finds nothing. A quiet period is a `skip` with a reason, not a decline.
 
 ## Output language
 
@@ -340,6 +436,11 @@ it belongs in one of the other two files. Keep the rule, move the reason —
 including when a ledger write is unavailable and the procedure is the only thing
 you can write to. Reaching for it as a fallback is right; carrying the citations
 and rationale along with the rule is not.
+
+Seven places to write, and one question sorts most of them:
+*is this true only for this automation, or for this person?* Five ride with
+the automation, one (your private wiki) rides with you, and one (workspace
+memory) belongs to the workspace — see [`references/where-things-go.md`](references/where-things-go.md).
 
 One automation is one job. If what the user is asking for is actually a different job, with different sources, different output, or a different audience, that is a new automation, and the path back is `heliox:automation-creator`.
 

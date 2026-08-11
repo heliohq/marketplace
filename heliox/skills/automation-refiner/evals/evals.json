@@ -18,16 +18,15 @@
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "drifted",
       "expectations": [
-        "Identifies the `## Failure and no-result behavior` section as the place that is wrong, because it treats an empty collection as a quiet period without asking why it was empty.",
-        "States that the procedure has no branch for a source it could not reach, distinct from a source that returned nothing.",
-        "States that run e-8814 should have finalized as failed rather than success, since nothing was actually checked.",
-        "Proposes an edit to the failure section that names the unreachable case explicitly and says who is told.",
-        "Treats this as a method-layer change the refiner may make without going back to the owner.",
-        "Bases the change on run e-8814 as observed evidence rather than on a general preference for robustness.",
-        "Edits the bound procedure document in place rather than recreating the automation, so the run history survives.",
+        "Names the two diagnostic gaps: experience-against-procedure (was the automation doing what it was told?) and procedure-against-feedback (was what it was told what the owner wants?), and uses the applicable gap to classify the problem.",
+        "States that empty experience and feedback ledgers are normal for an automation that has never been reviewed.",
+        "The proposed experience entry is written without assuming prior entries, since no experience file was supplied.",
+        "Identifies the failure section as wrong because it has a single no-result branch that covers two different states: a source that returned nothing and a source that could not be reached.",
+        "Proposes an edit to the failure section that names the unreachable case explicitly and specifies who is told when the source cannot be reached.",
         "States that the edit is made against a unique span of the existing text, not by rewriting the whole document.",
-        "Proposes proving the fix by replaying the unreachable condition while the automation is disabled, rather than waiting for the next timeout."
+        "Proposes proving the fix by reproducing the timeout condition and replaying a representative successful case, rather than waiting for the next natural timeout."
       ],
       "mode": "describe",
       "needs": {
@@ -57,15 +56,16 @@
       "category": "brief",
       "clarity": "vague",
       "stage": "refine",
+      "trigger": "asked",
       "expectations": [
-        "Interprets 'auto_4d1: 8:45' as a request to change the automation's firing time to 8:45.",
-        "Identifies the cron expression on the trigger as where the firing time lives, not the procedure document.",
-        "States that `heliox automation update` has no flag for the cron expression, so the time cannot be changed on the existing automation.",
-        "Names the replacement path: create a new automation at 8:45, validate it disabled, disable the old one, then enable the replacement.",
-        "Notices that the procedure text mentions a 9:00 window, so the document also needs editing to match the new time.",
-        "Writes the edited procedure text in Chinese, matching the language of the surrounding conversation and the existing document.",
-        "Confirms the intended time back to the user, since 'auto_4d1: 8:45' states a time without saying what about it changes.",
-        "Bases the document edit on the existing text's own wording rather than rewriting the document in a new style."
+        "States that the owner's requirement is written into feedback before the procedure document is touched, so that the edit derives from recorded evidence rather than from conversation alone.",
+        "Establishes whether the person making the request is the automation's owner before recording the requirement in feedback.",
+        "States that only the automation's owner or its current executor may write a feedback entry, and describes what happens instead when neither applies.",
+        "Identifies that `heliox automation update` accepts no flag for the cron expression, so the existing trigger's schedule cannot be changed in place.",
+        "Raises whether the data source's refresh timing should be recorded in the automation's wiki, because a timing-dependent fact about the source affects future scheduling decisions.",
+        "States that the instruction is too terse to establish its own language, so the procedure wording follows the conversation language as a fallback.",
+        "Names the replacement path for the schedule change: create a new automation, validate it disabled, disable the original, then enable the replacement.",
+        "Notices that the procedure text refers to the original firing time and must be edited to match the new schedule."
       ],
       "mode": "describe",
       "needs": {
@@ -90,21 +90,28 @@
         {
           "name": "run history, last four weeks",
           "content": "e-8801  wk-1  success  posted: 2 services above 10%\ne-8830  wk-2  success  posted: \"No significant cost movement.\"\ne-8859  wk-3  success  posted: \"No significant cost movement.\"\ne-8888  wk-4  success  posted: \"No significant cost movement.\"\n\nnote: the cost report for wk-3 and wk-4 was itself incomplete upstream -- two of nine\nservices reported no data. The runs did not mention this."
+        },
+        {
+          "name": "experience.md (auto_infracost)",
+          "content": "# experience.md\n\n(empty — this automation has never been reviewed)\n"
+        },
+        {
+          "name": "feedback.md (auto_infracost)",
+          "content": "# feedback.md\n\n(empty)\n"
         }
       ],
       "category": "brief",
       "clarity": "vague",
       "stage": "refine",
+      "trigger": "open",
       "expectations": [
-        "Identifies that three consecutive quiet weeks are worth examining rather than accepting as a stable period.",
-        "Identifies that wk-3 and wk-4 ran against an incomplete cost report and reported no movement anyway.",
-        "States that the procedure has no branch for a source that returned partial data, so a partial read is indistinguishable from a complete one.",
-        "States that \"No significant cost movement\" was misleading in wk-3 and wk-4, because two services were not measured.",
-        "Proposes that the procedure check the report's completeness before comparing, and say what is missing when it is not complete.",
-        "Treats the partial-data handling as a method-layer change the refiner may make directly.",
-        "Names the specific runs as the evidence for the change rather than describing the risk in general terms.",
-        "Reports the finding to the owner, since the owner asked whether anything needs attention.",
-        "Notes that all four runs finalized as success, so run status alone would never have surfaced this."
+        "The completeness-check edit is traceable to its originating experience entry, so the change's reason survives the conversation.",
+        "Applies the promotion questions to determine whether the completeness-check finding belongs in the procedure as an instruction, in the wiki as a source-behavior fact, or in a script.",
+        "Routes the upstream data-incompleteness pattern to the automation's wiki as a fact about the cost report source, rather than embedding it in the procedure alongside the completeness check.",
+        "The experience entry it writes covers the new completeness finding and does not repeat what the run history already records.",
+        "Identifies that the procedure has no branch for a source that returned partial data, so a partial read is indistinguishable from a complete one.",
+        "States that writing to the experience ledger requires being the automation's current executor.",
+        "Names handing the observation to the executor as what happens when the reviewer is not the executor."
       ],
       "mode": "describe",
       "needs": {
@@ -134,14 +141,13 @@
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "broke",
       "expectations": [
-        "States that a rotated credential is not fixed by editing the procedure document, because the procedure does not hold the credential.",
-        "Names reconnecting or re-authorising the GitHub integration as the actual repair.",
-        "States that no procedure edit would have prevented this, so the document should be left alone.",
-        "Notes that the automation correctly finalized as failed on every run, so the failure path worked.",
-        "Asks whether the owner was notified on each of the seven failed runs, or observes that seven silent failures is itself a problem.",
-        "Proposes confirming the repair with one run while the automation is still disabled, rather than enabling it and waiting.",
-        "Bases the diagnosis on the repeated 401 in the run history rather than on the user's description alone."
+        "Evidence and run citations are placed in experience.md rather than in the procedure text, keeping the procedure as rules the executor acts on rather than provenance for how those rules were derived.",
+        "The diagnosis applies the file-priority ranking — feedback first, then procedure, then experience, then wiki — when comparing what the runs showed against what the owner asked for.",
+        "Names reconnecting or re-authorizing the GitHub integration as the actual repair, distinct from any procedure edit."
+      ,
+        "Proposes routing the notification-gap observation — seven failures reaching nobody who acted — through the promotion questions to determine whether it warrants a standing notification rule in the procedure."
       ],
       "mode": "describe",
       "needs": {
@@ -171,16 +177,15 @@
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "asked",
       "expectations": [
         "Treats adding a blockers section as an intent-layer change, because it changes what the automation produces.",
-        "Brings the change back to the owner rather than editing the procedure on its own authority.",
-        "Asks which task board the blockers come from, since the procedure currently reads only commits and pull requests.",
-        "Notes that the new section needs a source the automation does not currently read, so access to it has to be confirmed.",
-        "Asks what counts as a blocker, rather than choosing a definition.",
-        "States what the blockers section says when nothing is blocked.",
-        "States that an empty blockers list does not cause the lookback to be widened to find something.",
-        "States what the digest does when the task board is readable but the commit source is not, or the reverse.",
-        "Proposes rehearsing the extended digest while the automation is disabled before it reaches #standup."
+        "Asks what counts as a blocker rather than choosing a definition.",
+        "Identifies that the procedure cannot promise blocker data without first confirming access to the task board, which the automation does not currently read.",
+        "States what the digest does when one of its two sources is unreachable while the other returns data.",
+        "An empty blockers list is reported as-is rather than triggering a wider lookback window to find blockers.",
+        "Proposes a proving scenario where the task board is unreachable, to confirm the partial-failure behavior works.",
+        "States that the current procedure text and a representative recent run are captured as a baseline before the edit, so that a regression is traceable."
       ],
       "mode": "describe",
       "needs": {
@@ -210,15 +215,13 @@
       "category": "watch",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "broke",
       "expectations": [
-        "Identifies the channel name in `## Output and delivery` as the span to edit.",
-        "States that run e-9440 finalized as success while its delivery failed, so the done-when condition does not notice an undelivered post.",
-        "Proposes fixing the run's success condition so a failed delivery cannot finalize as success, in addition to fixing the channel name.",
-        "Treats the channel rename as a method-layer fix the refiner may make directly.",
-        "Edits the bound document in place against the existing span rather than recreating the automation.",
-        "Asks whether any other automation posts to the old channel name, or notes that this fix covers only this one.",
-        "Proposes reading the procedure back after the edit to confirm the new channel name is in place.",
-        "Bases the fix on the channel_not_found error in the run rather than on the report alone."
+        "Applies the boundary test — whether the executor could act differently because of it — to confirm the proposed success-condition rule belongs in the procedure rather than in experience.",
+        "States that the automation's feedback file must be read before diagnosing, following the file-priority ranking where feedback is the authority no amount of run data contradicts.",
+        "Identifies the undelivered /api/orders 503 finding as a run observation that belongs in the automation's experience record, separate from the channel-rename procedure fix.",
+        "Proposes confirming the span replacement applied to the procedure, because a failed match silently leaves the document unchanged.",
+        "States that subscriber management lives on the automation rather than in the procedure, so the stored subscriber set must be checked separately for references to the old channel name."
       ],
       "mode": "describe",
       "needs": {
@@ -243,18 +246,22 @@
         {
           "name": "heliox automation subscriber list auto_sales2",
           "content": "@maria      (owner, implicit)\n@dev-lead"
+        },
+        {
+          "name": "experience.md (auto_sales2)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-8800 · 2026-08-01\n  The procedure's Output section lists @maria and @dev-lead by name, but delivery is driven by the stored subscriber list, not by the procedure text. The two happen to agree now; the next subscriber change will create a silent discrepancy. Based on e-8790 through e-8800.\n"
         }
       ],
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "asked",
       "expectations": [
-        "States that adding @jordan to the procedure text would change nothing, because every fire snapshots the stored subscriber list.",
-        "Names `heliox automation subscriber add` as the command that actually changes who receives the report.",
-        "Notes that the procedure's `## Output and delivery` section already names recipients, which is misleading because that text does not drive delivery.",
-        "Treats who receives the output as an intent-layer property, so it is the owner's call rather than a self-edit.",
-        "Confirms the resulting audience rather than assuming the add succeeded.",
-        "States that the owner @maria receives the report regardless, because the owner is always implicit."
+        "States that adding a subscriber is done through the stored subscriber list, not by editing the procedure text.",
+        "Treats who receives the report as the owner's decision rather than executing the change directly.",
+        "States that the review's findings about the subscriber-list discrepancy are captured in the experience ledger, citing the evidence base."
+      ,
+        "The owner's decision is recorded in feedback before the procedure's Output section is edited."
       ],
       "mode": "describe",
       "needs": {
@@ -284,14 +291,13 @@
       "category": "watch",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "broke",
       "expectations": [
-        "Concludes that no procedure change is warranted, because the procedure already specifies this path and the run followed it.",
-        "Points to the retry-then-notify-then-fail clause in `## Failure and no-result behavior` as evidence the behaviour was intended.",
-        "States that one transient failure is not evidence of a defect, so changing anything here would be a change without evidence.",
-        "Names what would make it evidence, such as the same failure recurring across runs or at a rate the owner cares about.",
-        "Notes that the 03:00 window's logs were never scanned and asks whether that gap needs covering, which is a separate question from the failure handling.",
-        "States that covering the missed hour needs the owner's agreement, because widening the next run's window changes what that run reports.",
-        "Reports the finding to the owner rather than closing silently, since the owner asked."
+        "States that the automation's feedback file must be checked for owner preferences about transient-failure handling, since the feedback-first ranking means any stated preference overrides the procedure's current retry logic.",
+        "Identifies the retry-then-notify-then-fail clause in the procedure as evidence that the run's behavior was the procedure's intended response.",
+        "Concludes that no procedure change is warranted, because one transient failure that the procedure's existing failure path correctly handled is not evidence of decay."
+      ,
+        "States that the 03:00 timeout observation should be retired once later runs confirm the source is stable, using the retirement mechanism that preserves the original entry under its own heading while marking it resolved."
       ],
       "mode": "describe",
       "needs": {
@@ -321,15 +327,13 @@
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "broke",
       "expectations": [
-        "Identifies the endpoint in `## Inputs and freshness` as the span to edit.",
-        "States that a GraphQL endpoint returns a different response shape, so the field mapping in the procedure has to change too, not just the URL.",
-        "Treats the endpoint change as a method-layer change the refiner may make directly.",
-        "Notes that no snapshot was stored this week, so next week's diff has no baseline to compare against.",
-        "Says what the first run after the fix does given the missing snapshot, rather than letting it report a spurious change.",
-        "Bases the change on run e-9520's 404 rather than on a preference for the newer API.",
-        "Edits the bound document against the existing span rather than recreating the automation.",
-        "Proposes proving the new endpoint against stored historical prices before the automation is re-enabled."
+        "The diagnosis applies the file-priority ranking — feedback first, then procedure, then experience, then wiki — when resolving disagreements between the automation's files.",
+        "Tests each proposed procedure addition against the criterion that only content the executor can act on belongs in the procedure, routing everything else to experience or the wiki.",
+        "Proposes confirming each span replacement applied to the procedure, since the edit mechanism silently no-ops when the old text is not uniquely found.",
+        "Proposes validating the normalized GraphQL response against the stored historical snapshot to confirm the field mapping is correct before the automation is re-enabled.",
+        "Notes that no snapshot was stored this week and proposes what the first run after the fix should do with the missing baseline rather than letting it report a spurious full-diff."
       ],
       "mode": "describe",
       "needs": {
@@ -354,21 +358,26 @@
         {
           "name": "runs e-7000 and e-8000 (the two quarters so far)",
           "content": "e-7000  Q-1  success  emailed pack; 1 blank field (pipeline)\ne-8000  Q0   success  emailed pack; 2 blank fields (pipeline, headcount)"
+        },
+        {
+          "name": "experience.md (auto_boardpack)",
+          "content": "# experience.md\n\n(empty — this automation has never been reviewed)\n"
+        },
+        {
+          "name": "feedback.md (auto_boardpack)",
+          "content": "# feedback.md\n\n(empty)\n"
         }
       ],
       "category": "act_external",
       "clarity": "vague",
       "stage": "refine",
+      "trigger": "asked",
       "expectations": [
-        "Asks the board what 'not useful' means, rather than inferring which part to change.",
-        "Treats what the pack contains and what counts as good enough as intent-layer properties belonging to the owner and the board.",
-        "Notes that both runs shipped with blank fields, and raises that as a concrete candidate the board may be reacting to.",
-        "States that a blank field noted at the bottom is weaker than not shipping a figure the board relies on, or asks the board which they prefer.",
-        "Identifies that emailing the board is an outward action, so a changed pack needs approval before it is armed.",
-        "Notes that two runs is a thin evidence base for a redesign.",
-        "Names what further evidence would make the redesign better grounded.",
-        "Proposes verifying a revised pack against the two quarters already closed rather than waiting for the next.",
-        "States that the automation is disabled while the redesign is in progress, or that the next quarterly fire is held."
+        "States that the board's complaint is taken to the owner rather than recorded directly in this automation's feedback, because feedback entries are for the owner's words.",
+        "Empty ledgers are treated as the normal starting state for a never-reviewed automation, not as evidence of neglect.",
+        "States that this review is the entry that opens the automation's experience record.",
+        "Treats the same complaint arriving after two consecutive quarters as enough to act on, rather than waiting for a third to confirm the pattern.",
+        "Proposes verifying a revised pack against the two closed quarters rather than waiting for the next fire."
       ],
       "mode": "describe",
       "needs": {
@@ -402,10 +411,11 @@
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "harmed",
       "expectations": [
         "Identifies the cron expression on the trigger, not the procedure document, as where the schedule lives.",
-        "States that `heliox automation update` cannot change the cron expression, because it accepts no such flag.",
-        "Names the actual path for a cadence change: create a new automation with the corrected schedule, validate it while disabled, disable the old one, then enable the replacement.",
+        "The CLI's update path offers no way to change the trigger's cron expression, which is why the schedule repair requires a replacement automation.",
+        "Establishes that the schedule cannot be edited in place and that changing the cadence requires a replacement workflow with an ordering constraint that prevents both automations from firing concurrently.",
         "States that the replacement is enabled only after the original is disabled, because both being live fires the same job twice.",
         "Names submitting duplicate orders to the exchange as what a double fire would cause here.",
         "Prefers disabling the old automation over deleting it, so its run history stays readable.",
@@ -441,21 +451,32 @@
         {
           "name": "run e-9310 (yesterday 15:30, finalized success)",
           "content": "15:30:01 window = previous day 16:00 -> today 16:00\n15:30:01 today 16:00 has not happened yet\n15:30:02 latest figures in window: previous trading day's close\n15:30:03 posted to #trading-desk: summary of the PREVIOUS day's close\n15:30:03 finalized: success"
+        },
+        {
+          "name": "experience.md (auto_close3)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9290 · 2026-07-03\n  Schedule moved from 16:05 to 15:30. New automation created on the updated cron, validated while disabled, old one disabled, then new one enabled. Procedure document carried over without changes. Based on e-9290.\n"
+        },
+        {
+          "name": "feedback.md (auto_close3)",
+          "content": "# feedback.md\n\n- — @trading-desk-lead · owner · 2026-07-02\n  I want the numbers before the afternoon standup at 15:45.\n"
         }
       ],
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "regressed",
       "expectations": [
-        "Identifies that the read window in `## Inputs and freshness` still ends at 4:00pm while the trigger now fires at 3:30pm, so the run reads a window that has not closed.",
-        "States that the schedule was moved without moving the window, and that the window is the thing now wrong.",
-        "Locates the window in the procedure document and the firing time on the trigger, as two separate places.",
-        "Proposes editing the window rather than moving the schedule back, or asks the owner which of the two they want.",
-        "Points out that at 3:30pm the current day's close has not happened, so no edit to the window can make today's figures available.",
-        "Raises the timing conflict with the owner rather than silently picking a window that produces stale-but-plausible output.",
-        "Bases the diagnosis on run e-9310 rather than on the report of staleness alone.",
-        "States that the run finalized as success while delivering the wrong day's numbers, so the done-when condition does not detect this failure.",
-        "Proposes proving the fix by running the corrected window against a completed trading day."
+        "Identifies the experience entry from e-9290 as the source of the regression, where the schedule was moved but the procedure's read window was carried over unchanged.",
+        "States that the owner's feedback about wanting numbers before the 15:45 standup resolves why the schedule was moved, so the fix must preserve the earlier delivery rather than reverting the time.",
+        "What run e-9310 revealed is recorded into the experience ledger before any diagnosis or procedure edit is proposed.",
+        "States that the experience entry from e-9290 noted the procedure was carried over without changes, linking the regression to a gap visible at the time of the move.",
+        "Proposes that the proving plan cover both the failure scenario and a representative successful case, to confirm the corrected procedure handles both.",
+        "Proposes proving the corrected procedure by replaying it against a completed trading day already in the evidence, rather than waiting for the next natural fire.",
+        "Treats tying a freshness check to the reported session as a method-layer change the refiner may make.",
+        "Treats the choice between moving the schedule and changing what is reported as an intent-layer question for the owner.",
+        "Notes that the run finalized as success while delivering the previous day's numbers.",
+        "States that the done-when condition cannot detect this failure mode.",
+        "States that the regression goes into a new entry citing e-9290 rather than a revision of it, because another executor's account is not this reviewer's to rewrite."
       ],
       "mode": "describe",
       "needs": {
@@ -480,20 +501,22 @@
         {
           "name": "run e-9701 (finalized success)",
           "content": "07:00:01 read unpaid invoices due > 14 days ago -> 23 invoices\n07:00:02 building email list\n07:04:38 sent 23 reminder emails\n07:04:39 posted summary to #finance\n07:04:39 finalized: success\nnote: invoice INV-4471 was paid at 07:02:15, while the batch was sending"
+        },
+        {
+          "name": "experience.md (auto_overdue)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9690 · 2026-07-28\n  INV-3892: payment received at 06:58, but the status flag had not flipped when the batch queried at 07:00. Customer emailed incorrectly. Single occurrence — no procedure change. Based on e-9690.\n"
         }
       ],
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "harmed",
       "expectations": [
-        "Identifies the gap between building the list and sending each email as the cause, rather than treating the paid-status filter as wrong.",
-        "States that the invoice's status must be re-checked immediately before each send, not only when the list is built.",
-        "Names INV-4471 being paid at 07:02 during a batch that ran until 07:04 as the concrete evidence.",
-        "Identifies emailing customers as an outward action whose mistakes cannot be recalled.",
-        "Treats tightening the pre-send check as a method-layer change the refiner may make directly.",
-        "Notes that the run finalized as success, so run status would never have surfaced this.",
-        "Proposes proving the fix by rehearsing against a paid invoice while the automation is disabled, so no real customer is emailed during the test.",
-        "States that the rehearsal is pointed at a scratch address rather than at a real billing contact."
+        "Identifies that experience.md already records the same mid-batch payment-timing defect from run e-9690, making this the second occurrence rather than a first sighting that might not warrant a procedure change.",
+        "States that run e-9701 should have closed with the failed verb rather than success, because a run that emailed a customer about a paid invoice delivered wrong output to an external party.",
+        "Proposes proving the fix by rehearsing while the automation is disabled, and points the rehearsal at a scratch address so no real billing contact is emailed by the test.",
+        "Identifies the timing gap between building the invoice list and sending each email as the procedural defect, rather than treating the unpaid-status filter itself as wrong.",
+        "Treats the two recorded occurrences — e-9690 and e-9701 — as the evidence base for the procedure change, rather than treating run e-9701 as an isolated incident requiring fresh diagnosis."
       ],
       "mode": "describe",
       "needs": {
@@ -529,15 +552,16 @@
       "category": "act_external",
       "clarity": "vague",
       "stage": "refine",
+      "trigger": "costly",
       "expectations": [
-        "Identifies that the alerts were all correct, so the threshold is not the defect.",
-        "Identifies the mismatch between the 31-instrument watchlist and the 4 held positions as the actual cause.",
-        "Proposes narrowing what is alerted on to held positions, or asks the owner whether that is what they want.",
-        "Treats what is worth raising to the owner as an intent-layer property rather than a self-edit.",
-        "Asks what 'affected our position' means as a rule the automation can apply.",
-        "States that lowering the alert count by raising the 2% threshold would suppress correct alerts about held positions too.",
-        "Bases the change on the 12-versus-2 split rather than on the raw alert count.",
-        "Proposes verifying a revised rule against last week's prices, which already contain the 14 moves."
+        "States that 'dial it back' names a result without giving the rule that produces it, so the missing rule must come from the owner before the procedure can be changed.",
+        "Scopes the proposed changes to what the supplied data evidences — the watchlist-versus-holdings mismatch — rather than extending the analysis to behavior the data does not describe.",
+        "States that what last week's 14 runs showed is recorded into the experience ledger before any procedure change is proposed, so the edit derives from recorded evidence.",
+        "States that the owner's words go into the feedback ledger as their stated requirement before the runs are interpreted or any change is proposed.",
+        "Identifies that narrowing the watchlist to held instruments changes what the automation monitors, and presents this as a question for the owner to answer rather than a plan for the owner to approve.",
+        "States that raising the 2% threshold would suppress correct alerts on held instruments, showing that the threshold is the wrong lever for this problem.",
+        "Proposes verifying any revised rule against last week's 14 alerts, where both the correct and the noise alerts are already known.",
+        "Uses the 12-versus-2 split as evidence to present to the owner, rather than as a basis for choosing held-versus-unheld as the filtering criterion."
       ],
       "mode": "describe",
       "needs": {
@@ -567,17 +591,14 @@
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "harmed",
       "expectations": [
-        "States that the procedure has no check on whether a value is plausible, only on whether the cell is empty.",
-        "Proposes a validity check on the figures before publishing, such as rejecting a negative MRR.",
-        "Identifies publishing to a public changelog as an outward action that cannot be recalled once live.",
-        "States that an implausible figure should stop the run and notify the owner rather than publish with the metric omitted.",
-        "Distinguishes an empty cell from a cell holding a wrong value, and notes the procedure only handles the first.",
-        "Treats a validity gate as a method-layer change the refiner may make directly.",
-        "Raises whether the entry should be reviewed by a person before publishing, which is the owner's call.",
-        "Notes that the run finalized as success, so run status would never have surfaced this.",
-        "Asks how the already-published entry is corrected or retracted, separately from preventing a repeat.",
-        "Proposes proving the gate against the erroneous value from last Monday, which is already known."
+        "States that run e-9800 should have closed with the failed verb rather than success, because publishing a wrong number to a public-facing surface constitutes harmful output regardless of whether the publish call succeeded.",
+        "Asks how the already-published changelog entry containing the negative MRR is corrected or retracted, treating it as a concern separate from preventing future bad values.",
+        "Identifies publishing to the public changelog as an outward action whose output cannot be recalled once live, making the harm irreversible in a way that internal posts are not.",
+        "States that the owner is told about the method-layer validity-gate change before the next scheduled fire, because the automation is already enabled and the next run delivers under the new procedure.",
+        "Proposes a validity check that rejects a negative MRR before publishing, rather than treating the negative number as valid data.",
+        "Identifies that an empty cell and a cell holding a wrong value are two different failure modes, noting that the procedure only branches on the first."
       ],
       "mode": "describe",
       "needs": {
@@ -602,20 +623,21 @@
         {
           "name": "run e-9900 (Wednesday, finalized success) and the tracker row",
           "content": "e-9900 09:00:01 read contracts tracker -> 6 rows with signed_received empty\ne-9900 09:00:40 emailed 6 vendors\ne-9900 09:00:41 finalized: success\n\ntracker row for Northwind Ltd:\n  contract_sent: last Monday\n  signed_received: (empty)\n  note: signed PDF arrived by email on Tuesday; nobody updated the tracker"
+        },
+        {
+          "name": "experience.md (auto_chase)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9880 · 2026-07-30\n  Northfield Corp was chased for a contract their office had returned the previous Monday. The tracker row had not been updated. The vendor was gracious about it. Single occurrence — no procedure change. Based on e-9880.\n"
         }
       ],
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "harmed",
       "expectations": [
-        "Identifies that the tracker was stale rather than that the automation misread it.",
-        "States that the automation read its source correctly, so no procedure edit fixes the underlying cause.",
-        "Names the gap between the signature arriving and the tracker being updated as the real defect.",
-        "Raises with the owner whether the automation should read a source closer to the truth than a hand-updated tracker.",
-        "Proposes a lower-cost mitigation the refiner can make, such as stating in the follow-up that it is automated and asking the vendor to ignore it if already sent.",
-        "Treats changing which source the automation trusts as an intent-layer decision for the owner.",
-        "Identifies emailing vendors as an outward action, so a wrong chase is visible to someone outside the company.",
-        "Bases the diagnosis on the Northwind tracker row rather than on the vendor's complaint alone."
+        "Identifies that experience.md already records a previous false chase from run e-9880, making this the second time a vendor was followed up after already returning their contract.",
+        "States that run e-9900 should have closed with the failed verb rather than success, because following up with a vendor who already returned a signed contract delivered wrong output to an external party.",
+        "Proposes a lower-cost mitigation the refiner can make directly, such as adding a line to each follow-up email noting it is automated and asking the vendor to disregard if they have already returned the contract.",
+        "States that the new experience entry records only what this round's review showed and does not restate what the entry from e-9880 already holds, since the ledger is a timeline where each entry keeps its own date."
       ],
       "mode": "describe",
       "needs": {
@@ -644,22 +666,23 @@
         {
           "name": "run e-9950 (Monday, finalized success) and three of the accounts",
           "content": "e-9950 08:00:01 read accounts renewing within 30 days -> 41 accounts\ne-9950 08:03:12 emailed 41 account contacts\ne-9950 08:03:13 finalized: success\n\nAcme Corp      renewal in 12 days   CRM stage: Closed Lost      note: told AM they are not renewing\nBorealis Inc   renewal in 19 days   CRM stage: Closed Lost      note: told AM they are not renewing\nCedar Systems  renewal in 27 days   CRM stage: Closed Lost      note: told AM they are not renewing"
+        },
+        {
+          "name": "experience.md (auto_renewal)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9920 · 2026-07-28\n  Globex Inc (renewal in 8 days, CRM stage Closed Lost) received a renewal reminder. Their account manager had marked them as churned two weeks prior. Single occurrence; the procedure has no filter on CRM stage. Based on e-9920.\n"
         }
       ],
       "category": "act_external",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "harmed",
       "expectations": [
-        "Identifies that the procedure filters only on renewal date and ignores account stage.",
-        "States that the three accounts were already marked Closed Lost in the CRM at the time of the run.",
-        "Proposes excluding accounts whose stage says they are not renewing.",
-        "Names the CRM stage as the field the procedure has to start reading.",
-        "Treats adding the stage filter as a method-layer change the refiner may make directly.",
-        "Identifies emailing customers as an outward action, so the mistake was visible to three customers and cannot be recalled.",
-        "Notes that the run finalized as success, so run status would never have surfaced this.",
-        "Asks whether any other stage should also be excluded, rather than fixing only the three observed cases.",
-        "Bases the change on the three named accounts rather than on the complaint count.",
-        "Proposes proving the filter against last Monday's 41 accounts, where the three exclusions are already known."
+        "Identifies that experience.md already records a renewal reminder sent to a Closed Lost account from run e-9920, making this the second occurrence of the same filtering defect rather than a first sighting.",
+        "States that the three accounts were already marked Closed Lost in the CRM at the time run e-9950 fired, grounding the diagnosis in the supplied run data rather than in the customer complaints alone.",
+        "Proposes proving the updated filter against the specific set of 41 accounts from run e-9950, where the three false positives are already known, rather than testing against a different week's data set.",
+        "States that the new experience entry covers only what this round's review showed and does not restate the observation from run e-9920, because the file is a timeline and the earlier entry is already there with its own date.",
+        "Proposes excluding accounts whose CRM stage indicates they are not renewing, so the automation only sends reminders to genuinely upcoming renewals.",
+        "Identifies that additional CRM stages beyond Closed Lost may also warrant exclusion, and asks the owner which stages should be treated as non-renewal rather than fixing narrowly for the three observed cases."
       ],
       "mode": "describe",
       "needs": {
@@ -677,6 +700,7 @@
       "category": "brief",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "open",
       "mode": "describe",
       "prompt": "Have another look at the weekly release digest and tell me what you would change. Someone raised a request in the run channel too. Describe the maintenance work only; do not call APIs in this evaluation.",
       "expected_output": "Treats the owner's signed feedback entry as the target and the executor's signed experience entry as evidence about whether the procedure reaches it. Notices they pull in opposite directions and resolves in the owner's favour rather than averaging them. Relays the non-owner's request to the owner instead of recording it: an executor may record what the OWNER asked for, but @dev-lead is not the owner, so their request cannot be entered in the owner's name.",
@@ -696,14 +720,11 @@
       ],
       "expectations": [
         "Treats the owner's feedback entry as the target the automation must meet, not as one opinion among several.",
-        "States that the executor's explanation of why the digest grew does not justify keeping it long, because it is evidence rather than a requirement.",
         "Identifies that @dev-lead's request for a full PR list contradicts the owner's request for a shorter digest.",
-        "States that @dev-lead's request is taken to the owner rather than written into feedback, because @dev-lead is not the owner — not because the executor is barred from recording feedback.",
-        "Proposes narrowing what the procedure includes, which is the change the owner's target implies.",
-        "Treats what the digest contains as an intent-layer property, so the change goes back to the owner rather than being made on the refiner's own authority.",
-        "States that the source's clean record across 40 runs means no failure-handling change is warranted.",
-        "States that what it concluded is written to the experience ledger, not only to the reply.",
-        "States that the experience entry records what THIS round showed and does not restate what earlier entries already hold, because the file is a timeline rather than one rewritten slot."
+        "@dev-lead's request is relayed to the owner rather than recorded in feedback, because @dev-lead is not the owner.",
+        "States that the experience entry records what this round showed and does not restate what the existing entry about PR growth already holds.",
+        "Separates the recording of what the owner asked for into the feedback ledger from the recording of what the review found into the experience ledger, rather than treating them as one combined write.",
+        "The narrowing edit cites the feedback entry it serves and the experience entry that informed the approach, linking each change to its recorded source."
       ],
       "needs": {"tools": ["automation", "document"], "integrations": ["github", "slack"]},
       "world": {"connected": ["github", "slack"], "connectable": [], "absent": []}
@@ -713,10 +734,15 @@
       "category": "watch",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "recurring",
       "mode": "describe",
-      "prompt": "The disk-space alert fired again overnight. Look at it. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "prompt": "The disk-space alert fired at 02:45 on Sunday 2026-08-02. Look at it. Describe the maintenance work only; do not call APIs in this evaluation.",
       "expected_output": "Reads the experience ledger, finds the pattern earlier rounds already characterised, and does not re-diagnose it from scratch. Acts on the recurrence rather than treating it as a first sighting, and notices feedback says nothing about it, so the fix is method-layer and the refiner's to make.",
       "files": [
+        {
+          "name": "procedure document (auto_diskwatch, bound to the disk-space watcher)",
+          "content": "# Disk-space watcher\n\n## Objective\nAlert @sre-oncall when any volume crosses the 90% threshold.\n\n## Inputs and freshness\nEvery 15 minutes, read disk usage from the monitoring API.\n\n## Procedure\n1. Query current usage for all monitored volumes.\n2. Compare each against the 90% threshold.\n3. If any volume exceeds 90%, raise an alert with the volume name and current usage.\n\n## Output and delivery\nSend the alert to @sre-oncall as a direct message.\n\n## Failure and no-result behavior\nIf no volume exceeds the threshold, finalize quietly.\n\n## Done when\nAlerts are sent, or the run finalized quietly."
+        },
         {
           "name": "experience.md (auto_diskwatch)",
           "content": "# experience.md\n\n- — @scout · executor · run e-7760 · 2026-07-30\n  The threshold alert fires on the backup volume every Sunday between 02:00 and 04:00, while the weekly backup job is writing. It clears on its own by 05:00. Seen in e-7712, e-7729 and e-7744. Earlier rounds left the procedure alone because two occurrences could not distinguish a pattern from coincidence; three now can. The alert is correct about the number and wrong about it mattering.\n"
@@ -724,17 +750,19 @@
         {
           "name": "feedback.md (auto_diskwatch)",
           "content": "# feedback.md\n\n- — @sre-lead · owner · 2026-06-02\n  Wake me for anything that will page someone. I would rather get a false alarm than miss a real one.\n"
+        },
+        {
+          "name": "run e-7776 (Sunday 2026-08-02 02:45, finalized success)",
+          "content": "02:45:01 query disk usage\n02:45:01 backup volume: 94% utilization\n02:45:02 threshold exceeded — sent alert to @sre-oncall\n02:45:02 finalized: success"
         }
       ],
       "expectations": [
-        "States that this is a fourth occurrence of a pattern the experience ledger already describes, rather than diagnosing it as a new problem.",
-        "Uses the recorded run ids as the evidence base rather than asking for fresh investigation.",
-        "Identifies the backup window as the cause already established by earlier rounds.",
-        "Treats suppressing the alert during the known backup window as a method-layer change the refiner may make.",
-        "Notes that the owner's standing instruction favours false alarms over misses, and does not read it as forbidding this narrowing.",
-        "Distinguishes narrowing when the alert fires from lowering what the automation watches for.",
-        "States that the experience ledger is revised to record the fix, so a fifth occurrence is not investigated again.",
-        "Proposes verifying the change against the Sunday window already in the run history rather than waiting for next Sunday."
+        "Identifies this as a fourth occurrence of the Sunday 02:00–04:00 pattern described in the experience ledger, citing runs e-7712, e-7729, and e-7744 as the prior three.",
+        "Builds on the existing experience entry about the Sunday 02:00-04:00 pattern rather than re-diagnosing what the prior rounds already characterized.",
+        "Notes that the owner's standing instruction to prefer false alarms over misses does not forbid narrowing when the alert fires, because the suppression is time-scoped and leaves the monitoring sensitivity unchanged.",
+        "Distinguishes narrowing when the alert fires from lowering what the automation watches for, and classifies the Sunday-window suppression as the former.",
+        "The experience ledger records the fourth occurrence and the resolution after the fix, so a fifth firing during the backup window is not investigated from scratch.",
+        "Proposes verifying the timing-window suppression against the runs already in the experience record rather than waiting for the next Sunday."
       ],
       "needs": {"tools": ["automation", "document"], "integrations": ["slack"]},
       "world": {"connected": ["slack"], "connectable": [], "absent": []}
@@ -744,8 +772,9 @@
       "category": "watch",
       "clarity": "clear",
       "stage": "refine",
+      "trigger": "open",
       "mode": "describe",
-      "prompt": "Take another look at the certificate expiry watcher. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "prompt": "Take another look at the certificate expiry watcher. There is a wiki page about the CA's reissue schedule. Describe the maintenance work only; do not call APIs in this evaluation.",
       "expected_output": "Notices the owner has disputed the standing observation, treats it as unusable evidence rather than reasoning from it, and proposes rechecking against the cited runs before revising. Does not argue with the dispute and does not attempt to edit the owner's entry.",
       "files": [
         {
@@ -755,19 +784,397 @@
         {
           "name": "feedback.md (auto_certwatch)",
           "content": "# feedback.md\n\n- — @maria · owner · 2026-05-14\n  I would rather see a duplicate warning than miss an expiry.\n"
+        },
+        {
+          "name": "wiki/ca-reissue-schedule.md (auto_certwatch)",
+          "content": "# CA reissue schedule\n\nThe upstream CA reissues certificates 14 days before expiry. Adjust the dedup window to at least 14 days to account for the CA's automatic reissue cycle.\n"
         }
       ],
       "expectations": [
         "States that the disputed observation is not usable evidence and does not reason from its conclusion.",
-        "Does not propose widening the dedup window on the strength of the disputed observation.",
-        "Proposes rechecking e-5510, e-5533 and e-5561 against the owner's account before revising.",
-        "States that the correction is acted on by writing a corrected revision of the experience ledger, not by editing the owner's dispute.",
         "Recognises that the owner's standing preference for duplicates over misses argues against widening the window regardless.",
-        "Does not treat the dispute as something to argue with in the ledger.",
-        "Attributes the observation to the executor and the dispute to the owner using the signatures rather than any name inside the bodies."
+        "States that the correction is appended as this reviewer's own entry and @scout's is left standing, because retiring another executor's account is not theirs to do.",
+        "States that the wiki page's factual claim about the CA's 14-day reissue schedule rests on the disputed observation and cannot be trusted until the cited runs are rechecked.",
+        "Identifies that the wiki page carries an instruction alongside a fact.",
+        "States that an instruction living in the wiki creates a second authority competing with the procedure."
       ],
       "needs": {"tools": ["automation", "document"], "integrations": ["slack"]},
       "world": {"connected": ["slack"], "connectable": [], "absent": []}
+    },
+    {
+      "id": 22,
+      "category": "act_internal",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "broke",
+      "mode": "describe",
+      "prompt": "The three-minute inventory sync just ran for the third time. Run 3 failed because the warehouse API timed out. Should the procedure be changed? Describe your reasoning only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that at three runs of a three-minute automation, the cadence budget is nowhere near a review. Records the single failure in experience and does not edit the procedure, because one timeout on run 3 is not evidence of decay and the budget says to wait for roughly 20 runs or a day before reviewing a fast-cadence automation.",
+      "files": [
+        {
+          "name": "procedure document (auto_invsync, bound to the inventory sync automation)",
+          "content": "# Inventory sync\n\n## Objective\nKeep the storefront count in sync with the warehouse.\n\n## Inputs and freshness\nEvery 3 minutes, read the warehouse API for current stock levels.\n\n## Procedure\n1. Fetch stock levels for all active SKUs.\n2. Compare against the storefront's cached count.\n3. Push any differences.\n\n## Output and delivery\nLog the sync result to #ops-inventory.\n\n## Failure and no-result behavior\nIf no SKU differs, finalize quietly. If the warehouse API is unreachable, notify @ops-lead and finalize as failed.\n\n## Done when\nDifferences are pushed, or the run finalized quietly."
+        },
+        {
+          "name": "runs e-3001 through e-3003 (the first nine minutes)",
+          "content": "e-3001  success  synced 2 SKUs\ne-3002  success  no differences, finalized quietly\ne-3003  failed   warehouse API timed out after 10s; notified @ops-lead"
+        },
+        {
+          "name": "experience.md (auto_invsync)",
+          "content": "# experience.md\n\n(empty — this automation has never been reviewed)\n"
+        }
+      ],
+      "expectations": [
+        "Cites the cadence budget for fast-cadence automations — roughly 20 runs or a day, whichever comes first — as the threshold that has not been reached at three runs.",
+        "States that the empty experience ledger is normal for a never-reviewed automation — this observation starts the record rather than filling a gap.",
+        "Applies the immediate-review conditions — wrong output reaching subscribers, irreversible effects, same failure twice in a row, new owner feedback, repeating failure cause — and confirms none is triggered by this single timeout.",
+        "States that the automation's feedback file must be read before concluding, because the owner may have stated preferences about failure tolerance that override the default notify-on-every-failure behavior.",
+        "Concludes that one timeout on the third run of a fast-cadence automation is not decay and does not justify adding a workaround to the procedure."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 23,
+      "category": "act_internal",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "due",
+      "mode": "describe",
+      "prompt": "The three-minute inventory sync has been running all day. Run 25 just completed — clean, like every run since the timeout on run 3. Describe what you do now; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that 25 runs of a three-minute automation puts it past the cadence budget's review threshold. Conducts the review, finds nothing wrong, and writes the null result to experience so a later reader knows the quiet runs were looked at. Does not notify the owner, because a review that found nothing is not something the owner needs to hear about.",
+      "files": [
+        {
+          "name": "procedure document (auto_invsync, bound to the inventory sync automation)",
+          "content": "# Inventory sync\n\n## Objective\nKeep the storefront count in sync with the warehouse.\n\n## Inputs and freshness\nEvery 3 minutes, read the warehouse API for current stock levels.\n\n## Procedure\n1. Fetch stock levels for all active SKUs.\n2. Compare against the storefront's cached count.\n3. Push any differences.\n\n## Output and delivery\nLog the sync result to #ops-inventory.\n\n## Failure and no-result behavior\nIf no SKU differs, finalize quietly. If the warehouse API is unreachable, notify @ops-lead and finalize as failed.\n\n## Done when\nDifferences are pushed, or the run finalized quietly."
+        },
+        {
+          "name": "runs e-3001 through e-3025 (summary of today's 25 runs)",
+          "content": "e-3001  success  synced 2 SKUs\ne-3002  success  no differences\ne-3003  failed   warehouse API timeout\ne-3004 through e-3025: all success, 19 quiet (no differences), 3 synced between 1 and 4 SKUs"
+        },
+        {
+          "name": "experience.md (auto_invsync)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-3003 · 2026-08-04\n  Run 3 timed out reaching the warehouse API. Single occurrence; the next run connected normally. No procedure change.\n"
+        },
+        {
+          "name": "feedback.md (auto_invsync)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "States that 25 runs of a three-minute automation puts it past the cadence budget's review threshold, citing approximately 20 runs as the guideline for fast-cadence automations.",
+        "Describes conducting the review by reading the procedure, experience, and feedback files and comparing them against the run history.",
+        "Concludes that the review found nothing that needs changing.",
+        "States that the null result is written to the experience ledger so a later reader knows the quiet period was examined.",
+        "States that the current run is closed with its terminal verb before the cadence-budget review is entered, because leaving a run unclosed surfaces as a failure to the owner.",
+        "States that being due to look is a reason to examine the automation rather than a reason to change it.",
+        "States that finding nothing wrong is itself a complete review outcome.",
+        "States that the owner is not notified because the review found nothing to act on, not because no review was conducted."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 24,
+      "category": "act_internal",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "harmed",
+      "mode": "describe",
+      "prompt": "The three-minute inventory sync just completed run 2. It pushed a stock count of zero for SKU-4419 to the storefront because the warehouse API returned an empty array instead of the product's actual level. The storefront now shows 'out of stock' for a product that has 340 units. @warehouse-ops says in the run channel: 'Just skip any SKU the warehouse returns empty for.' Describe what you do; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that wrong output has already reached the storefront and preempts the cadence budget. Names the terminal verb the run should have used, records the observation before editing, classifies the fix as method-layer, and tells the owner about the wrong output that already went out.",
+      "files": [
+        {
+          "name": "procedure document (auto_invsync2, bound to the inventory sync automation)",
+          "content": "# Inventory sync\n\n## Objective\nKeep the storefront count in sync with the warehouse.\n\n## Inputs and freshness\nEvery 3 minutes, read the warehouse API for current stock levels.\n\n## Procedure\n1. Fetch stock levels for all active SKUs.\n2. Compare against the storefront's cached count.\n3. Push any differences.\n\n## Output and delivery\nPush updated counts to the storefront API. Log the sync to #ops-inventory.\n\n## Failure and no-result behavior\nIf no SKU differs, finalize quietly. If the warehouse API is unreachable, notify @ops-lead and finalize as failed.\n\n## Done when\nDifferences are pushed, or the run finalized quietly."
+        },
+        {
+          "name": "run e-3102 (just now, finalized success)",
+          "content": "e-3102 12:06:01 read warehouse API -> 47 SKUs returned\ne-3102 12:06:01 SKU-4419: warehouse returned [] (empty array)\ne-3102 12:06:02 SKU-4419: storefront has 340, warehouse has 0 -> difference detected\ne-3102 12:06:02 pushed count=0 for SKU-4419 to storefront\ne-3102 12:06:03 synced 1 SKU\ne-3102 12:06:03 finalized: success"
+        },
+        {
+          "name": "experience.md (auto_invsync2)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-3101 · 2026-08-08\n  First run. 47 SKUs read, 3 differences pushed correctly. Warehouse API responsive. Based on e-3101.\n"
+        }
+      ],
+      "expectations": [
+        "States that this preempts the cadence budget: the wrong count was pushed to the storefront, an external system, triggering the outward-or-irreversible-effect condition even though the automation has only fired twice.",
+        "States that run e-3102 should have closed with the failed verb rather than success, because pushing a wrong stock count to the storefront means the run delivered incorrect output regardless of whether the API push itself completed.",
+        "States that @warehouse-ops's suggestion is relayed to the automation's owner rather than recorded in feedback.md, because @warehouse-ops is not the owner and their run-channel request cannot be entered as owner feedback.",
+        "The experience entry for run e-3102 records only what this run showed and does not restate what the entry from run e-3101 already covers, since each entry in the ledger keeps its own timestamp and earlier ones stay as written."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 25,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "drifted",
+      "mode": "describe",
+      "prompt": "The weekly team-health digest ran on Monday and posted a summary that included last week's attrition number from a spreadsheet that had not been updated yet — the cell still held the prior week's figure. Should the procedure be changed? Describe your reasoning only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that for a weekly automation, every run is worth a look. Does not dismiss this as one bad run that needs more evidence, because waiting for the next occurrence means waiting a full week while the same stale figure ships again. Reviews immediately and identifies the missing freshness check.",
+      "files": [
+        {
+          "name": "procedure document (auto_teamhealth, bound to the weekly team-health digest)",
+          "content": "# Weekly team-health digest\n\n## Objective\nGive @people-lead a picture of team health every Monday morning.\n\n## Inputs and freshness\nRead the team-health spreadsheet: attrition, eNPS, and open reqs.\n\n## Procedure\n1. Read the three figures from the named cells.\n2. Compare each against the prior week's digest.\n3. Write a paragraph noting any movement.\n\n## Output and delivery\nPost the digest to #people.\n\n## Failure and no-result behavior\nIf a cell is empty, note the gap and post the digest with the remaining figures.\n\n## Done when\nThe digest is posted."
+        },
+        {
+          "name": "run e-5500 (Monday, finalized success)",
+          "content": "e-5500 08:00:01 read team-health spreadsheet\ne-5500 08:00:01 attrition = 2.1% (cell B4)\ne-5500 08:00:01 eNPS = 72 (cell B5)\ne-5500 08:00:01 open reqs = 14 (cell B6)\ne-5500 08:00:02 compared: attrition unchanged, eNPS up 3, open reqs down 1\ne-5500 08:00:03 posted digest to #people\ne-5500 08:00:03 finalized: success\nnote: cell B4 was not updated this week; 2.1% is last week's attrition figure repeated."
+        }
+      ],
+      "expectations": [
+        "Proposes a proving plan with at least one rehearsal run while the automation is disabled, covering both a stale figure and a genuinely unchanged one, to confirm the freshness check works without false-alarming.",
+        "States that the owner is told about the procedure change before the next scheduled fire, because the automation is already enabled and the next run delivers under the new procedure.",
+        "Identifies that the procedure checks for an empty cell but not a stale value, so a repeated figure passes the existing check and appears in the digest as though it were fresh.",
+        "Notes that the comparison step laundered the stale figure into the trend claim 'attrition unchanged', making the output actively misleading rather than merely carrying an old number."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 26,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "open",
+      "mode": "describe",
+      "prompt": "Have another look at the daily-leads automation. All three files are supplied. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Treats feedback as the target, experience as evidence to be explained, and the wiki fact as something to correct. The owner wants leads grouped by source; the executor's experience says the CRM returns them grouped by stage, so regrouping requires a second pass; the wiki says the CRM groups by source natively, which the experience just disproved. The procedure should be changed to match the owner's target, the experience entry is the evidence for how, and the wiki fact is corrected in place.",
+      "files": [
+        {
+          "name": "feedback.md (auto_dailyleads)",
+          "content": "# feedback.md\n\n- — @sales-vp · owner · 2026-07-28\n  I need the leads grouped by source, not by stage. Source tells me where to spend.\n"
+        },
+        {
+          "name": "experience.md (auto_dailyleads)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-6100 · 2026-08-01\n  The CRM API returns leads grouped by pipeline stage. Grouping by source requires a second pass: pull the source field from each lead, then re-bucket. Adds about 2s to the run. Based on e-6080 through e-6100.\n"
+        },
+        {
+          "name": "wiki/crm-source.md (auto_dailyleads)",
+          "content": "# CRM source behavior\n\nThe CRM API returns leads grouped by source natively. No additional processing is needed to produce a source-grouped report.\n"
+        },
+        {
+          "name": "procedure document (auto_dailyleads, bound to the daily leads digest)",
+          "content": "# Daily leads digest\n\n## Objective\nGive @sales-vp the previous day's new leads each morning.\n\n## Inputs and freshness\nRead the CRM for leads created in the last 24 hours.\n\n## Procedure\n1. Fetch yesterday's leads.\n2. Group by pipeline stage.\n3. Write one line per lead: name, company, stage.\n\n## Output and delivery\nPost the digest to #sales-pipeline.\n\n## Failure and no-result behavior\nIf no leads came in yesterday, post \"No new leads yesterday.\"\n\n## Done when\nThe digest is posted."
+        }
+      ],
+      "expectations": [
+        "States that the experience and feedback ledgers are written before the procedure is edited, because the edit must be derived from recorded evidence rather than from the conversation alone.",
+        "Retires the experience entry about the CRM's stage-grouped response once its instruction is promoted into the procedure, so the next reviewer does not read a resolved observation as an open problem.",
+        "States that the experience entry may only be written by the automation's current executor.",
+        "Names passing the observation to the executor as the route when the reviewer lacks that role.",
+        "Classifies the grouping change as an intent-layer modification that proceeds because the owner's approval already exists in the feedback entry, rather than treating it as a method-layer fix the refiner may make alone.",
+        "Corrects the wiki page to match observed CRM behavior from the cited runs, keeping it as a fact page that carries no instructions.",
+        "Uses the experience entry as evidence for how to implement the owner's target, noting the CRM returns leads by stage so a re-bucketing step is needed."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 27,
+      "category": "watch",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "open",
+      "mode": "describe",
+      "prompt": "Take another look at the hourly anomaly scan. There is a wiki page that looks relevant. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Notices that the wiki page contains an instruction — 'widen the detection window by two minutes' — rather than a fact. An instruction in the wiki is a second authority that will disagree with the procedure at 3 AM. Moves the instruction into the procedure rather than ranking it below and leaving it in place.",
+      "files": [
+        {
+          "name": "procedure document (auto_anomscan, bound to the hourly anomaly scan)",
+          "content": "# Hourly anomaly scan\n\n## Objective\nSurface unusual log patterns to @sre-oncall within the hour.\n\n## Inputs and freshness\nRead application logs for the last 60 minutes.\n\n## Procedure\n1. Fetch the window's logs.\n2. Compare pattern counts against the trailing 7-day baseline.\n3. Report any pattern more than 3x its baseline.\n\n## Output and delivery\nPost findings to #sre-alerts.\n\n## Failure and no-result behavior\nIf no pattern exceeds the threshold, finalize quietly. If the log source cannot be reached, retry once, then notify @sre-oncall and finalize as failed.\n\n## Done when\nFindings are posted, or the run finalized quietly."
+        },
+        {
+          "name": "wiki/log-source-timing.md (auto_anomscan)",
+          "content": "# Log source timing\n\nThe log aggregator has a two-minute ingestion lag. Logs from the last two minutes of any window may not have arrived yet.\n\nWiden the detection window by two minutes to compensate — read 62 minutes instead of 60.\n"
+        },
+        {
+          "name": "experience.md (auto_anomscan)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-7800 · 2026-07-29\n  Quiet run; no patterns above 3x baseline. The log source was reachable and returned data for the full window. Based on e-7790 through e-7800.\n"
+        },
+        {
+          "name": "feedback.md (auto_anomscan)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "Identifies that the wiki page contains an instruction ('widen the detection window by two minutes') rather than only a fact about the source.",
+        "Separates the fact (the aggregator has a two-minute ingestion lag) from the instruction (widen the window), keeping the fact in the wiki and moving the instruction into the procedure.",
+        "The instruction is moved into the procedure by editing the read window from 60 to 62 minutes against a unique span of the existing text, not by rewriting the document.",
+        "The corrected wiki page retains the ingestion-lag fact and removes the window-widening directive.",
+        "Applies the promotion questions to confirm that the ingestion-lag fact belongs in the wiki and the window adjustment belongs in the procedure, rather than treating the routing as a rank order.",
+        "States that the experience entry captures only what this review's wiki reading surfaced, without restating the prior entry's quiet-run observation."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 28,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "open",
+      "mode": "describe",
+      "prompt": "While reviewing the deployment-status automation, you discover that its GitHub source refreshes deployment records with a five-minute delay after each deploy completes. Where should this be recorded? Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that a fact about this automation's source — the five-minute refresh delay — belongs in the automation's own wiki at wiki/github-deploy-lag.md, not in the executor's private wiki. The private wiki does not travel with the automation: the next executor starts with an empty one, and a fact filed there is lost on handover.",
+      "files": [
+        {
+          "name": "procedure document (auto_deploy5, bound to the deployment-status automation)",
+          "content": "# Deployment status\n\n## Objective\nReport the last 24 hours of deployments to @platform-lead.\n\n## Inputs and freshness\nRead GitHub deployment records for the previous 24 hours.\n\n## Procedure\n1. Fetch deployments and their statuses.\n2. Summarize successes and failures.\n\n## Output and delivery\nPost the summary to #eng.\n\n## Failure and no-result behavior\nIf no deployments occurred, post \"No deploys in the last 24 hours.\"\n\n## Done when\nThe summary is posted."
+        },
+        {
+          "name": "experience.md (auto_deploy5)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-4200 · 2026-08-01\n  Clean run; 3 deployments reported. Noticed a deploy that completed at 07:55 did not appear in the 08:00 run but appeared in the 08:05 re-check. The GitHub deployments endpoint refreshes with an approximately five-minute delay. Based on e-4195 through e-4200.\n"
+        },
+        {
+          "name": "feedback.md (auto_deploy5)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "States that the five-minute delay is a fact about this automation's source and belongs in the automation's own wiki at wiki/github-deploy-lag.md.",
+        "States that the executor's private wiki does not travel with the automation, so a fact filed there is lost when a different executor takes over.",
+        "Keeps the five-minute refresh delay out of the procedure document, on the grounds that it describes how the source behaves rather than telling a run to do anything.",
+        "Considers whether the five-minute delay warrants a procedure change, such as extending the read window, and raises the question rather than deciding unilaterally.",
+        "Names `heliox automation file write` as the command to create the wiki page on the automation, rather than a private wiki write."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 29,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "asked",
+      "mode": "describe",
+      "prompt": "While reviewing the weekly pipeline report, @eng-manager posts in the run channel: '@sales-vp told me they want numbers across all their reports, not charts. Tables are fine.' Where does this go? Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that 'across all my reports' is about the person, not about this automation. Filing it under this automation's feedback hides it from the other reports @sales-vp receives. It belongs in the executor's own wiki as a cross-automation pattern, or in workspace memory where other assistants can see it, not in feedback.md for auto_pipeline.",
+      "files": [
+        {
+          "name": "procedure document (auto_pipeline, bound to the weekly pipeline report)",
+          "content": "# Weekly pipeline report\n\n## Objective\nGive @sales-vp a picture of last week's pipeline movement.\n\n## Inputs and freshness\nRead the CRM for deals that moved stages in the previous Monday-to-Sunday week.\n\n## Procedure\n1. List deals that advanced, stalled, or closed.\n2. Summarize the movement by stage.\n\n## Output and delivery\nPost the report to #sales-pipeline. Send it to @sales-vp.\n\n## Failure and no-result behavior\nIf no deals moved, post \"No pipeline movement last week.\"\n\n## Done when\nThe report is posted."
+        },
+        {
+          "name": "feedback.md (auto_pipeline)",
+          "content": "# feedback.md\n\n- — @sales-vp · owner · 2026-07-15\n  The report is good. Keep it short — one screen, no scrolling.\n"
+        },
+        {
+          "name": "experience.md (auto_pipeline)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-8800 · 2026-08-01\n  Clean run. 7 deals moved, report posted within the one-screen constraint. Based on e-8780 through e-8800.\n"
+        }
+      ],
+      "expectations": [
+        "States that the preference is not filed in this automation's feedback, because it applies to all reports this person receives, not just this one.",
+        "States that the relayed requirement is taken to the owner for confirmation rather than recording a third party's account of what the owner said.",
+        "Names the executor's private wiki as the recording destination, because a cross-automation formatting preference is about how one person wants their reports.",
+        "Distinguishes the private wiki from workspace memory: a personal preference goes in the private wiki, while workspace memory is for team or project facts other people should see."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 30,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "open",
+      "mode": "describe",
+      "prompt": "Take another look at the daily order-summary automation. There is an experience entry that has been noted in every run for the past two weeks. Describe the maintenance work only; do not call APIs in this evaluation.",
+      "expected_output": "Recognizes that an observation every run needs is no longer raw material — it belongs in the procedure. Promotes the entry into the procedure, and retires the experience entry with --replaces so the next reader does not treat a solved problem as live.",
+      "files": [
+        {
+          "name": "procedure document (auto_orders, bound to the daily order-summary automation)",
+          "content": "# Daily order summary\n\n## Objective\nGive @ops-lead a count of yesterday's orders by region.\n\n## Inputs and freshness\nRead the orders database for orders placed in the previous calendar day.\n\n## Procedure\n1. Query orders by region.\n2. Count per region.\n3. Write a one-line summary per region.\n\n## Output and delivery\nPost the summary to #ops.\n\n## Failure and no-result behavior\nIf no orders were placed yesterday, post \"No orders yesterday.\"\n\n## Done when\nThe summary is posted."
+        },
+        {
+          "name": "experience.md (auto_orders)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-9050 · 2026-07-20\n  The orders database returns timestamps in UTC, but the procedure says 'previous calendar day' without naming a timezone. Every run has to decide whether that means UTC midnight-to-midnight or the owner's local midnight-to-midnight. Using UTC: some late-evening local orders land in tomorrow's count. Using local: some early-morning UTC orders from APAC land in yesterday's count. Every run since e-9050 has used UTC and noted the ambiguity. Based on e-9050 through e-9060.\n\n- — @scout · executor · run e-9200 · 2026-08-03\n  Still using UTC midnight-to-midnight. Same ambiguity noted in every run since e-9050. The owner has not been asked which they prefer.\n"
+        },
+        {
+          "name": "feedback.md (auto_orders)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "States that the owner must be asked which timezone they mean before writing the promoted rule, because choosing between UTC and local is an intent-layer decision.",
+        "States that the experience entries are retired with `--replaces` citing e-9050 and e-9200, so the next reviewer does not treat the timezone ambiguity as a live observation.",
+        "The promoted rule is written into the procedure by editing a unique contiguous span of the existing text, not by rewriting the document.",
+        "The UTC-storage fact is promoted to the automation's own wiki, keeping it as a fact page that carries no instructions.",
+        "Applies the three promotion questions to this review's findings, including the script question, not only the instruction and fact questions.",
+        "Does not simply promote the UTC convention without the owner's confirmation, even though every run has been using it."
+      ],
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []}
+    },
+    {
+      "id": 31,
+      "category": "brief",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "due",
+      "mode": "describe",
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []},
+      "prompt": "You are the executor for auto_standup, a stand-up digest that has posted every weekday at 09:00 for two months and has never been reviewed. The owner asks you to take the periodic look at it. You fire a run to watch it work end to end: every source answers, the digest matches what the procedure describes, and all three subscribers receive it. Nothing errors, nothing is slow, nothing about the output surprises you. Walk through what you do from here.",
+      "expected_output": "Treats a daily automation unreviewed for two months as past its review pace, so the look is due. Runs it, finds nothing wrong, and says so: closes the run with its verb, writes no experience entry for a run that showed nothing, leaves the procedure alone, and tells the owner the review found nothing needing change rather than producing a change to have delivered one.",
+      "files": [
+        {
+          "name": "procedure.md (auto_standup)",
+          "content": "# auto_standup\n\n## Inputs\n\n- Yesterday's merged pull requests in the `web` and `api` repositories.\n- Issues moved into `In review` since the previous weekday 09:00.\n\n## Steps\n\n1. Collect the two input sets.\n2. Group them by author.\n3. Post the grouped digest in the run's own thread.\n\n## Output\n\nOne digest per weekday morning, grouped by author, delivered to every subscriber.\n"
+        },
+        {
+          "name": "experience.md (auto_standup)",
+          "content": "# experience.md\n\n(empty — this automation has never been reviewed)\n"
+        },
+        {
+          "name": "feedback.md (auto_standup)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "Concludes that a daily automation running unreviewed for two months is past the pace a review should keep, so taking the look now is warranted.",
+        "Ends the run it fired with one terminal verb rather than leaving it open while the review proceeds.",
+        "Writes no experience entry about the run itself, on the ground that a run which surfaced nothing gives a later reader nothing the run history does not already carry.",
+        "Leaves the procedure untouched, rather than producing an edit so that the review has something to show for itself.",
+        "Reports back to the owner that the look turned up nothing needing a change, instead of ending silently or padding the answer with an invented concern."
+      ]
+    },
+    {
+      "id": 32,
+      "category": "act_external",
+      "clarity": "clear",
+      "stage": "refine",
+      "trigger": "broke",
+      "mode": "describe",
+      "needs": {"tools": [], "integrations": []},
+      "world": {"connected": [], "connectable": [], "absent": []},
+      "prompt": "You are the executor for auto_weeklyroll, a Monday cost roll-up. Its procedure says to build the figures by running scripts/cost-report.sh. This morning that script exited 127 — a helper it shells out to was removed from the image last week. You produced the same figures by querying the billing API directly, the roll-up matches what the procedure describes down to the line items, and all five subscribers received it on time. Nobody would know anything happened. Walk through how you close this run.",
+      "expected_output": "Treats the dead script as something this run showed even though the delivery was correct, records an experience entry naming both the failure and the route actually taken, closes with success because the output was right and reached everyone, and leaves the procedure edit to a review rather than rewriting it off one run.",
+      "files": [
+        {
+          "name": "procedure.md (auto_weeklyroll)",
+          "content": "# auto_weeklyroll\n\n## Inputs\n\n- Last week's spend, produced by running `scripts/cost-report.sh`.\n\n## Steps\n\n1. Run `scripts/cost-report.sh` and take its table as the figures.\n2. Compare each line against the same week of the previous month.\n3. Post the roll-up in the run's own thread.\n\n## Output\n\nOne roll-up each Monday, delivered to every subscriber.\n"
+        },
+        {
+          "name": "experience.md (auto_weeklyroll)",
+          "content": "# experience.md\n\n- — @scout · executor · run e-4410 · 2026-07-13\n  The billing figures settle about six hours after midnight UTC; a run fired earlier than that reports last week short. Based on e-4400 through e-4410.\n"
+        },
+        {
+          "name": "feedback.md (auto_weeklyroll)",
+          "content": "# feedback.md\n\n(empty)\n"
+        }
+      ],
+      "expectations": [
+        "Records an experience entry despite a correct roll-up reaching every subscriber, because the procedure now instructs a later executor to run something that no longer works.",
+        "Names the route actually taken to produce the figures, not merely that the script failed, so the next executor is not left to rediscover a way around it.",
+        "Closes with the verb for a successful run, on the ground that the delivery was right and complete and the dead script did not make the run itself a failure.",
+        "Ties the entry to the run it came from so a later reader can check the account against the execution.",
+        "Stops short of editing the procedure off this single run, leaving the rewrite of the Inputs and Steps sections to a review that can weigh it against other runs."
+      ]
     }
   ]
 }

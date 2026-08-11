@@ -1,6 +1,6 @@
 ---
 name: feed
-description: "Use `heliox feed ...` to put something on a person's Home without interrupting them: `note` for what they only need to know (clears itself after 24h), `suggest` for something they should decide on (accepting it is what turns it into work). Trigger when you have a result, a digest, or an idea for someone and a DM would be louder than it is worth — especially when closing an automation run."
+description: "Use this skill for `heliox feed` whenever completed work, a new condition, a requested digest, or a proposed next step might belong on a person's Helio Home. It chooses the route: no feed item, a non-urgent note that needs no response, one action that starts after acceptance, recurring or scheduled work, or an urgent message instead. It then writes compact text, description, and source label. Routine success stays in the run, and AI teammates do not receive Home items."
 metadata:
   requires:
     bins: ["heliox"]
@@ -9,243 +9,282 @@ metadata:
 
 # Heliox Feed
 
-## Model
+## Purpose
 
-Feed is the quiet door onto a person's Home — the screen they start their day
-on. A row there renders as exactly three stacked lines: your `--text` in
-bold, your `--description` under it, your `--source-label` in small type.
-Every row can be dismissed; only a suggestion also carries the ✓ that turns
-it into work. Everything you raise there is a **proposal**: nothing you run
-ever puts a task on someone's list — only their own accept does.
+Feed places non-urgent information and proposed work on a person's Home. A row
+can show `--text`, `--description`, and `--source-label`.
 
-**One row carries one thing.** The reader answers a row with one glance and
-one verdict. A row that bundles three findings gives them nothing they can
-say yes to — raise three rows instead; they arrive together anyway.
+- `note` states a new condition that needs no response. It expires after 24
+  hours.
+- `suggest` proposes one action. Accepting it creates a task; dismissing it
+  creates nothing.
 
-Two verbs, differing in one thing: whether clearing it produces a piece of work.
+An agent can propose work but cannot add work directly to another person's
+task list. Recipients must be people; AI teammates do not have Home.
 
-| Verb | You are saying | How it leaves them |
+## Decide before writing
+
+Make these decisions in order. They are separate decisions, not a ladder.
+
+### 1. Does this belong on Home?
+
+Write a feed row only when at least one condition is true:
+
+- A new fact changes the recipient's plan, deadline, access, cost, risk, or
+  ownership.
+- The recipient asked for this result or digest on Home.
+- The recipient must authorize a specific action.
+
+Keep routine completion, healthy checks, unchanged status, investigation
+steps, discarded theories, and supporting evidence in the run or conversation.
+If none of the three conditions is true, do not call `heliox feed`.
+
+First decide whether the result changes what the recipient needs to know. If it changes their plan, deadline, access, cost, risk, or ownership, publish a feed item. Use a suggestion when the recipient must act. Use a note when they only need to know. Use no feed for routine, unchanged, or immaterial results, or when there is evidence that the recipient already received the same fact. Another person owning the action does not remove the recipient’s need to know; the result may still require a note.
+
+### 2. Can it wait for the next Home visit?
+
+Use `heliox message send` when waiting could cause an outage, missed deadline,
+security exposure, data loss, or financial loss. A failed automation run still
+messages its owner. Feed is for information that can wait.
+
+### 3. Does acceptance start work?
+
+| Result | Row |
+| --- | --- |
+| The recipient only needs the new state | `heliox feed note` |
+| The recipient must authorize one action | `heliox feed suggest` |
+
+A note contains no hidden request. A suggestion names the work that starts
+after acceptance.
+
+### 4. Should the work run later as an automation?
+
+Automation is a task type, not a reason to appear on Home. Apply the Home test
+above first. Propose one only when the evidence shows a future trigger or a
+repeated need.
+
+Before proposing one, read `heliox:automation-creator` for the current
+capabilities and creation flow. Use an automation when AI work should run from
+one of these triggers:
+
+- a named future moment, including a one-time reminder;
+- a recurring cadence;
+- an event or monitored condition.
+
+Separate a deadline from a trigger. `File the permit by Wednesday` is a normal
+suggestion because acceptance starts the work now. `Remind me Wednesday to file
+the permit` is an automation because Wednesday starts future AI work. If the
+work can and should be completed now, do not defer it to an automation.
+
+Check `heliox automation catalog list` and `heliox automation list --json`
+before writing the suggestion. Reuse a matching catalog procedure, or refine a
+matching automation instead of creating a duplicate. Propose the setup or
+refinement rather than one execution. Name the trigger and result so acceptance
+starts a concrete task. Do not create or enable the automation before the
+recipient accepts.
+
+## Define one row
+
+- One suggestion contains one independently acceptable action. If the person
+  could accept A and dismiss B, write two suggestions.
+- One note contains one state change or one completed result. Related facts
+  can share a note only when they have the same consequence.
+- Do not create one note per log line, metric, or finding.
+- A requested digest can be one note. Put its details in the run or digest,
+  not in the Home row.
+
+## Write the fields
+
+| Field | Contract |
+| --- | --- |
+| suggestion `--text` | work that starts after acceptance; 60 characters or fewer |
+| note `--text` | new state or outcome; 70 characters or fewer |
+| `--description` | one decision reason: context plus the blocker, consequence, deadline, or evidence; 120 characters or fewer |
+| `--source-label` | concrete system, project, account, or event |
+
+The server limits are safety ceilings. They are not writing targets.
+
+Read `--text` by itself before writing. It must name the specific project,
+account, system, customer, event, or artifact. A version number, deadline,
+owner, or generic noun such as `release`, `report`, or `credential` does not
+identify the subject when it could refer to more than one thing. Description
+and source label add context; they cannot supply a subject missing from text.
+
+### Suggestion text
+
+Use **concrete verb + object + optional deadline**. The title becomes the task
+title after acceptance.
+
+Acceptance already means yes. Write the action that starts after acceptance.
+Convert a `whether` clause or an `either/or` choice into the single action
+supported by the evidence:
+
+| Input framing | Suggestion title |
+| --- | --- |
+| `Approve renewing the contract` | `Renew the contract` |
+| `Review whether to replace the expired credential` | `Replace the expired credential` |
+| `Assign the on-call lead or leave the queue unowned` | `Assign the on-call lead to the support queue` |
+
+Use a verb that names observable work. Replace abstract verbs such as `address`,
+`handle`, `improve`, `optimize`, `enhance`, `ensure`, `support`, `drive`, or
+`look into` with the action they stand for. `Review PR #482` is valid because
+producing the review is the work. If the evidence does not support one action,
+keep the decision in the run and raise no suggestion.
+
+### Note text
+
+State the result first. Name the system or event and its new state. Do not add
+`FYI`, `Please note`, `Update`, `I found`, or `Good news`.
+
+A routine success is not a note unless the recipient asked for that result or
+the success changes one of the Home conditions above.
+
+### Description
+
+Omit `--description` when the text alone gives enough context to understand the
+state or accept the action. Otherwise write the smallest complete reason the
+recipient needs: what is blocked, what consequence follows, which deadline
+changes the decision, or what evidence makes the action worth accepting.
+
+Give the fields different jobs. Text says **what changed** or **what work starts**;
+description says **why it matters now**. After drafting both, compare them fact by
+fact. Remove any description clause that only paraphrases an action, state,
+deadline, or measurement already in text. Repeating the subject name is allowed
+when clarity requires it; repeating the same decision fact is not. If nothing new
+remains, omit `--description`.
+
+One reason may join two facts when they form one causal point, such as a
+condition and its direct consequence or a measurement and its comparison. Keep
+both when dropping either would leave the recipient asking why the row matters.
+Do not add a second reason merely because more evidence is available; leave
+supporting details in the run or digest.
+
+Do not include investigation history, correction history, process narration,
+lists, repeated title text, or a second recommendation. Replace unsupported
+adjectives such as `important`, `critical`, `significant`, `major`, and
+`urgent` with the number, deadline, or consequence that proves the claim.
+
+| Text | Avoid this description | Write this instead |
 | --- | --- | --- |
-| `note` | you'll want to know this | fades on its own after 24 hours; asks for nothing |
-| `suggest` | should we do this? | they accept (it becomes a task) or dismiss it |
+| `Renew the vendor contract by Friday` | `The contract must be renewed by Friday because access ends Monday.` | `Access ends Monday without renewal.` |
+| `The nightly backup missed its window` | `The nightly backup did not run on time.` | `The latest recovery point is now 18 hours old.` |
 
-`--to` takes a `@handle` and repeats for several people; each recipient gets
-their **own copy of every row in the push**, judged separately. Recipients
-must be people — an AI teammate has no Home.
+### Source label
 
-## Writing the row
+Use the name the recipient would search for: `vendor contract`, `support queue`,
+or `service maintenance`. Do not use the automation name or generic labels
+such as `update`, `task`, `finding`, or `review`.
 
-The reader decides on exactly three lines, and each answers a different
-question:
+### Remove filler
 
-| Flag | Answers |
+Delete every word that does not name the action, object, owner, date, amount,
+count, state, or consequence. Do not write stock phrases such as `Based on the
+analysis`, `It may be worth`, `moving forward`, `in order to`, `proactively`,
+`comprehensive`, `seamless`, or `leverage`.
+
+## General examples
+
+These examples teach the routing rule. Adapt the nouns and facts to the actual
+work.
+
+### Expected result
+
+Input: A scheduled check completed as expected, no alert remains, and nobody
+requested a Home digest.
+
+Output: no feed row.
+
+### New state with no action
+
+Input: A service maintenance window was announced for Sunday from 02:00 to
+04:00. Active sessions will reconnect once. The recipient needs no action.
+
+Output:
+
+- kind: `note`
+- text: `Maintenance is scheduled for Sunday 02:00-04:00`
+- description: `Active sessions will reconnect once.`
+- source label: `service maintenance`
+
+### One authorized action
+
+Input: A vendor contract expires Friday. Access ends Monday without renewal,
+which requires the recipient's approval.
+
+Output:
+
+- kind: `suggest`
+- text: `Renew the vendor contract by Friday`
+- description: `Access ends Monday without renewal.`
+- source label: `vendor contract`
+
+### One-time work and automated work
+
+| Input | Route | Text |
+| --- | --- | --- |
+| A permit application must be filed once by Wednesday | normal suggestion | `File the permit application by Wednesday` |
+| The person needs a reminder on Wednesday to file it | automation suggestion | `Schedule a Wednesday permit reminder` |
+| The same inventory count is needed every Monday | automation suggestion | `Automate the Monday inventory count` |
+| A payment failure should notify the finance team | automation suggestion | `Notify Finance when a payment fails` |
+
+### CLI shape
+
+Use one command after choosing the route and fields:
+
+```bash
+heliox feed suggest --to @alice \
+  --text "Renew the vendor contract by Friday" \
+  --description "Access ends Monday without renewal." \
+  --source-label "vendor contract"
+```
+
+## Batch rows
+
+Repeat `--text`, `--description`, and `--source-label` in matching order. For
+each optional flag, provide it zero times or once per text. Use an empty string
+to hold the position of a row that needs no description or source label.
+
+A push carries at most 10 rows. More than 10 rows belongs in a report or
+digest.
+
+## Check Home before writing
+
+Run `heliox feed list --to @alice` before adding or changing rows. It shows
+pending rows from every agent and accepted or dismissed rows from the last 30
+days.
+
+| Existing state | Action |
 | --- | --- |
-| `--text` | what to do (for a note: what happened) |
-| `--description` | why it needs them |
-| `--source-label` | what it is about |
+| The pending row is accurate | leave it |
+| Your pending row has stale text or evidence | `heliox feed update <id>` |
+| Your pending row no longer deserves attention | `heliox feed withdraw <id>` |
+| The person dismissed the same unchanged proposal | do not raise it again |
+| Another agent raised the same item | do not duplicate it |
+| The fact or proposed work is new | create the row |
 
-**`--text`** is a title, not a summary — one line, in the reader's
-language. A suggestion's text is an order and starts at the verb: on
-accept it becomes the task's title verbatim and the work is handed to
-their assistant, so write the order the reader would give if they typed it
-themselves — `"Rotate the staging wildcard cert"` beats `"Certificate
-status update"`, and both beat `"I found that the staging cert is
-expiring"`. A note's text is not an order; it states what happened. If you
-cannot phrase it as one order one person would give, split it: two orders
-are two suggestions; no order at all is a note.
-Everything past the order itself — the date, the amount, the evidence —
-belongs in `--description`, which is why text is refused above 120
-characters while description takes 2000.
+Judge identity by meaning, not exact wording. If a push may have failed after
+writing some recipients, list the rows before retrying.
 
-**`--description`** is the case for saying yes, and it must add a fact
-`--text` does not already carry — a date, an amount, a count, an identifier,
-a filename. "This is important" is not a reason. If the description only
-restates the text, drop it and write a better text. This line is the only
-evidence on the surface — a feed row carries no link to the work behind it.
+## Command behavior
 
-**`--source-label`** is the place the reader would go looking: the topic
-(`"staging certificates"`), never the name of the job that found it.
+- `update` restates the entire row. Pass every field that should remain; an
+  omitted `--description` or `--source-label` clears it.
+- A new push always adds rows. The server does not merge duplicates.
+- Accepted and dismissed rows cannot be updated or withdrawn.
+- An agent can update or withdraw only rows it created.
+- A Home can hold at most 30 pending rows. If a push returns 409, revise or
+  withdraw stale rows before adding more.
+- In an automation run, accepting a suggestion binds the task to that run's
+  thread.
+- A successful feed push counts as subscriber delivery. A failed automation
+  run still requires a message to its owner. A skipped run pushes nothing.
 
-## Examples
+## Shell and compatibility rules
 
-Something worth knowing, nothing to decide — a note:
-
-```bash
-heliox feed note --to @alice \
-  --text "eu-west-1 RDS maintenance Sunday 02:00-04:00; nothing needs to move" \
-  --source-label "AWS maintenance"
-```
-
-One decision, with the fact the verdict turns on as its reason — a suggestion:
-
-```bash
-heliox feed suggest --to @alice \
-  --text "Chase the unpaid Meridian invoice before Friday" \
-  --description "3 payment retries exhausted, 1840 USD outstanding; the account auto-suspends Friday." \
-  --source-label "Meridian billing"
-```
-
-A piece of work that surfaced several things — several rows in one call, the
-flags repeating in step:
-
-```bash
-heliox feed suggest --to @alice \
-  --text "Assign an owner for the flaky payments e2e suite" \
-  --description "4 of the last 5 nightly runs failed on the same two tests; nobody is on it." \
-  --source-label "payments e2e" \
-  --text "Approve dropping the legacy /v1/orders endpoint" \
-  --description "Zero traffic for 30 days; its deprecation window ended Monday." \
-  --source-label "orders API"
-```
-
-The repeated flags line up by position, and the rule is **none or all**: give
-`--description` (or `--source-label`) either zero times or exactly once per
-`--text` — any other count is refused, not paired off. An item with no reason
-takes `--description ""` to hold its position. A push carries at most 10
-items; more than that is not a feed set, it is a report.
-
-**The shape to avoid** is one row whose body is a list. Every line you would
-caption "needs your call" is its own suggestion; a decision buried inside a
-note's body cannot be accepted, so the reader has to retype it somewhere else
-to act on it. The rest of what you found belongs where the work is recorded
-(the run's thread, or your reply in the conversation), with at most a short
-note on top.
-
-## The ladder
-
-Pick **per finding** — never per run, per errand, or per report — the
-quietest rung that still does the job:
-
-| | When |
-| --- | --- |
-| say nothing (in a run, that verb is `heliox automation run skip`) | nothing changed; the world is as they already believe it is |
-| `heliox feed note` | something changed or was announced, even if no action is needed |
-| `heliox feed suggest` | you want a decision |
-| `heliox feed suggest` an automation | the work in your hands names a future moment, or is repeating — the clock is itself a finding (§Suggesting an automation below) |
-| `heliox message send` | it really must interrupt them right now |
-
-The line between the first two is whether their picture of the world is now
-wrong: a scheduled maintenance window or a breaking-change notice IS a note —
-"no action needed" is not "not worth knowing". A digest nobody has to act on
-is a note, not a DM. A run that broke still DMs the owner — someone whose
-automation failed should be interrupted.
-
-## Suggesting an automation: work that belongs on a clock
-
-An automation is work pinned to TIME instead of to a conversation — either
-once ("at 14:00 Thursday, do X") or on a rhythm ("every morning, do X").
-Your turn ends when you answer; anything that should happen at a *later
-moment* dies with it unless it gets a clock. So whenever the material in
-front of you implies work at a later moment, the right move is a suggestion
-proposing the clock. Accepting it is the person's authorization, not the
-scheduling itself: the accept opens a task, and setting up the automation
-inside that task is your first move there.
-
-Two shapes to recognize:
-
-- **The material names a future moment, and work belongs just before it.**
-  A meeting on the calendar, a due date on an invoice, an expiry on a cert.
-  The moment is in the material; the prep work is implied, and nobody asked
-  for it — that is exactly why it is worth suggesting. First occurrence
-  counts; there is nothing to wait for.
-- **The work repeats.** The same shape a second time (another morning's
-  triage, another week's digest), a rhythm word in the ask ("every
-  morning", "each Friday"), or a standing watch ("keep an eye on", "let me
-  know when"). A repeat belongs on a schedule, not on someone remembering
-  to hand it to you.
-
-The row follows the ordinary suggestion rules, plus three of its own: the
-CLOCK goes in the row — the moment in the text, where it came from in the
-description, stated countably; for a recurring one, check
-`heliox automation catalog list` first and name the entry if one already
-does this; and raise it BESIDE the work's own rows, never instead of them —
-today's work still gets delivered today. Same verdict rule as every row:
-propose once; dismissed means it stays manual, and you don't re-raise it.
-
-A meeting invite in the inbox — the moment is Thursday 15:00, the implied
-work is the prep:
-
-```bash
-heliox feed suggest --to @alice \
-  --text "Before Thursday's 15:00 client meeting, pull together the Zhang account materials" \
-  --description "Meeting invite landed in this morning's inbox; the materials don't exist yet." \
-  --source-label "client meeting prep"
-```
-
-The same triage handed over two mornings in a row — the evidence is the
-count, and the catalog already has a fit:
-
-```bash
-heliox feed suggest --to @alice \
-  --text "Put the morning inbox triage on autopilot" \
-  --description "Second morning in a row handed to me by hand; the @helio/daily-priorities catalog entry covers this." \
-  --source-label "morning triage"
-```
-
-## Before you deliver: look
-
-`heliox feed list --to @alice` shows what is already on their Home: every
-agent-raised row — yours and other teammates' — plus what the person accepted
-or dismissed in the last 30 days. Decide per row, then act:
-
-| You see | You do |
-| --- | --- |
-| a row that still says the right thing | leave it |
-| your pending row, wording or reason now stale | `heliox feed update <id> --text ... --description ...` |
-| your pending row, no longer worth their attention | `heliox feed withdraw <id>` |
-| something they dismissed that you were about to raise again | don't — unless the thing itself changed |
-| a teammate already raised the same thing | don't raise it twice |
-| a genuinely new finding | push it |
-| the desk already piled high with pending rows | clear or revise before adding — a full desk refuses pushes |
-
-Whether a new finding IS one of the rows you see — reworded, narrowed, half
-overlapping — is **your** judgment. No server rule matches them for you, and
-none protects the person from being asked twice. That protection is you
-looking first.
-
-Two mechanics to know:
-
-- **An update restates the whole item.** Pass all three lines as they should
-  now read; an omitted `--description` or `--source-label` clears the stored
-  one. The row keeps its place — same id, no jump on their Home.
-- **Pushing again ADDS rows.** There is no server-side convergence: a blind
-  retry after a failed push duplicates. Recover by looking, not re-sending.
-
-## What the server does hold
-
-- **A closed row is immutable.** Once the person accepts or dismisses, the
-  row is theirs: update and withdraw refuse it, and nothing reopens it. If a
-  correction really must reach them after a verdict, `heliox message send`.
-- **You touch only what you raised.** Other agents' rows show in `list` so
-  you don't duplicate them; they are not yours to edit.
-- **A desk holds at most 30 pending rows.** A push that would carry someone's
-  Home past that is refused whole (409). The refusal means the person is
-  behind, not that you should retry: run the loop above — look, withdraw what
-  no longer earns its place, then push.
-- **Inside an automation run**, accepting a suggestion binds to this run's
-  thread, so the person lands where the context already is. That binding is
-  stamped from the run automatically; there is no flag for it.
-
-A `success` run must have delivered to every subscriber, and a feed push
-counts as that delivery — the question is whether the person heard, not which
-door carried it. A `failed` run still DMs its owner regardless: that message
-exists to interrupt, and feed is the door that does not. A `skip` run pushes
-nothing at all.
-
-## Traps
-
-- **Prose split by the shell is refused, not truncated.** The push verbs take
-  no positional; quote `--text` and `--description`, and if the body carries
-  `$` or backticks, write the invocation as a JSON array and run
-  `heliox --args-file <path>`.
-- **All-or-nothing on the names, not on the writes.** The recipient list is
-  checked in full before the first item lands, but the fan-out is not atomic.
-  If a push fails partway, `heliox feed list` tells you what landed.
-- **`update` with only `--text` clears the description.** It restates the
-  whole item — pass every line you want to keep.
-- **Withdrawing removes the row outright.** It was never judged, so nothing
-  of it is kept; don't withdraw what you might restate a minute later —
-  update it instead.
-- **`feed list` answering 404 means an older server.** The management verbs
-  are newer than the push; on a server that predates them, skip the look and
-  push — delivery must not be what the look-first loop blocks.
+- Quote `--text` and `--description`. If either contains `$` or backticks, put
+  the invocation in a JSON array and use `heliox --args-file <path>`. Choose
+  this form before the first write; do not attempt a raw invocation and retry.
+- Recipient names are checked before the first write, but fan-out is not
+  atomic. After a partial failure, list rows before retrying.
+- `feed list` returning 404 means the server predates the management commands.
+  On that server, skip the look step and use the push command.

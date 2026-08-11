@@ -271,3 +271,55 @@ or an evaluation document so a future maintainer can replay them. Leave bulky
 transcripts in run history rather than copying them around, and keep all of it
 out of the executor's procedure. Every scheduled run should receive only the
 instructions needed to do its work.
+
+## Record what the loop taught you
+
+The loop is over when the user has seen the results. Before you leave it, write
+what it taught into the automation's experience record:
+
+```bash
+heliox automation experience add <automation-id> --body "<what the loop showed>"
+```
+
+This is not a formality, and it is not a summary of the grades. A rehearsal is
+the one time anybody drives this automation with full attention, and what you
+learned doing it is about to leave with your context. Everything a later
+executor would otherwise rediscover the hard way goes here.
+
+**What belongs in it.** Four things, and the pass rate is not one of them:
+
+- **Which paths fired and held, and which are still unproven.** A later reader
+  needs to know that `source-down` was never exercised, not merely that four
+  scenarios passed. An unproven path someone knows about is a known unknown; an
+  unnamed one is a surprise at 3 AM.
+- **What a scenario made you change, and why.** The procedure that shipped is
+  not the procedure you first wrote. The diff is invisible to everyone who comes
+  later, and the reason for it is the only thing that stops someone changing it
+  back.
+- **What the sources actually do, as opposed to what their documentation says.**
+  A feed that refreshes more slowly than the automation's cadence, so
+  consecutive runs legitimately return identical values. An endpoint that
+  answers 200 with an empty body instead of 404. A field present most days and
+  absent at weekends. These are exactly the observations that become false
+  alarms when nobody wrote them down.
+- **What you could not test, and why.** A path that needs a real outage, a
+  credential you did not have, a season of the year. Say it plainly rather than
+  leaving the coverage looking complete.
+
+**Cite the run ids.** Every claim should rest on a run someone else can go read.
+"The source returns stale data" is an opinion; "runs 6a76…, 6a77… and 6a78… all
+returned the same timestamp fifteen minutes apart" is evidence, and a later
+reader can check whether it still holds.
+
+**One entry, not one per scenario.** The record is a timeline and the whole
+rehearsal is one moment on it. Five entries written in the same minute tell a
+reader nothing that one entry does not.
+
+**Do not write the grades.** Pass rates belong in what you show the user, not in
+the record. A reader six weeks from now cannot act on "4/5 passed"; they can act
+on "the empty-result path posts nothing and closes skip, verified in run 6a76…".
+
+**A new automation's entry is its first.** Nothing precedes it, so it is also
+the only account of why the procedure looks the way it does. Handing an
+automation over with an empty record means everything the rehearsal learned is
+gone and the refiner inherits nothing to reason from.
