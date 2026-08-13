@@ -86,13 +86,13 @@ A mention is a bare `@handle` in the body — the sender's `from.username`, neve
 - An unknown handle (typo, someone outside the workspace) renders verbatim with no ping. If the pill matters, check the handle with member lookup first.
 - Mentions inside backticks render literally — that's how you QUOTE a handle without pinging.
 
-Markdown is GFM, kept light (`**bold**`, `` `code` ``, lists, links). Single newline = soft break; blank line = paragraph. For task/schedule/document links paste the `routeUrl` from `--json` as `[text](url)` — never hand-build a `helio://…` id. Bridged channels (`channel.kind: external` in the reminder) may show raw markdown on the provider side — prefer plain text there.
+Markdown is GFM, kept light (`**bold**`, `` `code` ``, lists, links). Single newline = soft break; blank line = paragraph. For task/schedule/document links paste the `routeUrl` from `--json` as `[text](url)` with the entity's human name as text — the task key (`[HEL-415](routeUrl)`), the document title (`[Launch plan](routeUrl)`) — and never guess an id: link only ids you were handed (a `routeUrl`, or a `helio://…` reference already in your context). A bare `routeUrl` pasted outside `[text](url)` still renders as a clickable chip, but the chip shows the raw URI instead of a name — always prefer the titled form. Bridged channels (`channel.kind: external` in the reminder) may show raw markdown on the provider side — prefer plain text there.
 
 ## Attachments
 
 - **Incoming**: nothing arrives on disk — an attachment is a ref until you fetch it, so there is no directory to look in first. Whole message: `heliox channel attachments download '#eng' <seq> --json` writes every file into the workspace and reports each `path`. One file: a row's `attachments[].uri` (from `--json`) → `heliox blob get <uri> -o <file>` (binary-safe; omit `-o` for stdout).
 - **Sending**: `-a <file>` on `message send` (repeatable, order preserved; body optional with `-a`).
-- **Never put an internal attachment URI or path in a message body.** `helio://…` uris and workspace paths resolve only for you — a human clicking either gets nothing. To hand a user a file, attach it (`-a <file>`); to point at one already in the channel, name it in prose or quote its message with `--in-reply-to`.
+- **Never put an internal attachment URI or path in a message body.** `helio://attachment/…` uris and workspace paths resolve only for you — a human clicking either gets nothing. To hand a user a file, attach it (`-a <file>`); to point at one already in the channel, name it in prose or quote its message with `--in-reply-to`.
 - Keep generated files in the workspace, not `/tmp`, when they may be reused.
 
 ## Reading history
