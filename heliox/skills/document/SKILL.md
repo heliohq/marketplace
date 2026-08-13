@@ -18,10 +18,15 @@ state humans see in the editor.
 ```bash
 heliox document read <id>
 heliox document read helio://document/<id>
+heliox document read <id> --json
 ```
 
 Read before editing. The output is markdown rendered for an agent, with line
 numbers for orientation. Line numbers are not edit anchors.
+
+`--json` returns the document envelope instead: metadata plus `routeUrl` and
+`markdown`. `routeUrl` is the canonical URI to paste when linking the document
+in a message — never hand-assemble a `helio://` link.
 
 `heliox blob get helio://document/<id>` redirects to the same rendered read
 path, but prefer `document read` when the thing is plainly a document.
@@ -37,6 +42,10 @@ heliox document edit <id> --old "repeated text" --new "replacement" --replace-al
 `--old` matches contiguous plain text in the live document. Without
 `--replace-all`, the match must be unique. If it is missing or ambiguous, read
 the document again and choose a more precise span.
+
+## Share
+
+To point a human at a document in a message, write `[<document title>](helio://document/<id>)` — the title as link text, the document's canonical URI as the target. Use a URI you already hold (`create --json` returns it as `routeUrl`; read/edit targets are already this form) — never guess an id. It renders as a titled chip that opens the document in-app. A bare `helio://document/<id>` also renders as a clickable chip, but shows the raw URI instead of the title — prefer the titled form. Inside Helio messages `routeUrl` is the canonical share form; don't hand-build an `https://…` web URL for a document.
 
 ## Search
 

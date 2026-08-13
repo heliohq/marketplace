@@ -20,9 +20,12 @@ because this skill can publish one.
 `heliox artifact` publishes a **self-contained HTML page** — or a **markdown
 file**, rendered server-side into a clean, styled page — as a first-class,
 org-gated Helio resource. You get back a durable `view_url` at
-`https://app.helio.im/a/<id>` that any signed-in member of the org can open, and
-nobody outside it. Once the user has chosen an artifact, use it to hand them a
-*live page* instead of a dead screenshot or a download.
+`https://app.helio.im/a/<id>` that any signed-in member of the org can open.
+The page's human owner can additionally turn on "Anyone with the link" from
+the page's Share menu, making it readable without signing in; you cannot
+change that setting — only suggest it to the owner when they ask for external
+sharing. Once the user has chosen an artifact, use it to hand them a *live
+page* instead of a dead screenshot or a download.
 
 For an explicit artifact request, this is the rendered-content surface. It is
 not the documents plane (`heliox:document` is collaborative Tiptap prose you
@@ -156,6 +159,7 @@ URL. **Never put org-private data in a temporary deploy; use an artifact.**
 
 ## Safety
 
-- Publishing makes the page viewable by every member of the org — do not publish
-  content that should stay in a private channel.
+- Publishing makes the page viewable by every member of the org — and, if the
+  human owner later turns on link-sharing, by anyone holding the link. Do not
+  publish content that should stay in a private channel.
 - Delete is sensitive; confirm intent unless already asked.
