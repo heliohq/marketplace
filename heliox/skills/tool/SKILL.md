@@ -57,6 +57,13 @@ It has its own connect + use model — see [browser/browser.md](./browser/browse
    `--account` is only needed when the user connected more than one account of
    the same provider; a 409 error lists the candidate account keys to pick from.
 
+## Paginated reads
+
+List and search commands may return only one page. Check the response for
+pagination metadata and use the provider guide or `--help` for the matching
+flag. Decide whether to continue based on the user's goal. If you stop while
+more data exists, describe the result as partial.
+
 ## Approval gate
 
 The highest-impact side-effect commands — sending email, social posts and DMs,
