@@ -20,7 +20,7 @@ metadata:
 
 The reply path is the same wherever the message came from: `heliox message send` into the channel it landed in. There is no per-provider send command to look for, and nothing to detect first.
 
-That includes bridged channels — ones mirrored from Slack / Lark, which the reminder shows as `channel.kind: external` with outside senders as `from: {…, type: external}`. Reply natively there too: the gateway's reply bridge relays your message back to the provider conversation, and replying in the thread you were addressed in (`--thread`) lands it in the same provider thread/topic. If you ever need the provider name itself, it's the `interface` field on `message list --json` rows — not something the reminder carries.
+That includes bridged channels — ones mirrored from Slack / Lark / Feishu, which the reminder shows as `channel: {…, kind: external, platform: <slack|lark|feishu|…>}` with outside senders as `from: {…, type: external}`. Reply natively there too: the gateway's reply bridge relays your message back to the provider conversation, and replying in the thread you were addressed in (`--thread`) lands it in the same provider thread/topic. The `platform` field is the channel's home app; if a legacy row lacks it, the provider name is the `interface` field on `message list --json` rows.
 
 ## Send + the freshness discipline
 

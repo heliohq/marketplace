@@ -52,6 +52,16 @@ heliox tool x -- user followers            # defaults to the connected account
 heliox tool x -- user following --user-id <id>
 ```
 
+## Pagination
+
+Every X list or search command returns one page. Its continuation marker is
+`meta.next_token`; pass it back as `--next-token <meta.next_token>` when another
+page is needed.
+
+Do not pipe a paginated response through `head` or parse only `data` before
+checking `meta`. For incremental reads, `--since-id` narrows the window but
+does not replace pagination.
+
 ## Writing
 
 ```bash
@@ -79,7 +89,8 @@ Images go through `media upload` first; pass the returned media id via
   (the API rejects smaller pages); user-list commands are 1-100, follower
   lists 1-1000.
 - **`timeline home` is always the connected user** — no `--user-id` there.
-- `dm` is the legacy DM API, not XChat; delivery to some accounts may be
+- **DM coverage**: `dm` reads up to 30 days of legacy DM events; it does not
+  read encrypted XChat message history. Delivery to some accounts may be
   restricted.
 
 ## Safety
