@@ -237,7 +237,7 @@
     {
       "id": 8,
       "prompt": "Also send the weekly sales report to @jordan — they just joined the revenue team. Describe the change only; do not call APIs in this evaluation.",
-      "expected_output": "Recognizes that adding a subscriber is state stored on the automation, not in the procedure document. Uses the subscriber CLI command rather than editing the procedure text, because writing 'send this to Jordan too' into the steps changes nothing — the fired-time audience snapshot comes from the stored subscriber list.",
+      "expected_output": "Recognizes that adding a subscriber is state stored on the automation, not in the procedure document — writing 'send this to Jordan too' into the steps changes nothing, because the fired-time audience snapshot comes from the stored subscriber list. Recognizes the stored list is owner-only (the server rejects subscriber changes from the executor identity), so the change is routed to the owner: tell them to add @jordan on the automation's page in Helio rather than attempting the subscriber CLI command.",
       "files": [
         {
           "name": "procedure document (auto_sales2, bound to the weekly sales report)",
