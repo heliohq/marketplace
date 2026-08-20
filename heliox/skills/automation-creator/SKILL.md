@@ -301,7 +301,7 @@ Use `--cron` (recurring), `--start` (one-shot), or neither (event automation —
 
 After creating, confirm the procedure landed: `heliox document read <document_id>` should show the approved text, not an empty body or a file path. This is a storage check and nothing more. It proves the bytes arrived, not that they make sense to a stranger. That question is step 7's.
 
-A `--cron` automation is created disabled, which is exactly what makes the next step safe: nothing fires on its own while you work. A `--start` one-shot is created ENABLED and will fire at its start time — it exists to hit a deadline, so creation arms it. If you intend to rehearse it first, disable it now (`heliox automation update <id> --enable false`) and re-enable it at handover; `references/evaluation.md` treats it as already live.
+A `--cron` automation is created disabled, which is exactly what makes the next step safe: nothing fires on its own while you work. A `--start` one-shot is created ENABLED and will fire at its start time — it exists to hit a deadline, so creation arms it. If you intend to rehearse it first, disable it now (`heliox automation update <id> --enable false`) and re-enable it at handover; `references/evaluation.md` treats it as already live. Disable it now for a second reason too when the user named recipients beyond themselves: a one-shot has exactly one run, the audience is attached by the owner after handover, and an armed one-shot whose start arrives first fires that only run at the owner alone — everyone else permanently misses the result.
 
 ## 7. Run the scenarios
 
@@ -337,7 +337,7 @@ For `step-fails`, `partial`, and `source-down`, inject the fault, because you ca
 
 ### Your baseline is the user's original sentence
 
-Fire the automation once with the procedure body replaced by the one-line request the user opened with. Keep every containment substitution in place: retargeted destinations, scratch channels, modified subscriber lists. The baseline isolates one variable, the procedure's guidance, and containment is not part of that variable. A baseline that reverts the containment fires at the real destination, which defeats the loop.
+Fire the automation once with the procedure body replaced by the one-line request the user opened with. Keep every containment substitution in place: retargeted destinations, scratch channels, the audience still unattached. The baseline isolates one variable, the procedure's guidance, and containment is not part of that variable. A baseline that reverts the containment fires at the real destination, which defeats the loop.
 
 If the procedure's outward effects cannot be contained, because retargeting is impossible or the only safe target is the real one, do not fire a baseline. Note the gap in the results and move on. The approved output from step 3 remains the only evidence for that path, and step 9's handover must say so.
 
@@ -369,17 +369,17 @@ Put recurring work somewhere durable. If every run re-derives the same query, ma
 
 ## 9. Hand it over
 
-Restore the real configuration first. Undo each scenario variant with the inverse `heliox document edit`, using the `--old` and `--new` strings you recorded when you made it, and put the real destinations and subscribers back. Then confirm what is actually stored rather than what you meant to store, with `heliox document read <document_id>` and `heliox automation subscriber list <id>`. A scratch channel left in the delivery step is the single most likely way this automation ships broken, and it will look fine right up until the first real fire.
+Restore the real configuration first. Undo each scenario variant with the inverse `heliox document edit`, using the `--old` and `--new` strings you recorded when you made it, and put the real destinations back. Then confirm what is actually stored rather than what you meant to store, with `heliox document read <document_id>` and `heliox automation subscriber list <id>`. A scratch channel left in the delivery step is the single most likely way this automation ships broken, and it will look fine right up until the first real fire. The audience is the one piece you cannot restore yourself: subscriber changes are owner-only, so any recipients beyond the owner are named in the handover below for the owner to add, not attached by you.
 
 Then tell the user what now exists:
 
 - The automation id and its name
 - How it triggers (schedule, webhook, or poll) and the cadence or event
-- Where results go and who receives them
+- Where results go and who receives them. If the user wanted recipients beyond themselves, say plainly that the audience is theirs to attach — subscriber management is owner-only — and name exactly who to add on the automation's page in Helio; until they do, only they receive results.
 - What it can do on its own: the blast radius from question 4, in plain terms. If it emails people outside the company, writes to a shared system, or moves money, say so here, in a sentence, without hedging. This is the last moment before it can act unattended.
 - Which scenarios were run and what held, with the workspace path so the evidence is findable later
 - Which paths from step 4 are still unproven
-- Its live state. A `--cron` automation is still disabled: nothing has fired on its own and nothing will until it is turned on — write out the exact command that turns it on, `heliox automation update <id> --enable true`, with the real id filled in. A `--start` one-shot is enabled — say plainly when it will fire. If you disabled it to rehearse, re-enable it ONLY while its start is still in the future: enabling a one-shot whose start has passed fires it immediately, turning the rehearsal into a late production run. Past the deadline, ask for a new time or explicit confirmation instead.
+- Its live state. A `--cron` automation is still disabled: nothing has fired on its own and nothing will until it is turned on — write out the exact command that turns it on, `heliox automation update <id> --enable true`, with the real id filled in. A `--start` one-shot is enabled — say plainly when it will fire. If you disabled it to rehearse, re-enable it ONLY while its start is still in the future: enabling a one-shot whose start has passed fires it immediately, turning the rehearsal into a late production run. Past the deadline, ask for a new time or explicit confirmation instead. And if the one-shot's audience goes beyond the owner, keep it disabled until the owner has added those recipients — its only run fires at whoever is subscribed at that moment — then arm it: owner attaches, you enable, in that order.
 
 Do not drop or soften that bullet. A recurring automation the user cannot start is not delivered — "let me know when you want it enabled" names no command; the written-out command does. An armed one-shot must be named as armed: this is the last moment before it acts unattended.
 

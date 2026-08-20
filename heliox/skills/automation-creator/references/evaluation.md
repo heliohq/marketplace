@@ -32,10 +32,21 @@ subscriber and cannot be removed. Clearing the stored list removes every other
 subscriber, but the owner still receives every result.
 
 A manual run is a real run: it delivers to every subscriber in the snapshot
-taken at fire time, and you cannot call that back. To keep non-owner subscribers
-from receiving run output, record the current list, clear it with
-`heliox automation update <id> --subscriber ""`, and restore it afterwards from
-what you recorded.
+taken at fire time, and you cannot call that back. You also cannot trim the
+audience yourself: the subscriber list is owner-only, and the server refuses
+subscriber changes from your executor identity. Keep non-owner subscribers out
+of rehearsal by never attaching them before the loop — create with the
+owner-only default and have the owner add the real audience at handover, after
+the automation has proven itself. If the automation already carries other
+subscribers, ask the owner to remove them before you fire and restore them
+after, or fall back to the approved output from step 3 as the evidence and
+note the gap in your handover.
+
+The deferred audience changes the arming order for a `--start` one-shot. It
+has exactly one run, and that run delivers to whoever is subscribed when it
+fires — so a one-shot armed before the owner attaches the recipients hits its
+deadline with an owner-only audience and everyone else permanently misses the
+result. Keep it disabled until the owner has added them, then arm it.
 
 If even the owner receiving run output is unacceptable, do not fire the
 automation. Fall back to the approved output from step 3 as the evidence, and
