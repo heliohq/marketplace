@@ -1,7 +1,7 @@
 # Microsoft tools (`heliox tool microsoft ...`)
 
 Read [../SKILL.md](../SKILL.md) first for the general connect/use model.
-Microsoft products are connected **per app** — each app is its own connection
+Microsoft products are connected **per app**: each app is its own connection
 with its own consent (a separate Entra app registration behind the scenes).
 Per-app details live in this directory; run `heliox tool microsoft --help` for
 the current app list.
@@ -17,7 +17,7 @@ heliox tool microsoft auth calendar
 heliox tool microsoft auth onedrive
 ```
 
-Connecting one app grants nothing for the others — if a task needs Outlook mail
+Connecting one app grants nothing for the others. If a task needs Outlook mail
 and OneDrive files, each needs its own auth link and user consent. The consent
 screen lets the user pick which Microsoft account to sign in with.
 
@@ -36,7 +36,7 @@ heliox tool microsoft outlook --account work@corp.com -- messages list --max 10
 
 The subcommand after `microsoft` is the group-scoped app command (`outlook` /
 `calendar` / `onedrive`), which differs from the internal tool id. You never
-type the tool id — always use the subcommand:
+type the tool id. Always use the subcommand:
 
 ```bash
 heliox tool microsoft auth <app>              # connect

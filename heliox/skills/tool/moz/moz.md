@@ -15,7 +15,7 @@ site ranks for. Connect with a **Moz API token** (generated in the Moz API
 dashboard, `moz.com/api/dashboard`). The Moz API is a separate subscription
 from Moz Pro; a free tier of 50 rows/month exists.
 
-## Quota — read this before large pulls
+## Quota: read this before large pulls
 
 **Every returned row debits the account's monthly row quota**, metered from one
 shared balance. `quota` and `index` are free; single-object fetches
@@ -25,7 +25,7 @@ balance:
 
 - Every list command defaults to `--limit 25`. Only raise it when you
   deliberately need more rows.
-- Check the balance first — it is free:
+- Check the balance first (it is free):
 
   ```bash
   heliox tool moz -- quota
@@ -74,7 +74,7 @@ heliox tool moz -- index
 ## Escape hatch: any method
 
 The Moz API exposes many more methods than the typed commands above. Reach any
-of them with the raw JSON-RPC `call` — the method name plus a `--data` object
+of them with the raw JSON-RPC `call`, the method name plus a `--data` object
 that becomes `params.data`:
 
 ```bash

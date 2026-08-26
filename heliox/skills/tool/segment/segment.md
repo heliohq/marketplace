@@ -8,7 +8,7 @@ segment tool's own CLI.
 heliox tool segment [--account <key>] -- <resource> <verb> [flags...]
 ```
 
-This wraps the **Segment (Twilio) Public API** — the workspace management &
+This wraps the **Segment (Twilio) Public API**: the workspace management &
 observability plane (`https://api.segmentapis.com`). It is **read-first**: you
 inspect wiring, delivery health, tracking plans, and admin, but do not emit
 analytics events (the Tracking API / write keys are out of scope). Auth is a
@@ -25,7 +25,7 @@ without the tool reshaping anything.
   workspace-scoped). `--account` picks between multiple.
 - A **source** ingests events; a **destination** receives them; a **warehouse**
   is a SQL sink. `source connected-destinations` shows the wiring between them.
-- **Access is Team/Business-tier** — the Public API is not available on free
+- **Access is Team/Business-tier**: the Public API is not available on free
   workspaces. Data residency is **US-only in v1** (an EU workspace token will
   fail; that is a known limitation, not a bug you can fix).
 
@@ -73,7 +73,7 @@ heliox tool segment -- iam group list
 
 The Public API has 100+ endpoints; anything without a first-class command is
 reachable through `request` (bearer-injected, JSON passed through). Writes are
-possible here only with an explicit non-GET `--method` — treat any non-GET as a
+possible here only with an explicit non-GET `--method`: treat any non-GET as a
 sensitive operation and confirm with the user first.
 
 ```bash
@@ -83,19 +83,19 @@ heliox tool segment -- request --method GET --path /warehouses/<id>
 
 ## Pagination
 
-List commands take `--count` (1–1000; Segment defaults to 200) and `--cursor`.
+List commands take `--count` (1-1000; Segment defaults to 200) and `--cursor`.
 Read the next cursor from the response's `pagination.next` and pass it back as
-`--cursor` to get the following page. There is no auto-follow flag — page
+`--cursor` to get the following page. There is no auto-follow flag: page
 explicitly.
 
 ## Footguns
 
 - **Read-first.** No dedicated create/update/delete commands ship. Mutations
-  are only reachable via `request --method POST|PATCH|DELETE` — a sensitive
+  are only reachable via `request --method POST|PATCH|DELETE`: a sensitive
   action against a production CDP; confirm first.
 - **IAM paths are `/users` and `/groups`.** The `iam` grouping is a CLI/UX
   convenience; if you hand-write a raw `request --path`, use `/users` and
   `/groups`, not `/iam/users`.
 - **Tier + region.** A 401/403 on every call usually means the workspace lacks
-  Public API access (not Team/Business) or is EU-resident (v1 targets US only) —
+  Public API access (not Team/Business) or is EU-resident (v1 targets US only),
   not a transient error to retry.

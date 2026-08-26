@@ -11,25 +11,25 @@ heliox tool recurly [--account <key>] -- <resource> <verb> [flags...]
 Recurly is a subscription-billing / recurring-revenue platform. The tool wraps
 the **Recurly V3 REST API** (version `v2021-02-25`). It is **read-first**: the
 common jobs are looking up a customer and their subscription state, explaining
-a failed or past-due invoice, and listing plans/coupons — plus a curated set of
+a failed or past-due invoice, and listing plans/coupons, plus a curated set of
 subscription and invoice lifecycle writes.
 
 Connect once (`heliox tool recurly auth`), then the user pastes their Recurly
 **private API key** (Integrations → API Credentials in their Recurly site). The
-key is stored server-side and injected per call — you never see it. The
+key is stored server-side and injected per call. You never see it. The
 connection is verified against `GET /sites` and labeled by the site subdomain.
 
 > Region: this connection targets the **US** data center (`v3.recurly.com`). An
-> EU-only Recurly site is not supported yet — its key will fail to connect.
+> EU-only Recurly site is not supported yet: its key will fail to connect.
 
 ## Addressing objects (alias prefixes)
 
 Recurly IDs are opaque (e.g. `e28zov4fw0v2`), but every id argument also accepts
 a human-friendly alias so you rarely need a prior lookup:
 
-- `code-<account_code>` — an account by its business code, e.g. `code-bob`
-- `number-<invoice_number>` — an invoice by its number, e.g. `number-1000`
-- `uuid-<subscription_uuid>` — a subscription by its UUID, e.g. `uuid-abc123`
+- `code-<account_code>`: an account by its business code, e.g. `code-bob`
+- `number-<invoice_number>`: an invoice by its number, e.g. `number-1000`
+- `uuid-<subscription_uuid>`: a subscription by its UUID, e.g. `uuid-abc123`
 
 Pass these verbatim wherever an `<id>` is expected.
 
@@ -69,7 +69,7 @@ heliox tool recurly -- plan list --json
 heliox tool recurly -- coupon list --json
 ```
 
-## Lifecycle writes (use deliberately — these change billing state)
+## Lifecycle writes (use deliberately: these change billing state)
 
 ```bash
 # Cancel at period end (vs terminate = end now)
@@ -91,14 +91,14 @@ heliox tool recurly -- subscription change uuid-abc123 --body '{"plan_code":"sil
 ```
 
 Payment mutations (refunds beyond `terminate --refund`, account redaction /
-GDPR) are intentionally **not** exposed — they are high-blast-radius financial
+GDPR) are intentionally **not** exposed: they are high-blast-radius financial
 writes a teammate should not reach for by default.
 
 ## Output & errors
 
 `get` passes the Recurly resource JSON through unchanged. `list` returns a
 provider-neutral envelope: `{ "data": [...], "has_more": <bool>, "next":
-"<cursor>" }` — page by re-running with `--cursor <next>` until `has_more` is
+"<cursor>" }`. Page by re-running with `--cursor <next>` until `has_more` is
 false. Exit codes: `0` success, `1` API/runtime error (Recurly's typed
 `{error:{type,message}}` is surfaced; a `429` echoes `Retry-After`), `2`
 usage/parse error (bad flag, invalid `--body` JSON).

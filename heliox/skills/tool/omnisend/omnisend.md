@@ -13,7 +13,7 @@ The tool wraps Omnisend's **dated API line** (`https://api.omnisend.com/api`,
 grouped by resource: `contact`, `event`, `campaign`, `segment`, `product`,
 `batch`, `brand`.
 
-**Omnisend is not connectable right now** — the provider is withheld from the
+**Omnisend is not connectable right now**: the provider is withheld from the
 catalog while its credential form changes, so `heliox tool omnisend auth` has
 nothing to offer. If a user asks for Omnisend, say it is unavailable rather
 than walking them through a connect flow that cannot complete.
@@ -24,7 +24,7 @@ than walking them through a connect flow that cannot complete.
   provider JSON verbatim on stdout.
 - **Writes** (`create`, `update`, `event send`, `segment create`, `batch
   create`) take a single `--data '<json>'` body that is sent through
-  unchanged. This means you control the exact Omnisend request schema — the
+  unchanged. This means you control the exact Omnisend request schema; the
   tool never guesses nested shapes like a contact's `identifiers`/`channels`.
 
 ## Pagination
@@ -89,4 +89,4 @@ heliox tool omnisend -- brand get --json   # which store this connection is boun
   carries `{"error":{"message":…,"kind":"api","status":<n>}}`. A `401` also
   marks the connection's credential rejected.
 - `2` usage error (missing required flag, malformed `--data` JSON, unknown
-  subcommand) — nothing was sent to Omnisend.
+  subcommand); nothing was sent to Omnisend.

@@ -4,14 +4,14 @@ Read [google.md](./google.md) first for auth and account selection. Everything
 after `--` is the search-console tool's own CLI. This tool reads a site's
 Google **Search** performance (clicks / impressions / CTR / position), inspects
 whether a page is indexed, and manages sitemaps. Connecting another Google app
-does **not** connect Search Console — each Google app is its own connection with
+does **not** connect Search Console: each Google app is its own connection with
 its own consent. If a command reports no connection, run
 `heliox tool google auth search-console` and forward the link to the user.
 
 ## Properties come first
 
-Every other command needs a `--site`, and a property comes in one of two forms —
-pass it **verbatim**, the tool handles escaping:
+Every other command needs a `--site`, and a property comes in one of two forms.
+Pass it **verbatim**, the tool handles escaping:
 
 - URL-prefix: `https://example.com/` (note the trailing slash)
 - Domain property: `sc-domain:example.com`
@@ -22,7 +22,7 @@ heliox tool google search-console -- sites list --json
 heliox tool google search-console -- sites get --site https://example.com/ --json
 ```
 
-## Search analytics — the core value
+## Search analytics: the core value
 
 ```bash
 # Last 28 days, top queries (PT dates, inclusive; --days is a convenience window)
@@ -43,14 +43,14 @@ heliox tool google search-console -- query --site https://example.com/ \
   `date`, `hour`, `searchAppearance`. No dimension = site totals.
 - `--filter dimension:operator:expression` (repeatable, joined as AND):
   operators are `equals`, `notEquals`, `contains`, `notContains`,
-  `includingRegex`, `excludingRegex` (RE2). All filters form one AND group —
+  `includingRegex`, `excludingRegex` (RE2). All filters form one AND group;
   the API supports nothing else.
 - `--type`: `web` (default), `image`, `video`, `news`, `discover`, `googleNews`.
 - `--data-state final` (default; finalized data) vs `all` (includes fresh,
-  still-moving data). `--aggregation`, `--row-limit` (1–25000, default 1000),
-  and `--start-row` for paging are also there — check `-- --help`.
-- Response rows carry `keys`, `clicks`, `impressions`, `ctr` (0–1), `position`.
-  Data is ~2–3 days behind and covers ~16 months; the top rows only, so totals
+  still-moving data). `--aggregation`, `--row-limit` (1-25000, default 1000),
+  and `--start-row` for paging are also there. Check `-- --help`.
+- Response rows carry `keys`, `clicks`, `impressions`, `ctr` (0-1), `position`.
+  Data is ~2-3 days behind and covers ~16 months; the top rows only, so totals
   from a paged query undercount the long tail.
 
 ## "Is this page indexed, and why not?"
@@ -61,8 +61,8 @@ heliox tool google search-console -- inspect --site https://example.com/ \
 ```
 
 Returns the **indexed** version's status (coverage verdict, crawl/index state,
-mobile-usability, rich-result checks) — not a live fetch. Per-property quota is
-2000 inspections/day and 600/min; a 429 is Google's quota, surfaced verbatim —
+mobile-usability, rich-result checks), not a live fetch. Per-property quota is
+2000 inspections/day and 600/min; a 429 is Google's quota, surfaced verbatim:
 back off, don't hammer.
 
 ## Sitemaps
@@ -72,7 +72,7 @@ heliox tool google search-console -- sitemaps list --site https://example.com/ -
 heliox tool google search-console -- sitemaps get  --site https://example.com/ \
   --sitemap https://example.com/sitemap.xml --json
 
-# Submit (or resubmit) — the key write action
+# Submit (or resubmit): the key write action
 heliox tool google search-console -- sitemaps submit --site https://example.com/ \
   --sitemap https://example.com/sitemap.xml
 
@@ -81,7 +81,7 @@ heliox tool google search-console -- sitemaps delete --site https://example.com/
   --sitemap https://example.com/sitemap.xml
 ```
 
-`submit` / `delete` return `{"ok":true,...}` — the API sends an empty body, so
+`submit` / `delete` return `{"ok":true,...}`: the API sends an empty body, so
 confirm success from the exit status, not a payload. Submitting a sitemap tells
 Google to (re)crawl it; report the action to the user when it changes their
 live property.

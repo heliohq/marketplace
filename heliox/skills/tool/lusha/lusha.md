@@ -3,7 +3,7 @@
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. Lusha is a
 **flat provider** (not grouped like `google`): everything after `--` is the
 lusha tool's own CLI. Auth is a Lusha API key the user connected once; the CLI
-injects it — you never handle the key.
+injects it; you never handle the key.
 
 ```bash
 heliox tool lusha [--account <key>] -- <resource> <verb> [flags...]
@@ -20,18 +20,18 @@ envelope.
 There are **two discovery paths** feeding **one reveal step** per entity, plus a
 usage check:
 
-- **`enrich`** — you already hold a real-world identifier (email, LinkedIn URL,
+- **`enrich`**: you already hold a real-world identifier (email, LinkedIn URL,
   or name + company). One call → the revealed record. Use for "I have this
   person/company, fill in the rest."
-- **`search`** — you have an ICP (job titles, seniority, location, company
+- **`search`**: you have an ICP (job titles, seniority, location, company
   size/industry…), not specific people. Returns **name-only previews with Lusha
   `id`s** (no emails/phones) plus a `request_id`. Use to *generate* leads you
   didn't have.
-- **`reveal`** — takes the Lusha `id`s a `search` returned and unlocks the full
+- **`reveal`**: takes the Lusha `id`s a `search` returned and unlocks the full
   records. This is the credit-efficient path: **search cheaply, reveal only the
   rows that matter.**
 
-`search` results are useless without `reveal` — always carry the `id`s from a
+`search` results are useless without `reveal`. Always carry the `id`s from a
 search into the matching `reveal`.
 
 ## Contacts
@@ -58,7 +58,7 @@ heliox tool lusha -- contact reveal --id 4389064654 --id 4389064624 --reveal ema
 ## Companies
 
 ```bash
-# Enrich a known company (POST /companies/search-and-enrich). NO --reveal flag —
+# Enrich a known company (POST /companies/search-and-enrich). NO --reveal flag:
 # firmographics come back by default.
 heliox tool lusha -- company enrich --domain acme.com --json
 heliox tool lusha -- company enrich --name "Acme Inc" --json
@@ -82,7 +82,7 @@ heliox tool lusha -- account usage --json
 #   -> {data:{credits:{used,remaining,total}, plan, rateLimits, pricing}}
 ```
 
-`account usage` is **credit-free** — call it before a credit-heavy sweep to see
+`account usage` is **credit-free**. Call it before a credit-heavy sweep to see
 remaining credits and per-action pricing.
 
 ## Filters (`search` verbs)
@@ -96,25 +96,25 @@ JSON. The top-level shape is `{contacts:{include,exclude}, companies:{include,ex
 - companies: `sizes` (`[{min,max}]`), `revenues`, `industries`, `technologies`,
   `countries`, `names`, `domains`.
 
-`--page` is 0-based (0–1000); `--size` is 10–100 (default 25). `meta.has_more`
+`--page` is 0-based (0-1000); `--size` is 10-100 (default 25). `meta.has_more`
 tells you whether to page again.
 
 ## Credits & billing (spend deliberately)
 
-Charging differs by entity — it is not one flat "enrich = per-datapoint" rule:
+Charging differs by entity. It is not one flat "enrich = per-datapoint" rule:
 
-- **`contact reveal`** (`/contacts/enrich`) — charged **per revealed datapoint**
+- **`contact reveal`** (`/contacts/enrich`): charged **per revealed datapoint**
   (each email or phone), no search charge. If a search preview showed
   `canReveal.credits: 0`, that datapoint is already revealed for the account and
   re-revealing it is **free**.
-- **`contact enrich`** (`search-and-enrich`) — **two** charges: one search +
+- **`contact enrich`** (`search-and-enrich`). **Two** charges: one search +
   one per revealed datapoint.
-- **`company reveal`** (`/companies/enrich`) — charged **per successful company
+- **`company reveal`** (`/companies/enrich`): charged **per successful company
   result** (companies expose no per-datapoint PII), via the `reveal_company`
   action.
-- **`company enrich`** (`search-and-enrich`) — charged **per successful result**
+- **`company enrich`** (`search-and-enrich`): charged **per successful result**
   (same `reveal_company` meter).
-- **`contact search` / `company search`** — charged per result (search only).
+- **`contact search` / `company search`**: charged per result (search only).
 
 So the credit-efficient contact flow is: **`contact search` (cheap sweep) →
 filter to the rows you actually want → `contact reveal` on just those `id`s.**
@@ -126,11 +126,11 @@ reports what the call cost.
 - `enrich` / `reveal` → `{data: [records], meta: {credits_charged,
   results_returned, request_id}}`. `data` is always an array.
 - `search` → `{data: [previews], meta: {page, size, total, has_more,
-  credits_charged, request_id}}`. Previews carry the Lusha `id` — feed them into
+  credits_charged, request_id}}`. Previews carry the Lusha `id`. Feed them into
   `reveal`.
 - `account usage` → `{data: {credits, plan, rateLimits, pricing}}`.
 - Errors → stderr `{error:{message, kind, status}}`, exit 1. A `401` means the
-  key was rejected — ask the user to reconnect Lusha.
+  key was rejected. Ask the user to reconnect Lusha.
 
 ## Footguns
 
@@ -140,5 +140,5 @@ reports what the call cost.
 - **Rate limit:** `account/usage` is capped at ~5 req/min; the data endpoints
   have their own limits (see `meta`/`rateLimits`). A `429` is a plain retry, not
   a credential problem.
-- **API keys are Premium/Scale-plan only** — a user on a lower tier cannot issue
+- **API keys are Premium/Scale-plan only**: a user on a lower tier cannot issue
   one.

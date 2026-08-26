@@ -19,7 +19,7 @@ Courier → Settings → API Keys. After that, the CLI injects it per call.
 
 ## The mental model (read this first)
 
-`send` returns a `requestId` with a **202 "accepted"** — that means Courier took
+`send` returns a `requestId` with a **202 "accepted"**: that means Courier took
 the request, **not** that it was delivered. To know the outcome, look it up with
 `message get <requestId>` (status) or `message history <requestId>` (the full
 enqueued → sent → delivered / error timeline). The `requestId` of a
@@ -33,7 +33,7 @@ You send to **exactly one** recipient selector and **exactly one** content form:
   pair (both required together).
 
 Setting two recipients, or a template *and* an inline title, is a usage error
-(exit 2) — nothing is sent.
+(exit 2): nothing is sent.
 
 ## Core commands
 
@@ -68,7 +68,7 @@ heliox tool courier -- message cancel <requestId> --json           # cancel an e
 
 `message list` filters: `--status`, `--recipient`, `--notification`, `--list`,
 `--tags` (comma-delimited), `--trace-id`, `--enqueued-after`. It paginates by
-cursor only — pass `--cursor <c>` from the previous page's `paging.cursor`.
+cursor only: pass `--cursor <c>` from the previous page's `paging.cursor`.
 
 ### Discover who to send to
 
@@ -104,7 +104,7 @@ top-level fields.
 Every command prints Courier's JSON on stdout verbatim. Exit codes: `0` success,
 `1` API/runtime failure, `2` usage/parse error. With `--json`, an error is an
 envelope `{"error":{"message":...,"kind":"usage|api","status":<HTTP>}}`; a `401`
-means the key was rejected — ask the user to reconnect.
+means the key was rejected. Ask the user to reconnect.
 
 ## Footguns
 

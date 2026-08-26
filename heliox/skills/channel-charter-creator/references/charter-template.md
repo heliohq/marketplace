@@ -1,6 +1,6 @@
 # Charter Template
 
-The shape every charter takes. It is deliberately domain-neutral — the same six
+The shape every charter takes. It is deliberately domain-neutral: the same six
 sections serve any team; only the words inside change. Fill each section for the
 specific channel. Keep it thin: this records what's specific to *this* channel
 and names the Team Doctrine in plain text for the universal rules. If you find
@@ -10,19 +10,19 @@ yourself restating the doctrine, stop; do not insert local markdown links such a
 ## The six sections
 
 ```markdown
-# 📋 Charter — #<channel-name> · <DRAFT — awaiting ratification | vX.Y>
+# 📋 Charter - #<channel-name> · <DRAFT - awaiting ratification | vX.Y>
 > Operates under Team Doctrine: work in public, independent verification,
 > measurable north-star, thread discipline). This charter records only what's
 > specific to this channel. If the two disagree, the doctrine wins.
 
 ## Scope
-<What this channel owns — bounded. State what it does NOT own and where that
+<What this channel owns, bounded. State what it does NOT own and where that
 work goes instead, so nobody land-grabs across boundaries.>
 
 ## North-star
 <The team's goal, stated as a countable success/failure class. Include the
 metric and the target, e.g. "Metric = X; target = 0." Also name who may
-*proactively* propose work toward it (vs. execute-only roles) — the north-star is
+*proactively* propose work toward it (vs. execute-only roles). The north-star is
 what makes that proactivity safe.>
 
 ## Roster & roles
@@ -30,19 +30,19 @@ what makes that proactivity safe.>
 critical role unfilled. For each: member, role, and one line on what they own.>
 
 ## Handoff artifacts
-<For each role, the concrete deliverable that closes its step — its
+<For each role, the concrete deliverable that closes its step: its
 definition-of-done. This is what makes the chain checkable.>
 
 ## Verification
 <Who checks what before it ships. Doer ≠ Verifier. State how depth scales with
-risk/trust for this team — what gets a light check vs. a full one.>
+risk/trust for this team: what gets a light check vs. a full one.>
 
 ## Working rules
 <Only the channel-specific rules on top of the doctrine. One topic per thread,
 where decisions are recorded, anything specific to this team's medium.>
 
 ## <version + amendment line>
-<The header status is the lifecycle: seeded as "DRAFT — awaiting ratification";
+<The header status is the lifecycle: seeded as "DRAFT - awaiting ratification";
 when the human owner ratifies, flip it to "v0.1"; amendments bump it. e.g.
 "v0.1 · ratified by <human owner> · amendments proposed in-thread, <human
 owner> ratifies, document updated.">
@@ -59,7 +59,7 @@ owner> ratifies, document updated.">
 
 ## Two fillings, to show the shape is general
 
-Both are generic, made-up teams — the machinery is identical and only the
+Both are generic, made-up teams: the machinery is identical and only the
 vocabulary changes. Do not copy either of these; derive the roles and artifacts
 from the actual members and the team's real domain.
 
@@ -94,5 +94,5 @@ from the actual members and the team's real domain.
   an independent source-check before publish. Writer ≠ Fact-checker.
 
 Notice the sections, the artifact-per-role discipline, and Doer ≠ Verifier are
-the same in both. That sameness is the point — the doctrine holds; the domain
+the same in both. That sameness is the point: the doctrine holds; the domain
 just fills it in.

@@ -14,15 +14,15 @@ difficulty / related / questions), and backlink profiles. Connect with a
 Semrush **v3 API key** (Subscription info → API units; needs a Business plan
 plus the paid API-units add-on).
 
-## Unit economics — read this before large pulls
+## Unit economics: read this before large pulls
 
 **Every returned line costs API units** and they come out of one shared account
-balance. Costs run 10–50 units/line depending on the report. To protect the
+balance. Costs run 10-50 units/line depending on the report. To protect the
 balance:
 
 - Every report defaults to `--limit 10` (Semrush's own server default is
   10,000 lines). Only raise `--limit` when you deliberately need more rows.
-- Check the balance first — it is free (0 units):
+- Check the balance first. It is free (0 units):
 
   ```bash
   heliox tool semrush -- units --json
@@ -43,7 +43,7 @@ snake_cased header names (numbers are coerced to numbers):
 ```
 
 A query with no data returns `row_count: 0`, an empty `rows` array, and a
-`note` — that is a valid answer, not an error.
+`note`. That is a valid answer, not an error.
 
 ## Core commands
 
@@ -78,14 +78,14 @@ heliox tool semrush -- backlinks list https://example.com/ --target-type url --j
 
 ## Shared flags
 
-- `--database` (default `us`) — regional database (`us|uk|de|…`). Not used by
+- `--database` (default `us`): regional database (`us|uk|de|…`). Not used by
   `--all-databases` overviews or backlinks reports (those are global).
-- `--limit` / `--offset` — `display_limit` / `display_offset`. Mind the units.
-- `--columns` — override `export_columns` (comma-separated Semrush column codes).
-- `--filter` / `--sort` / `--date` — `display_filter` / `display_sort` /
+- `--limit` / `--offset`: `display_limit` / `display_offset`. Mind the units.
+- `--columns`: override `export_columns` (comma-separated Semrush column codes).
+- `--filter` / `--sort` / `--date`: `display_filter` / `display_sort` /
   `display_date` passthrough.
-- `--positions new|lost|rise|fall` — for change reports.
-- `--target-type root_domain|domain|url` — backlinks subject granularity.
+- `--positions new|lost|rise|fall`: for change reports.
+- `--target-type root_domain|domain|url`: backlinks subject granularity.
 
 ## Footguns
 
@@ -93,7 +93,7 @@ heliox tool semrush -- backlinks list https://example.com/ --target-type url --j
   be rejected (`ERROR 120`); paste your v3 key from Subscription info.
 - **Zero balance / no API add-on.** `ERROR 132` (units exhausted) or `ERROR
   130` (API not enabled for the plan) mean the account, not the query, is the
-  problem — check `units` and the subscription.
+  problem: check `units` and the subscription.
 - **`domain overview` vs `--all-databases`.** The default is one database
   (`domain_rank`); `--all-databases` aggregates every regional database
   (`domain_ranks`) and omits the `database` field.

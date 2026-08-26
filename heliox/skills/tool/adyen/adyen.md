@@ -11,19 +11,19 @@ heliox tool adyen [--account <key>] -- management <resource> <verb> [flags...]
 ## What this tool is (and is NOT) today
 
 v1 wraps the **Adyen Management API v3** only, and it is **read/config
-introspection** — it inspects accounts, payment-method configuration, webhooks,
+introspection**: it inspects accounts, payment-method configuration, webhooks,
 stores, and terminals. Three hard limits to set expectations before you reach
 for it:
 
 - **It moves no money.** There is no charge, no refund, no capture, no payment
   link. Those are Checkout operations and are a **v2** capability that is **not
   available yet**. If a task needs to request or move money, this tool cannot do
-  it — say so rather than improvising.
+  it. Say so rather than improvising.
 - **It is live-only.** A connected Adyen credential is always a **live** key, so
   every command runs against the live Adyen account. There is no test/sandbox
   switch on the connected tool.
 - **There is no "list all recent payments" call.** Adyen has no simple REST
-  endpoint that lists transactions for a classic merchant — reconciliation is
+  endpoint that lists transactions for a classic merchant: reconciliation is
   webhook- and downloadable-report-driven. Work from a known `pspReference` (from
   a webhook or the Customer Area), never expect to enumerate payments here.
 
@@ -42,7 +42,7 @@ heliox tool adyen -- management company get <companyId> --json
 # Payment-method settings enabled on a merchant
 heliox tool adyen -- management payment-methods list <merchantId> --json
 
-# Webhooks — pass exactly one scope: --merchant OR --company
+# Webhooks. Pass exactly one scope: --merchant OR --company
 heliox tool adyen -- management webhook list --merchant <merchantId> --json
 heliox tool adyen -- management webhook list --company <companyId> --json
 heliox tool adyen -- management webhook get  --merchant <merchantId> <webhookId> --json
@@ -69,9 +69,9 @@ successfully and still lack the role a later command needs.
   it is **not** a credential rejection. The fix is to **add the missing role in
   the Adyen Customer Area** (Developers → API credentials → the key → Roles),
   then retry the *same* connection. Do not send the user a reconnect link for a
-  403 — a fresh key with the same roles will 403 identically.
+  403: a fresh key with the same roles will 403 identically.
 - **A `401` is a real auth failure** (missing/incorrect key) and does mark the
-  connection for reconnect — ask the user to reconnect with a valid key.
+  connection for reconnect. Ask the user to reconnect with a valid key.
 
 For the v1 command set the key should carry all of these Management API read
 roles so it won't 403 mid-use: **Accounts read** (whoami / merchant / company),
@@ -84,4 +84,4 @@ role.
 The user creates the key in **Customer Area → Developers → API credentials**,
 grants it the read roles above, and pastes it into the Helio connect drawer
 (stored encrypted; you never see it). Adyen keys are long-lived and
-non-expiring — they are rotated or revoked manually in the Customer Area.
+non-expiring. They are rotated or revoked manually in the Customer Area.

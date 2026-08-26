@@ -17,9 +17,9 @@ Zuora has no shared "authorize with Zuora" consent screen. The user creates an
 **OAuth client inside their own Zuora tenant** (Administration → user →
 *OAuth Clients* → *Create*) and supplies three values at connect time:
 
-- **REST base URL** — the host of their data center / environment. It cannot be
+- **REST base URL**: the host of their data center / environment. It cannot be
   inferred from the id/secret and must be entered (examples below).
-- **Client ID** and **Client Secret** — from the OAuth client they created.
+- **Client ID** and **Client Secret**: from the OAuth client they created.
 
 The tool exchanges these for a short-lived bearer per run
 (`POST {base_url}/oauth/token`, client-credentials); you never handle the
@@ -51,10 +51,10 @@ heliox tool zuora -- query --zoql "select ... from ..."  # read-only ZOQL escape
 
 `account key` and `subscription key` accept either the number
 (e.g. `A00000123`) or the internal id. Account keys you pass to `invoice list` /
-`payment list` are bound as quoted ZOQL literals — you do not need to quote or
+`payment list` are bound as quoted ZOQL literals; you do not need to quote or
 escape them yourself.
 
-## ZOQL — the power tool
+## ZOQL: the power tool
 
 `query --zoql` runs a read-only ZOQL `SELECT` over any queryable object
 (`Account`, `Subscription`, `Invoice`, `Payment`, `RatePlan`, …). It is the
@@ -82,5 +82,5 @@ Only `SELECT` is accepted (the tool refuses write verbs locally).
 ## Errors
 
 A non-2xx (or a 2xx body signalling failure) exits non-zero with the Zuora error
-message. A 401 is a rejected/expired credential — ask the user to reconnect. A
+message. A 401 is a rejected/expired credential; ask the user to reconnect. A
 403 usually means the OAuth client's role lacks access to that object.

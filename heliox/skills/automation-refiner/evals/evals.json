@@ -61,10 +61,10 @@
         "States that the owner's requirement is written into feedback before the procedure document is touched, so that the edit derives from recorded evidence rather than from conversation alone.",
         "Establishes whether the person making the request is the automation's owner before recording the requirement in feedback.",
         "States that only the automation's owner or its current executor may write a feedback entry, and describes what happens instead when neither applies.",
-        "Identifies that `heliox automation update` accepts no flag for the cron expression, so the existing trigger's schedule cannot be changed in place.",
+        "Identifies that the trigger's schedule is changed in place with `heliox automation update` and its cron flag, after reading the current rule from `heliox automation show`.",
         "Raises whether the data source's refresh timing should be recorded in the automation's wiki, because a timing-dependent fact about the source affects future scheduling decisions.",
         "States that the instruction is too terse to establish its own language, so the procedure wording follows the conversation language as a fallback.",
-        "Names the replacement path for the schedule change: create a new automation, validate it disabled, disable the original, then enable the replacement.",
+        "States that the timezone stays unless passed explicitly, and that the new rule takes effect at the next fire with the automation's identity and run history intact.",
         "Notices that the procedure text refers to the original firing time and must be edited to match the new schedule."
       ],
       "mode": "describe",
@@ -414,11 +414,9 @@
       "trigger": "harmed",
       "expectations": [
         "Identifies the cron expression on the trigger, not the procedure document, as where the schedule lives.",
-        "The CLI's update path offers no way to change the trigger's cron expression, which is why the schedule repair requires a replacement automation.",
-        "Establishes that the schedule cannot be edited in place and that changing the cadence requires a replacement workflow with an ordering constraint that prevents both automations from firing concurrently.",
-        "States that the replacement is enabled only after the original is disabled, because both being live fires the same job twice.",
-        "Names submitting duplicate orders to the exchange as what a double fire would cause here.",
-        "Prefers disabling the old automation over deleting it, so its run history stays readable.",
+        "Repairs the schedule in place with `heliox automation update` and its cron flag, preserving the automation's identity and run history.",
+        "Names `heliox automation show` as where the current rule is read before the new one is written.",
+        "States the new rule takes effect at the next fire and the owner hears what changed before that fire.",
         "Points out that a cron expression alone cannot express a market-holiday exception, so the calendar check belongs in the procedure.",
         "Proposes that the procedure verify the exchange is open before submitting, rather than relying on the schedule to be right.",
         "Treats the rejected-order outcome as evidence that the failure path worked, and does not change it.",
@@ -454,7 +452,7 @@
         },
         {
           "name": "experience.md (auto_close3)",
-          "content": "# experience.md\n\n- — @scout · executor · run e-9290 · 2026-07-03\n  Schedule moved from 16:05 to 15:30. New automation created on the updated cron, validated while disabled, old one disabled, then new one enabled. Procedure document carried over without changes. Based on e-9290.\n"
+          "content": "# experience.md\n\n- — @scout · executor · run e-9290 · 2026-07-03\n  Schedule moved from 16:05 to 15:30 in place with `heliox automation update` on the existing trigger. Procedure document carried over without changes. Based on e-9290.\n"
         },
         {
           "name": "feedback.md (auto_close3)",

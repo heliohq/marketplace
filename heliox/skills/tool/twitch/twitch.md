@@ -33,7 +33,7 @@ don't have to:
 ## "Self" is automatic
 
 Channel-scoped verbs default `broadcaster_id` to the **connected account's own
-channel** — the tool resolves your user id once (via Get Users) and caches it,
+channel**. The tool resolves your user id once (via Get Users) and caches it,
 so you don't have to look it up first:
 
 - `channel get`, `channel update`, `stream followed`, `clip create`,
@@ -59,17 +59,17 @@ heliox tool twitch -- video list --user-id 141981764 --type archive
 
 `clip list` and `video list` each require **exactly one** selector
 (`--broadcaster-id` / `--game-id` / `--id` for clips; `--id` / `--user-id` /
-`--game-id` for videos) — Helix rejects zero or multiple.
+`--game-id` for videos). Helix rejects zero or multiple.
 
 ## Curating the channel
 
 ```bash
-# update stream metadata — send only the fields you want to change
+# update stream metadata: send only the fields you want to change
 heliox tool twitch -- channel update --title "Ranked grind" --game-id 509658
 heliox tool twitch -- channel update --tags English --tags Speedrun   # replaces the full set
 heliox tool twitch -- channel update --language en
 
-# clip the live stream (self by default) — returns the clip id + edit URL
+# clip the live stream (self by default); returns the clip id + edit URL
 heliox tool twitch -- clip create
 ```
 
@@ -97,7 +97,7 @@ heliox tool twitch -- chat send --broadcaster-id 141981764 --message "gg" --repl
 - **`channel update` is a partial update.** Only the flags you pass are sent;
   omitted fields are left unchanged. Don't re-send the whole channel to change
   one field.
-- **`--tags` replaces the entire tag set**, it does not append — pass every tag
+- **`--tags` replaces the entire tag set**, it does not append. Pass every tag
   you want to keep.
 - **Pagination is cursor-based, not offset.** Page by feeding the response
   `cursor` back as `--after`; `--first` only sets page size (Helix max 100).
@@ -107,13 +107,13 @@ heliox tool twitch -- chat send --broadcaster-id 141981764 --message "gg" --repl
   unless the connected account has that role there.
 - **Sending chat has eligibility rules.** `chat send` can be refused by Twitch
   (phone-verified account, channel chat settings, rate limits) even with the
-  scope — surface the Helix `message` on failure rather than retrying blindly.
+  scope. Surface the Helix `message` on failure rather than retrying blindly.
 - **`--account` when more than one Twitch account is connected.** A `409` lists
   the candidate account keys; re-run with `--account <key>` (before the `--`).
 
 ## Safety
 
-- `chat send`, `clip create`, and `channel update` are outward-facing — they
+- `chat send`, `clip create`, and `channel update` are outward-facing. They
   change what your audience sees or post under your name. Follow the sensitive-
   operation rule in [../SKILL.md](../SKILL.md) and confirm scope/target before
   writing to a channel you don't own.

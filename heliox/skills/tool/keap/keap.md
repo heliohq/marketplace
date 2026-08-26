@@ -11,7 +11,7 @@ heliox tool keap [--account <key>] -- <resource> <verb> [flags...]
 
 One connected account is one Keap tenant. The connection is a tenant-wide grant
 (Keap's only OAuth scope is `full`), so a single connection can read and write
-across the whole account — treat it with care.
+across the whole account; treat it with care.
 
 ## Command tree (resource → verb)
 
@@ -47,7 +47,7 @@ response's `next_page_token` is what you feed back into `--page-token`.
 
 Create/update verbs expose flags for the common fields, plus `--json-body` for
 the full v2 payload (custom fields, addresses, etc.). Keys in `--json-body`
-overlay — and win over — the convenience flags:
+overlay (and win over) the convenience flags:
 
 ```bash
 # create a contact from common fields
@@ -77,7 +77,7 @@ and `email send` require.
 
 ## Sending email
 
-`keap email send` sends a one-off email to existing contacts — this **leaves the
+`keap email send` sends a one-off email to existing contacts. This **leaves the
 user's account** and reaches real recipients, so it is a sensitive, outward-
 facing action. Confirm intent before sending, per the sensitive-operation rule
 in `../SKILL.md`.
@@ -89,9 +89,9 @@ heliox tool keap -- email send --contact 123 --contact 456 --subject "Hi" --user
 ## Notes / footguns
 
 - **`--assigned-to-user-id` (tasks), `--user-id` (notes, email) are required by
-  Keap**, not optional niceties — the create call 422s without them. Resolve a
+  Keap**, not optional niceties: the create call 422s without them. Resolve a
   user id with `keap user me` / `keap user list` first.
 - **`keap user me`** returns the authorizing user/tenant (`/v2/oauth/connect/userinfo`);
   the connection's account key is the Keap tenant, not the individual user.
-- A `401 reconnect required` means the token was revoked or expired for good —
-  relay a fresh `keap auth` link (see [../SKILL.md](../SKILL.md)); do not retry.
+- A `401 reconnect required` means the token was revoked or expired for good.
+  Relay a fresh `keap auth` link (see [../SKILL.md](../SKILL.md)); do not retry.

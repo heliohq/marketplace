@@ -34,7 +34,7 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
 
 - **A deal moves through stages inside a pipeline.** Read the pipeline's stages
   with `stage list --pipeline-id <id>`, then move a deal by patching its
-  `--stage-id`. You do **not** delete deals — you close them: `deal update <id>
+  `--stage-id`. You do **not** delete deals. You close them: `deal update <id>
   --status won`, or `--status lost --lost-reason "..."`.
 - **Leads are not deals.** A lead is an unqualified, pre-pipeline record; when
   it qualifies it becomes a deal. Capture inbound interest as a `lead`; track
@@ -67,7 +67,7 @@ heliox tool pipedrive -- search --term "Acme" --types deal,person,organization
 # create: typed flags cover the common fields
 heliox tool pipedrive -- deal create --title "Acme renewal" --value 12000 --currency USD --person-id 7
 
-# update is a PARTIAL patch — only the flags you set change
+# update is a PARTIAL patch: only the flags you set change
 heliox tool pipedrive -- deal update 42 --stage-id 3                 # move a stage
 heliox tool pipedrive -- deal update 42 --status won                 # close won
 heliox tool pipedrive -- deal update 42 --status lost --lost-reason "Chose competitor"
@@ -97,25 +97,25 @@ heliox tool pipedrive -- lead create --title "Inbound" --data '{"value":{"amount
 
 ## Pagination (the #1 thing to get right)
 
-- **v2 resources — deals, persons, orgs, activities, pipelines, stages, and
-  every `search` — page by CURSOR.** The response's
+- **v2 resources (deals, persons, orgs, activities, pipelines, stages, and
+  every `search`) page by CURSOR.** The response's
   `additional_data.next_cursor` is an opaque string; pass it back as `--cursor`
   to get the next page. When `next_cursor` is `null`, you're at the end. Use
   `--limit` (max 500 on lists, 100 on search) to size a page.
-- **v1 resources — leads, notes — page by OFFSET.** Use `--start <n>` +
+- **v1 resources (leads, notes) page by OFFSET.** Use `--start <n>` +
   `--limit`; `additional_data.pagination` tells you `more_items_in_collection`.
 - **users** returns everyone in one call (no pagination).
 
-Don't invent a `--page` flag — it doesn't exist. Read the cursor/offset out of
+Don't invent a `--page` flag. It doesn't exist. Read the cursor/offset out of
 the verbatim response and feed it back.
 
 ## Footguns
 
 - **Deals are closed, not deleted.** There is no `deal delete` (nor person/org
-  delete) — by design. Close a deal with `--status won|lost`; a `lost` deal
+  delete), by design. Close a deal with `--status won|lost`; a `lost` deal
   should carry `--lost-reason`.
 - **`update` is a partial patch.** Only the flags you pass are sent. Omit a
-  field to leave it untouched — you never need to re-send the whole record.
+  field to leave it untouched. You never need to re-send the whole record.
 - **Stage ids are pipeline-specific.** A `--stage-id` only makes sense within
   its pipeline; read `stage list --pipeline-id <id>` before moving a deal so you
   patch a stage that belongs to that deal's pipeline.
@@ -135,6 +135,6 @@ the verbatim response and feed it back.
 ## Safety
 
 - Creating/updating deals, activities, notes, and closing deals mutates the
-  user's live CRM that their whole team sees — follow the sensitive-operation
+  user's live CRM that their whole team sees. Follow the sensitive-operation
   rule in [../SKILL.md](../SKILL.md) before writing, especially bulk changes or
   closing a deal `lost`.

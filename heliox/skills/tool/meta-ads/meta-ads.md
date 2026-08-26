@@ -17,7 +17,7 @@ surface.
 
 A Facebook user commonly has access to **many ad accounts** across several
 businesses. The connection identity is the *user*, not one ad account, so
-**you pass `--account act_<id>` on every account-scoped command** — it is never
+**you pass `--account act_<id>` on every account-scoped command**. It is never
 connection state. Start by discovering which accounts you can operate on:
 
 ```bash
@@ -55,14 +55,14 @@ heliox tool meta-ads -- insights --object 456 --level ad \
   --time-range '{"since":"2026-01-01","until":"2026-01-31"}'
 ```
 
-`--date-preset` (e.g. `today`, `last_7d`, `last_30d` — the default) and
+`--date-preset` (e.g. `today`, `last_7d`, `last_30d`, the default) and
 `--time-range` are mutually exclusive. Default fields cover impressions,
 clicks, spend, reach, CPM/CPC/CTR, frequency, and actions.
 
 ## Changing spend state (pause / resume / budget)
 
 Status and budget live on the object; update by id. **Budgets are integers in
-the ad account currency's minor unit (cents)** — `--daily-budget 5000` means
+the ad account currency's minor unit (cents)**: `--daily-budget 5000` means
 50.00 in a USD account.
 
 ```bash
@@ -87,4 +87,4 @@ New campaigns default to `PAUSED` so nothing spends before you review it.
 are **0** success, **1** runtime/API failure, **2** usage/parse. A Graph API
 error is surfaced with its `type`/`code`/`message`; **code 190**
 (`OAuthException`, expired/invalid token) is reported as a reconnect-needed
-condition — ask the user to re-authorize Meta Ads rather than retrying.
+condition. Ask the user to re-authorize Meta Ads rather than retrying.

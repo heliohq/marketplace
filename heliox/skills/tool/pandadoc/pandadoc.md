@@ -22,7 +22,7 @@ heliox tool pandadoc -- template details <template-id> --json   # roles + tokens
 
 # 2. Create a document from the template (see the async note below)
 heliox tool pandadoc -- document create \
-    --template <template-id> --name "NDA — Acme" \
+    --template <template-id> --name "NDA: Acme" \
     --recipient alice@acme.com:Client:Alice:Smith \
     --token Sender.Company=Helio \
     --field CustomerName=Alice \
@@ -56,7 +56,7 @@ heliox tool pandadoc -- document download <document-id> --out ./nda-signed.pdf -
   returns `status: document.uploaded`; PandaDoc processes it in the background
   and only then flips it to `document.draft`. `document create` **waits for the
   draft flip for you** (polls up to ~60s) so a following `document send`
-  succeeds — do not `send` right after a `--no-wait` create, and do not build
+  succeeds. Do not `send` right after a `--no-wait` create, and do not build
   your own poll loop. If the wait times out, the command prints the document id
   so you can resume with `document status <id>`.
 - **`send` before draft is an error, not a retry.** If you used `--no-wait`,
@@ -75,7 +75,7 @@ heliox tool pandadoc -- document download <document-id> --out ./nda-signed.pdf -
 ## Escape hatch
 
 For endpoints without a first-class command (folders, content library, quotes,
-etc.), use the raw passthrough — credentials are still injected:
+etc.), use the raw passthrough (credentials are still injected):
 
 ```bash
 heliox tool pandadoc -- api GET /documents --query count=5 --query status=document.sent
@@ -85,7 +85,7 @@ heliox tool pandadoc -- api POST /contacts --body '{"email":"z@z.com"}'
 ## Safety
 
 - Sending a document emails real recipients and starts a legally-binding
-  signature flow — follow the sensitive-operation rule in
+  signature flow. Follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md) and confirm recipients + template before `send`.
   Use `--silent` on `send` to create the sent state without emailing, when you
   only need the signing link (`document link <id> --recipient <email>`).

@@ -34,14 +34,14 @@ to a human-readable table with `--page <token>` for explicit pagination.
 ## Sharing and deleting
 
 - **Public links go through the approval gate.** `items share --scope
-  anonymous` (anyone with the link) is policy-gated — instead of running,
+  anonymous` (anyone with the link) is policy-gated: instead of running,
   heliox exits with `APPROVAL_REQUIRED` and prints the exact request/replay
   commands (full flow in the tool skill's "Approval gate" section); say the
   public-exposure fact explicitly in the request `--message`. The approval
-  card **is** the human check — do not also pre-confirm in chat. Default to
-  `--scope organization`, which stays inside the org and is routine — not
+  card **is** the human check. Do not also pre-confirm in chat. Default to
+  `--scope organization`, which stays inside the org and is routine: not
   gated, no confirmation needed.
-- **Confirm before delete**, even though items go to the recycle bin — surprising
+- **Confirm before delete**, even though items go to the recycle bin. Surprising
   deletions erode trust. Report what will be deleted first.
 - **Confirm before overwriting** an existing file on upload.
 
@@ -51,7 +51,7 @@ to a human-readable table with `--page <token>` for explicit pagination.
 - 409 with account candidates → re-run with `--account <key>`.
 - 403 scope hint / 401 reconnect required → disconnect and reconnect (fresh
   consent; `prompt=select_account` re-picks the account).
-- Shared libraries / SharePoint sites are not accessible in v1 — only the user's
+- Shared libraries / SharePoint sites are not accessible in v1; only the user's
   own OneDrive. If the user points at a shared/team library, say it is out of
   scope rather than guessing a path.
 - Permanent delete is intentionally not exposed; `items delete` goes to the

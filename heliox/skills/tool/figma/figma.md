@@ -1,4 +1,4 @@
-# Figma (official MCP — install the official plugin, then authenticate)
+# Figma (official MCP: install the official plugin, then authenticate)
 
 Read [../SKILL.md](../SKILL.md) first for the general connected-tools model, but
 Figma is a **special case**: it is the **official Figma MCP server**
@@ -8,18 +8,18 @@ Figma is a **special case**: it is the **official Figma MCP server**
 Why MCP: the official server gives full design context (`get_design_context`,
 `get_metadata`, `get_screenshot`, `get_variable_defs`, `get_figjam`) **and**
 canvas writes (`use_figma`, `generate_figma_design`, `create_new_file`,
-`upload_assets`) — none of which the Figma REST API exposes.
+`upload_assets`), none of which the Figma REST API exposes.
 
 ## The model (same for both engines)
 
 Figma ships as the **official `figma` plugin** in the plugin marketplace. That
-plugin **registers the Figma MCP server for you** — so connecting is:
+plugin **registers the Figma MCP server for you**. So connecting is:
 
-1. **Check first** — is Figma already connected? If yes, stop (don't reinstall).
-2. **Install the official plugin with your ENGINE's own plugin command** — this
+1. **Check first**: is Figma already connected? If yes, stop (don't reinstall).
+2. **Install the official plugin with your ENGINE's own plugin command**: this
    registers the Figma MCP server. Do **NOT** manually `mcp add` (that duplicates
    what the plugin does and conflicts).
-3. **Authenticate** — the Figma MCP uses OAuth: you produce an authorize URL,
+3. **Authenticate**. The Figma MCP uses OAuth: you produce an authorize URL,
    relay it to the user, they authorize and paste the callback URL back, you
    complete the exchange.
 
@@ -39,5 +39,5 @@ echo "$HELIO_RUNTIME_HARNESS"   # claude-code | codex
   one-time `code`), never an access token. The exchange happens inside the CLI.
 - Validate the callback's `state` matches the authorize URL before completing.
 - Canvas writes (`use_figma`, `create_new_file`, …) are outward-facing edits to
-  the user's Figma files — follow the sensitive-operation rule in
+  the user's Figma files: follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md) before writing.

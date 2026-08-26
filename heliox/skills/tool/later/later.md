@@ -4,13 +4,13 @@
 performance through the Later Influence Reporting API (v2). Read the tool model
 in [../SKILL.md](../SKILL.md) first.
 
-## What this is — and is NOT
+## What this is: and is NOT
 
-- **Is**: read-only analytics — pull campaign and instance (workspace)
+- **Is**: read-only analytics; pull campaign and instance (workspace)
   performance for reporting.
 - **Is NOT**: social scheduling or publishing. Later's post-scheduling product
   has **no public API**. Do not attempt to schedule, publish, or edit posts
-  through this tool — there is no such command, and none can be added.
+  through this tool: there is no such command, and none can be added.
 
 ## Connect
 
@@ -18,7 +18,7 @@ Later Influence Reporting API credentials are a **clientId / clientSecret**
 pair, issued only by a Later account team (not self-serve). The user pastes them
 in the connect drawer as a single `clientId:clientSecret` value; Helio verifies
 the pair and stores it. If `heliox tool list` shows no `later` row, ask the user
-to connect it and relay the auth link — you cannot authorize on their behalf.
+to connect it and relay the auth link: you cannot authorize on their behalf.
 
 ## Commands
 
@@ -52,7 +52,7 @@ Notes:
 
 ## Errors
 
-- `401 reconnect required` — the clientId/clientSecret no longer authorizes;
+- `401 reconnect required`: the clientId/clientSecret no longer authorizes;
   ask the user to reconnect.
-- `403` — the credential lacks access to the requested instance/scope; it does
+- `403`: the credential lacks access to the requested instance/scope; it does
   not mean the credential is invalid.

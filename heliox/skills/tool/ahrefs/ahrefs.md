@@ -2,7 +2,7 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. Ahrefs is a
 **flat provider** (not grouped like `google`): everything after `--` is the
-ahrefs tool's own CLI. Every command here is **read-only** — SEO data in, no
+ahrefs tool's own CLI. Every command here is **read-only**: SEO data in, no
 writes. (The credential itself is broader than this command surface; see
 [Connect notes](#connect-notes).) Auth is an Ahrefs API v3 key the user
 supplies; the tool injects the `Authorization: Bearer` header for you.
@@ -15,24 +15,24 @@ Every command prints the provider's JSON on stdout. Use it to answer: how
 strong is a domain, who links to it, what does it rank for, is a keyword worth
 targeting, who ranks for it, and how to compare a set of domains.
 
-## Cost model (read this first — it is the #1 footgun)
+## Cost model (read this first: it is the #1 footgun)
 
 Ahrefs bills **API units per (rows × fields)**, minimum 50 units per paid
 request, and the units come out of the *connected user's* balance. So:
 
 - Every rows command already defaults to a **curated `--select`** (only the
   fields an agent usually reads) and **`--limit 10`**. Don't widen `--select`
-  or raise `--limit` unless you actually need more — each extra field/row costs
+  or raise `--limit` unless you actually need more: each extra field/row costs
   units.
 - `usage` is **free** (0 units). Run it first to see the plan and remaining
   units; it also doubles as the "is this connected and working?" probe.
-- `batch` compares up to 100 targets in **one** request — far cheaper than
+- `batch` compares up to 100 targets in **one** request, far cheaper than
   looping per-domain.
 
 ## Commands
 
 ```bash
-# FREE — plan, unit limits/usage, reset date (also the health check)
+# FREE: plan, unit limits/usage, reset date (also the health check)
 heliox tool ahrefs -- usage --json
 
 # Domain strength: merges domain-rating + backlinks-stats + metrics into one object
@@ -49,7 +49,7 @@ heliox tool ahrefs -- keywords organic --target example.com [--country us] [--da
 heliox tool ahrefs -- pages top        --target example.com [...row flags]
 heliox tool ahrefs -- competitors      --target example.com --country us [...row flags]   # --country REQUIRED
 
-# Keyword research (Keywords Explorer) — no target; --keywords + --country
+# Keyword research (Keywords Explorer): no target; --keywords + --country
 heliox tool ahrefs -- keyword overview --keywords "seo,backlinks" --country us
 heliox tool ahrefs -- keyword ideas    --keywords "seo" --country us --kind matching|related|suggestions
 heliox tool ahrefs -- keyword volume-history --keyword "seo" --country us [--from YYYY-MM-DD] [--to YYYY-MM-DD]
@@ -66,12 +66,12 @@ heliox tool ahrefs -- batch --targets "ahrefs.com,example.com" [--country us] [-
 The backlinks / refdomains / keywords / pages / competitors commands accept the
 same filter grammar:
 
-- `--select f1,f2,...` — fields to return. Defaults are curated; override only
+- `--select f1,f2,...`: fields to return. Defaults are curated; override only
   when you need different columns (costs units per field).
-- `--where '<expr>'` — Ahrefs' documented filter expression, passed through
+- `--where '<expr>'`: Ahrefs' documented filter expression, passed through
   **verbatim** (e.g. `domain_rating_source>50`). The tool invents no DSL.
 - `--order-by 'field:desc'`, `--limit N` (default 10), `--offset N`.
-- `--mode exact|prefix|domain|subdomains`, `--protocol both|http|https` — how
+- `--mode exact|prefix|domain|subdomains`, `--protocol both|http|https`: how
   the `--target` is interpreted (site-explorer commands only).
 
 `--country` is an ISO code (e.g. `us`, `gb`). It is **required** for
@@ -82,13 +82,13 @@ elsewhere.
 
 - The user supplies an **Ahrefs API v3 key**, created at Account settings >
   API keys. Only workspace owners and admins can reach that screen, so relay
-  that requirement when you ask for one — a member seat cannot produce a key.
+  that requirement when you ask for one: a member seat cannot produce a key.
 - **The key is account-wide, and you should say so when asking for it.** Ahrefs
   offers no scope, permission, or read-only choice at creation: the only inputs
   are a name and a monthly API-unit cap. One key reaches every product the
-  workspace subscription includes — Site Explorer, Rank Tracker, Site Audit,
+  workspace subscription includes (Site Explorer, Rank Tracker, Site Audit,
   Management (including its project-write endpoints), GSC Insights, Social
-  Media — which is strictly more than the read-only commands above use. Ahrefs'
+  Media), which is strictly more than the read-only commands above use. Ahrefs'
   own OAuth path is no narrower (a single fixed scope that mints the same
   account-wide key), so there is no tighter alternative to offer.
 - The admin's real levers are the **per-key monthly API-unit cap** and deleting

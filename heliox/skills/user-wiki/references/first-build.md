@@ -20,7 +20,7 @@ every section has a body, owner's language, and read what they made.
 
 1. **Look around.** One exec, two commands together: `heliox tool list
    --json` and `heliox me show --json`. The first names the tools you can
-   actually read — your wake deliberately names none, so never assume. The
+   actually read. Your wake deliberately names none, so never assume. The
    second names your owner: the person who created you, its `creator.name`
    and `creator.id` fields, never your own assistant name.
 
@@ -51,7 +51,7 @@ every section has a body, owner's language, and read what they made.
 
    1. One `cat` of the guide for every readable tool, falling back to
       `-- --help` where a guide is missing, plus
-      `heliox workspace members get <creator.id> --json` in the same exec —
+      `heliox workspace members get <creator.id> --json` in the same exec:
       it turns your creator's id from step 1 into their `@handle`, which
       steps 4 and 5 both need. The guide is where each tool spells "mine".
    2. **Wide.** For every readable tool at once, list what your owner made:
@@ -71,8 +71,8 @@ every section has a body, owner's language, and read what they made.
    errored or came back empty says exactly that ("Google Drive: no files
    visible").
 
-4. **Write the wiki, whole, once.** Compose the complete page — title, every
-   section body, source marks, footer — in your owner's language, in one
+4. **Write the wiki, whole, once.** Compose the complete page (title, every
+   section body, source marks, footer) in your owner's language, in one
    file, following [page-template.md](page-template.md) for shape and
    SKILL.md's *Page format* for the lines. Then one command:
 
@@ -80,7 +80,7 @@ every section has a body, owner's language, and read what they made.
    bash <skill-dir>/scripts/create-doc.sh "<title>" page.md "@<owner handle>"
    ```
 
-   The `@handle` is your owner's, from step 3 — it scopes the document to
+   The `@handle` is your owner's, from step 3: it scopes the document to
    your DM with them, which is what keeps this page readable by the two of
    you and nobody else. Never create the wiki without it. Never assemble
    `document create` yourself either: prose on a shell command line does not
@@ -94,7 +94,7 @@ every section has a body, owner's language, and read what they made.
    only place these go. Do not run `feed list` first: on a first build the
    desk is empty, and proving that costs your owner a round trip. Then push 5
    to 9 suggestions in one command, each naming its evidence. Only raise what
-   deserves the desk — the desk decides its own display order, so ranking is
+   deserves the desk. The desk decides its own display order, so ranking is
    selection, not sequence. Good shapes: answer something
    specific that is still waiting on them; prepare for a named upcoming
    meeting; a chore that keeps repeating, which you propose automating and

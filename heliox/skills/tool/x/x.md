@@ -25,13 +25,13 @@ heliox tool x -- post unhide <reply-id>
 ```
 
 All posts in one reply tree share one conversation; `post replies` returns the
-whole conversation, not just direct children — reconstruct nesting from each
+whole conversation, not just direct children. Reconstruct nesting from each
 item's `referenced_tweets` (`type: replied_to`).
 
 ## Reading engagement on your own posts (do this the cheap way)
 
 For "what new comments/mentions did I get", prefer the incremental mentions
-timeline over repeated searches — it is the lowest-cost read path and
+timeline over repeated searches; it is the lowest-cost read path and
 `--since-id` makes polling exact:
 
 ```bash
@@ -78,17 +78,17 @@ Images go through `media upload` first; pass the returned media id via
 
 ## Footguns
 
-- **7-day window**: `post replies` and `post search` ride X's recent search —
-  they cannot see posts older than 7 days. `post get <id>` still works on any
+- **7-day window**: `post replies` and `post search` ride X's recent search.
+  They cannot see posts older than 7 days. `post get <id>` still works on any
   age; there is no full-archive access on our API plan.
-- **`post hide` only works on replies to the connected account's own posts** —
+- **`post hide` only works on replies to the connected account's own posts**;
   403 otherwise.
-- **Batch reads**: `post get` accepts up to 100 ids in one call — prefer one
+- **Batch reads**: `post get` accepts up to 100 ids in one call; prefer one
   batched call over a loop.
 - **Search limit floor**: `post search` / `post replies` `--limit` is 10-100
   (the API rejects smaller pages); user-list commands are 1-100, follower
   lists 1-1000.
-- **`timeline home` is always the connected user** — no `--user-id` there.
+- **`timeline home` is always the connected user**; no `--user-id` there.
 - **DM coverage**: `dm` reads up to 30 days of legacy DM events; it does not
   read encrypted XChat message history. Delivery to some accounts may be
   restricted.
@@ -97,5 +97,5 @@ Images go through `media upload` first; pass the returned media id via
 
 Posting, replying, quoting, reposting, liking, following, and DMs are all
 **public or outward-facing actions** on the user's real X account: follow the
-sensitive-operation rule — confirm with the user before first-of-kind outward
+sensitive-operation rule. Confirm with the user before first-of-kind outward
 actions in a session, and never post content the user has not sanctioned.

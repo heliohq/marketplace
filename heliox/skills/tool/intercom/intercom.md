@@ -16,17 +16,17 @@ exact flags rather than guessing.
 
 ## Resources
 
-- `conversation` — the inbox: `list`, `search`, `get`, `reply`, `note`,
+- `conversation` (the inbox): `list`, `search`, `get`, `reply`, `note`,
   `close`, `open`, `snooze`, `assign`, `tag`, `untag`
-- `contact` — people: `list`, `search`, `get`, `create`, `update`, `note`, `tag`
-- `company` — accounts: `list`, `get`, `upsert`
-- `ticket` — `create`, `search`, `get`, `update`, `reply`, `type-list`
-- `article` — Help Center: `list`, `get`, `search`, `create`, `update`,
+- `contact` (people): `list`, `search`, `get`, `create`, `update`, `note`, `tag`
+- `company` (accounts): `list`, `get`, `upsert`
+- `ticket`: `create`, `search`, `get`, `update`, `reply`, `type-list`
+- `article` (Help Center): `list`, `get`, `search`, `create`, `update`,
   `collection-list`
-- `message` — proactive outreach: `send`
-- `admin` — teammates: `me`, `list`, `get`
-- `team` — `list`, `get`
-- `tag` — `list`, `create`
+- `message` (proactive outreach): `send`
+- `admin` (teammates): `me`, `list`, `get`
+- `team`: `list`, `get`
+- `tag`: `list`, `create`
 
 ## Core commands
 
@@ -108,7 +108,7 @@ heliox tool intercom -- tag list --json
   `reply` for a private aside.
 - **Search: `--query` and convenience flags are mutually exclusive.** Give
   *either* a raw Intercom query object via `--query`, *or* the convenience
-  filters (`--state`, `--email`, `--updated-since`) — supplying both is a usage
+  filters (`--state`, `--email`, `--updated-since`). Supplying both is a usage
   error. Convenience filters compile into an `AND` group.
 - **Pagination is cursor-based.** Responses carry a `pages.next.starting_after`
   cursor; feed it back with `--starting-after` to get the next page
@@ -124,7 +124,7 @@ heliox tool intercom -- tag list --json
 
 ## Safety
 
-- Replies and outbound messages reach real customers — follow the
+- Replies and outbound messages reach real customers. Follow the
   sensitive-operation rule in [../SKILL.md](../SKILL.md) before sending a public
   reply, an admin-initiated message, or publishing an article.
 - There is no delete command for conversations or contacts by design; clean up

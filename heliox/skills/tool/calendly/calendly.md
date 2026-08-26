@@ -11,13 +11,13 @@ heliox tool calendly [--account <key>] -- <group> <verb> [flags...]
 
 Use it to answer "when am I free / what's on my Calendly", share the right
 booking link (including single-use links), see who booked and their answers,
-cancel a meeting, mark no-shows, and — on paid plans — book a slot directly.
+cancel a meeting, mark no-shows, and (on paid plans) book a slot directly.
 It reads and acts on the user's existing Calendly setup; it does **not** manage
 event-type configuration, webhooks, or org administration.
 
 ## Two things to learn once: URIs and `me`
 
-Calendly identifies every resource by a **full URI**, not a bare id — e.g.
+Calendly identifies every resource by a **full URI**, not a bare id, e.g.
 `https://api.calendly.com/users/AAAA`, `.../event_types/BBBB`. Every flag that
 takes a resource accepts **either** the full URI **or** the bare UUID (the tool
 expands it). Start with `me` to get your own URIs:
@@ -56,7 +56,7 @@ heliox tool calendly -- invitee no-show <no-show-id|uri> --undo
 # Share a single-use booking link
 heliox tool calendly -- link create --event-type <id|uri>
 
-# Book directly on an invitee's behalf (Scheduling API — paid plans only)
+# Book directly on an invitee's behalf (Scheduling API: paid plans only)
 heliox tool calendly -- book create --event-type <id|uri> --start <UTC ISO> \
     --name "..." --email e --timezone America/New_York \
     [--location-kind k] [--location v] [--guest e]...
@@ -73,9 +73,9 @@ with `--count` + `--page-token` (the cursor is `pagination.next_page`'s
 
 - **There is no reschedule endpoint.** To reschedule, either send the invitee
   their `reschedule_url` (returned by `event invitees`) or cancel and share a
-  new booking link — do not look for a `reschedule` verb.
+  new booking link. Do not look for a `reschedule` verb.
 - **Availability ranges are capped.** `availability slots`
-  (`event_type_available_times`) accepts at most **~1 week** per request — the
+  (`event_type_available_times`) accepts at most **~1 week** per request: the
   API reference caps it at 1 week even though a Calendly guide page says 31
   days, and the live API validates. `availability busy` is **≤ 7 days**. For a
   longer window, **chunk it into ≤ ~1-week calls** yourself; the tool passes
@@ -84,10 +84,10 @@ with `--count` + `--page-token` (the cursor is `pagination.next_page`'s
   in the future.
 - **`book create` requires a paid Calendly plan.** On a free-tier account
   Calendly returns 403; the tool surfaces that verbatim. Do not treat it as a
-  tool failure — relay that direct booking needs a paid plan, and fall back to
+  tool failure: relay that direct booking needs a paid plan, and fall back to
   `link create` (share a booking link) instead.
 - **Marking a no-show needs the full invitee URI** (`.../scheduled_events/{uuid}/invitees/{uuid}`
-  from `event invitees`), not a bare UUID — a bare UUID is ambiguous and the
+  from `event invitees`), not a bare UUID: a bare UUID is ambiguous and the
   tool rejects it. `--undo` instead takes the no-show's own id/URI.
 
 ## Safety

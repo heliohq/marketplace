@@ -17,7 +17,7 @@ Workspace commands act on the caller's currently active org. They require a reso
 heliox workspace show --json
 ```
 
-`workspace show` returns the active workspace's `workspace_id`, `name`, `slug`, `image_url`, `description`, and `members_count`. Use it before mutating workspace metadata or before assuming which workspace is active. There is no bare `heliox workspace` shortcut — the `show` subcommand is required.
+`workspace show` returns the active workspace's `workspace_id`, `name`, `slug`, `image_url`, `description`, and `members_count`. Use it before mutating workspace metadata or before assuming which workspace is active. There is no bare `heliox workspace` shortcut; the `show` subcommand is required.
 
 ## Workspace metadata
 
@@ -51,12 +51,12 @@ heliox workspace members invite alice@example.com --json
 heliox workspace members invite bob@example.com --role org:admin --json
 ```
 
-`members list` always returns the complete roster in one call — there is no paging and no `--limit`/`--offset` flags. That completeness is a guarantee you can lean on: someone absent from the list is **not a member of this workspace** — answer accordingly, no re-query or hedging needed. One freshness caveat: the roster is served from a short (~5 min) server-side cache, so if the human says they *just* invited or removed someone and your list disagrees, trust their claim over the snapshot and re-check shortly instead of contradicting them. Prefer the plain text table for who's-here questions; it is a fraction of the tokens of `--json` and greps cleanly by `@handle`.
+`members list` always returns the complete roster in one call: there is no paging and no `--limit`/`--offset` flags. That completeness is a guarantee you can lean on: someone absent from the list is **not a member of this workspace**; answer accordingly, no re-query or hedging needed. One freshness caveat: the roster is served from a short (~5 min) server-side cache, so if the human says they *just* invited or removed someone and your list disagrees, trust their claim over the snapshot and re-check shortly instead of contradicting them. Prefer the plain text table for who's-here questions; it is a fraction of the tokens of `--json` and greps cleanly by `@handle`.
 
-Member ids never appear in `list` output (in either mode). To turn an id you were handed into a person, use `members get <user_id>` — it accepts the internal mongo id or the Clerk user id. Grepping `list` output for an id will silently match nothing; that means your approach is wrong, not that the user is unknown.
+Member ids never appear in `list` output (in either mode). To turn an id you were handed into a person, use `members get <user_id>`; it accepts the internal mongo id or the Clerk user id. Grepping `list` output for an id will silently match nothing; that means your approach is wrong, not that the user is unknown.
 
-`--json` member rows carry exactly what you can act on: `handle` (your addressing vocabulary — every verb takes `@<handle>`), `name`, `type` (human|ai), `role`, `status`, `email`, and `bio` when set. Raw platform ids and avatar URLs are intentionally absent. The list envelope also carries `viewer_role` — YOUR own org role; read it before admin-gated actions (invites with `--role`, role changes) instead of discovering a denial from the error.
+`--json` member rows carry exactly what you can act on: `handle` (your addressing vocabulary; every verb takes `@<handle>`), `name`, `type` (human|ai), `role`, `status`, `email`, and `bio` when set. Raw platform ids and avatar URLs are intentionally absent. The list envelope also carries `viewer_role`, YOUR own org role; read it before admin-gated actions (invites with `--role`, role changes) instead of discovering a denial from the error.
 
-A `status` other than `active` means the member cannot act in the workspace yet — typically an invitee who accepted but hasn't finished activation. Such rows have no `@handle`, so handle-addressed verbs (DM, mention, assign, channel add) cannot reach them; if you need that person, tell the human they must finish signing in first.
+A `status` other than `active` means the member cannot act in the workspace yet, typically an invitee who accepted but hasn't finished activation. Such rows have no `@handle`, so handle-addressed verbs (DM, mention, assign, channel add) cannot reach them; if you need that person, tell the human they must finish signing in first.
 
 Invite `--role` is passed straight through to Clerk and must use the prefixed form: `org:admin` or `org:member`. Plain `admin` / `member` are rejected. Omitting `--role` defaults to `org:member` server-side.

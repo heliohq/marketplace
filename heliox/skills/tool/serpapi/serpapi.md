@@ -11,15 +11,15 @@ heliox tool serpapi [--account <key>] -- <command> [flags...]
 
 SerpApi is a **live search-engine-results API**: one search endpoint fronting
 ~70 pluggable engines (Google, Google News, Maps, Shopping, Jobs, Scholar,
-Trends, YouTube, Bing, DuckDuckGo, …). You get structured JSON — organic
-results, knowledge graph, answer boxes, local packs — instead of scraping HTML.
+Trends, YouTube, Bing, DuckDuckGo, …). You get structured JSON (organic
+results, knowledge graph, answer boxes, local packs) instead of scraping HTML.
 
 ## The mental model (read this first)
 
 Search is **one generic command** along two axes:
 
 - `--engine` picks the vertical (default `google`). It is passed through
-  **unvalidated** — any engine SerpApi supports works; an unknown one fails
+  **unvalidated**: any engine SerpApi supports works; an unknown one fails
   with SerpApi's own error.
 - Params are the knobs. The cross-engine common ones are first-class flags
   (`-q`, `--location`, `--gl`, `--hl`, `--num`, …); every engine-specific param
@@ -46,7 +46,7 @@ heliox tool serpapi -- search --engine google_maps --param data_id=0x0:0xabc
 heliox tool serpapi -- search -q "react hooks" --engine google_scholar --num 5
 ```
 
-Common flags: `-q` (query), `--engine`, `--location` (a **canonical** name —
+Common flags: `-q` (query), `--engine`, `--location` (a **canonical** name;
 resolve it first, see below), `--gl` (country), `--hl` (language),
 `--google-domain`, `--device desktop|tablet|mobile`, `--num`, `--start`
 (pagination offset), `--no-cache` (force a fresh search), and repeatable
@@ -81,21 +81,21 @@ search.
 heliox tool serpapi -- account
 ```
 
-Returns the plan, `total_searches_left`, and the hourly rate limit — free to
+Returns the plan, `total_searches_left`, and the hourly rate limit: free to
 call. The private key is **redacted** from this output. Check it before firing a
 large batch of searches.
 
 ## Footguns
 
 - **`--location` needs a canonical name.** Passing a raw city string often
-  returns nothing useful — run `locations` first and copy `canonical_name`.
+  returns nothing useful: run `locations` first and copy `canonical_name`.
 - **Searches cost quota; archive and locations and account do not.** Prefer
   `archive get <id>` to re-read, and `account` to budget before a batch.
 - **Unknown engine / bad params fail with SerpApi's own error** (exit 1). Read
-  the `error` field — it usually names the missing or wrong parameter.
+  the `error` field: it usually names the missing or wrong parameter.
 - **Output is engine-shaped.** The top-level keys differ per engine
   (`organic_results`, `news_results`, `local_results`, `shopping_results`, …).
   Inspect `search_metadata` and the result arrays for the engine you chose.
 - Get or rotate the key at https://serpapi.com/manage-api-key. If a key is
-  rejected mid-session, the connection is marked stale — ask the user to
+  rejected mid-session, the connection is marked stale: ask the user to
   reconnect.

@@ -4,7 +4,7 @@ Read [../SKILL.md](../SKILL.md) first for the connect/use model. MailerLite is a
 **flat provider** (not grouped like `google`): everything after `--` is the
 mailerlite tool's own CLI, run against the MailerLite **Connect API**
 (`https://connect.mailerlite.com/api`). Auth is a single account API token,
-injected for you — you never see or paste it.
+injected for you. You never see or paste it.
 
 ```bash
 heliox tool mailerlite [--account <key>] -- <resource> <verb> [flags...]
@@ -13,7 +13,7 @@ heliox tool mailerlite [--account <key>] -- <resource> <verb> [flags...]
 Connect is an **API-token** tool: the user generates a token in MailerLite
 (Integrations → MailerLite API → Generate new token) and pastes it into the
 connect drawer. There is no OAuth consent screen. Regenerating the token in
-MailerLite creates a *new* connection row — use the newest connected account.
+MailerLite creates a *new* connection row. Use the newest connected account.
 
 Output is the provider's JSON verbatim: lists come back as a `{data, meta,
 links}` envelope (cursor- or page-paged), single resources as `{data}`. `--json`
@@ -119,7 +119,7 @@ heliox tool mailerlite -- webhook create --url https://example.com/hook \
 - **`subscriber update --groups` is destructive on membership**: passing
   `--groups` on update removes the subscriber from any group not listed. To only
   *add* a group, prefer `group assign`.
-- **Segments and automations are read-only** — there is no create/schedule API
+- **Segments and automations are read-only**: there is no create/schedule API
   for them; you can only list and read their members/activity.
-- **`subscriber forget` is a permanent GDPR erase**, not a soft delete — use
+- **`subscriber forget` is a permanent GDPR erase**, not a soft delete. Use
   `subscriber delete` for ordinary removal.

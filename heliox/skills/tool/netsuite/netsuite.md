@@ -2,8 +2,8 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. NetSuite is a
 **flat provider** (not grouped): everything after `--` is the netsuite tool's
-own CLI. It wraps Oracle NetSuite's **SuiteTalk REST Web Services** — record
-CRUD, SuiteQL queries, and the metadata catalog — authenticated with the user's
+own CLI. It wraps Oracle NetSuite's **SuiteTalk REST Web Services** (record
+CRUD, SuiteQL queries, and the metadata catalog) authenticated with the user's
 Token-Based Authentication (TBA) credentials, which Helio injects per call.
 
 ```bash
@@ -14,20 +14,20 @@ heliox tool netsuite [--account <key>] -- <command> [flags...]
 
 NetSuite has two complementary read paths, and one write path:
 
-- **SuiteQL (`query`)** is the workhorse for **answering questions** — joined,
+- **SuiteQL (`query`)** is the workhorse for **answering questions**: joined,
   aggregated reads across records ("what did we invoice ACME last quarter",
   "open sales orders by rep"). Prefer it whenever you need more than one record
   or any join/filter/aggregate.
 - **Record get/list (`record get` / `record list`)** fetch a **specific record**
   by internal id, or list ids of a type.
 - **Record create/update/delete** mutate a single record. These are
-  side-effecting — treat them carefully.
+  side-effecting; treat them carefully.
 
 Use `metadata` first when you don't know a record type's exact name or fields.
 
 ## Core commands
 
-### Query (SuiteQL — the primary read path)
+### Query (SuiteQL, the primary read path)
 
 ```bash
 # Joined / aggregate reads. --limit / --offset paginate.
@@ -56,19 +56,19 @@ heliox tool netsuite -- record delete --type customer --id 1234 --json
 ```
 
 `record create` returns the new internal id (`{"id":"...","location":"..."}`)
-surfaced from NetSuite's `Location` header. `record update` is a PATCH — send
+surfaced from NetSuite's `Location` header. `record update` is a PATCH: send
 only the fields you are changing.
 
 ## Output and errors
 
-Every command takes `--json` (structured) — prefer it. The exit-code contract:
+Every command takes `--json` (structured); prefer it. The exit-code contract:
 **0** success, **1** runtime/API failure (NetSuite non-2xx, including `401`
 credential rejection and `429` governance throttling, or a transport error),
 **2** usage/parse error (missing/invalid flags, bad `--body` JSON).
 
 Under `--json`, errors render as `{"error":{"message":...,"kind":"usage|api",
 "status":<HTTP>,"retry_after":<seconds>}}`. On a `429`, `retry_after` is set
-only when NetSuite actually returns a `Retry-After` header — back off and retry
+only when NetSuite actually returns a `Retry-After` header. Back off and retry
 later rather than hammering; the tool never blocks or auto-retries for you.
 
 ## Footguns
@@ -82,5 +82,5 @@ later rather than hammering; the tool never blocks or auto-retries for you.
 - **Connect is credential-entry, not OAuth.** The user pastes a JSON object with
   their `account_id` and the four TBA secrets (`consumer_key`,
   `consumer_secret`, `token_id`, `token_secret`) generated inside their own
-  NetSuite account — there is no consent screen. If nothing is connected,
+  NetSuite account. There is no consent screen. If nothing is connected,
   `heliox tool list` shows no netsuite row; ask the user to connect first.

@@ -9,11 +9,11 @@ heliox tool xero [--account <key>] -- <resource> <verb> [flags...]
 ```
 
 The tool wraps the Xero **Accounting API** (`api.xro/2.0`). It emits Xero's
-JSON responses **verbatim** — Xero wraps collections in a PascalCase envelope
+JSON responses **verbatim**: Xero wraps collections in a PascalCase envelope
 (`{"Invoices":[...]}`, `{"Contacts":[...]}`), and that is exactly what you get
 on stdout.
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 One Xero login can act on **many organisations** (Xero calls them *tenants*).
 A single access token is scoped to the **user**, not one org, and which org a
@@ -85,7 +85,7 @@ heliox tool xero -- invoice email <InvoiceID>
 Write coverage is the high-frequency path: invoices/bills, contacts, payments,
 bank transactions, and items.
 
-### Escape hatch — reach any Accounting resource
+### Escape hatch: reach any Accounting resource
 
 `fetch` is a raw GET under `api.xro/2.0` for resources the typed subcommands
 don't enumerate (quotes, credit notes, manual journals, tracking categories…):
@@ -97,10 +97,10 @@ heliox tool xero -- fetch Quotes
 
 ## Footguns
 
-- **Multi-org "exit 2" is not an error to retry blindly** — read the candidate
+- **Multi-org "exit 2" is not an error to retry blindly**. Read the candidate
   list it prints and pass the right `--tenant`. Names are matched
   case-insensitively; an ambiguous name also exits 2 (pass the GUID instead).
-- **A database *row*-style empty read doesn't apply here** — every list/get
+- **A database *row*-style empty read doesn't apply here**: every list/get
   returns the Xero envelope directly; there is no separate properties call.
 - **Errors carry Xero's own body.** With `--json`, failures render as
   `{"error":{"tool":"xero","code":"api_error","status":<http>,"details":<xero body>}}`

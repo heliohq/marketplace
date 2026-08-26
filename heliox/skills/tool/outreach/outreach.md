@@ -15,7 +15,7 @@ Resources: `prospect`, `account`, `sequence`, `enrollment`, `mailbox`,
 
 ## Output shape (learn once, applies to every command)
 
-Every resource comes back **flattened** — no JSON:API envelope to unwrap:
+Every resource comes back **flattened**; no JSON:API envelope to unwrap:
 
 ```json
 { "id": "123", "type": "prospect", "firstName": "Sally", "emails": ["s@x.com"],
@@ -35,7 +35,7 @@ and `--fields a,b,c` (sparse fieldset) work on every `list`.
 
 ## The core loop: enroll a prospect in a sequence
 
-This is Outreach's central write. Enrolling needs three ids — a prospect, a
+This is Outreach's central write. Enrolling needs three ids; a prospect, a
 sequence, and a **mailbox** (the seat that sends the cadence):
 
 ```bash
@@ -91,16 +91,16 @@ heliox tool outreach -- sequence steps 12                             # inspect 
 
 ## Footguns
 
-- **Ids are numeric** — every `get`/action takes a numeric id; a non-numeric
+- **Ids are numeric**: every `get`/action takes a numeric id; a non-numeric
   arg fails before any request.
 - **`enrollment add` needs a mailbox** connected to a real seat, or the enroll
   4xx's. List mailboxes first; do not guess the id.
-- **Scopes are per-resource and not additive** — a `403` with
+- **Scopes are per-resource and not additive**: a `403` with
   `unauthorizedOauthScope` means the connection was granted without that
   resource's scope; reconnect to widen consent (this also invalidates the
   token, so heliox will prompt a reconnect).
 - **Rate limit**: a `429` surfaces `X-RateLimit-Reset` / `Retry-After` in the
-  error — back off, do not hammer.
+  error; back off, do not hammer.
 
 ## Safety
 

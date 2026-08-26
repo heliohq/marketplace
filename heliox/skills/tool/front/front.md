@@ -15,11 +15,11 @@ does: read the queue, decide what matters, draft or send a reply, leave an
 internal comment for a colleague, and tag/assign/archive.
 
 The connection is **company-scoped** (one Front company, not a personal
-mailbox) — `front -- me` shows which company the token belongs to.
+mailbox): `front -- me` shows which company the token belongs to.
 
 ## Output shape (every command)
 
-Every command emits a provider-neutral envelope on stdout — never the raw Front
+Every command emits a provider-neutral envelope on stdout, never the raw Front
 body:
 
 - List commands: `{"data":[…],"next_page_token":"<cursor|empty>"}`. Pass the
@@ -50,12 +50,12 @@ heliox tool front -- conversation comments --id <cnv_id> --json
 
 ```bash
 # reply into an existing conversation (this does NOT start a new conversation)
-heliox tool front -- message send --conversation <cnv_id> --body "Thanks — refunded." --json
+heliox tool front -- message send --conversation <cnv_id> --body "Thanks, refunded." --json
 #   --text "<plain>"  plain-text alternative body
 #   --author <teammate_id>  send on behalf of a teammate
 #   --channel <channel_id>  send from a specific channel (defaults to the conversation's)
 
-# draft a reply for a human to review/send — the SAFER default over auto-sending
+# draft a reply for a human to review/send, the SAFER default over auto-sending
 heliox tool front -- draft create --conversation <cnv_id> --body "Draft reply" --channel <channel_id> --json
 
 # leave an internal comment (@mention a teammate inside the body)
@@ -106,7 +106,7 @@ Run `-- <resource> <verb> --help` for exact flags rather than guessing.
 - **Ids come from the resolve commands.** `--assignee` wants a teammate id
   (`teammate list`), `--tag-add`/`--tag-remove` want tag ids (`tag list`),
   `--inbox` wants an inbox id (`inbox list`). Names are not accepted.
-- **`--assignee null` unassigns** — an empty value or the literal `null` clears
+- **`--assignee null` unassigns**: an empty value or the literal `null` clears
   the assignee.
 - **Pagination is cursor-based.** Do not try to reconstruct Front URLs; page
   only with the `next_page_token` the tool gives you, via `--page-token`.
@@ -116,7 +116,7 @@ Run `-- <resource> <verb> --help` for exact flags rather than guessing.
 ## Safety
 
 - Sending a reply (`message send`) is an outward-facing action that reaches a
-  real customer — follow the sensitive-operation rule in
+  real customer: follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md), and prefer `draft create` when a human should
   review first.
 - Internal comments (`comment add`) are visible to the whole team on that

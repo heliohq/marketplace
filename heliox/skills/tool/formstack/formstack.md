@@ -8,7 +8,7 @@ formstack tool's own CLI.
 heliox tool formstack [--account <key>] -- <resource> <verb> [flags...]
 ```
 
-Formstack is a form/survey builder — structured data *enters* an org through
+Formstack is a form/survey builder: structured data *enters* an org through
 forms. The tool wraps the Formstack **v2 (classic) REST API**; every command
 prints the provider's JSON response verbatim on stdout. Resources: `form`,
 `field`, `folder`, `submission`, `webhook`.
@@ -18,7 +18,7 @@ prints the provider's JSON response verbatim on stdout. Resources: `form`,
 - A **form** has **fields** (its questions, each with a numeric field id) and
   **submissions** (the responses). You almost always start by *finding the
   form*, then *reading its fields* to learn the field ids, then *pulling
-  submissions* — response values are keyed by those field ids.
+  submissions*: response values are keyed by those field ids.
 - The token carries the authorizing user's own in-app form permissions; there
   is **no scope selection** at connect time (access is all-or-nothing per that
   user).
@@ -92,19 +92,19 @@ rather than guessing.
 - **`--search` is exact field=value pairing.** Each `--search` becomes one
   `search_field_N`/`search_value_N` pair (0-indexed); the API supports up to a
   handful of pairs. `--search novalue` with no `=` is a usage error.
-- **`form delete` is a soft delete** per the API — it does not hard-purge.
+- **`form delete` is a soft delete** per the API: it does not hard-purge.
   Editing a respondent's answers in place is deliberately unsupported; delete
   the submission and re-create if you truly must.
 - **No scope prompt at connect.** The connection grants whatever the authorizing
   user can already do in Formstack; a missing form or action usually means that
-  user lacks access, not a scope gap — reconnecting will not widen it.
+  user lacks access, not a scope gap: reconnecting will not widen it.
 - **`--account` when more than one Formstack account is connected.** A `409`
   lists candidate account keys; re-run with `--account <key>` before the `--`.
 
 ## Safety
 
 - Creating submissions, deleting submissions/forms, and wiring webhooks are
-  outward-facing or destructive — follow the sensitive-operation rule in
+  outward-facing or destructive: follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md) before running them, especially `submission
   delete` / `form delete` and any webhook that forwards response data off
   Formstack.

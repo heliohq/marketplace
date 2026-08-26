@@ -16,7 +16,7 @@ partnerUserID:partnerUserSecret
 
 You cannot generate it for them. Send the connect link with
 `heliox tool expensify auth --json`, explain what you need Expensify for, and
-wait for the `oauth_connected` wake — do not poll.
+wait for the `oauth_connected` wake. Do not poll.
 
 ## Model
 
@@ -24,7 +24,7 @@ Every Expensify call is one POST to a single endpoint carrying a
 `requestJobDescription` JSON job `{type, credentials, inputSettings}`. Helio
 injects the credentials; you supply the job. `--json` is always on; the
 provider's JSON is emitted verbatim. A rejected credential surfaces as an
-`APPROVAL_REQUIRED`/credential error — ask the user to reconnect.
+`APPROVAL_REQUIRED`/credential error: ask the user to reconnect.
 
 ## Commands
 
@@ -39,8 +39,8 @@ heliox tool expensify -- policy get --policy-id <ID> [--policy-id <ID> …] \
   [--field categories|reportFields|tags|tax|employees …] [--user-email <email>]
 ```
 
-Anything else — report export/download, expense/report create, updates,
-reconciliation — goes through the raw `request` escape hatch. Pass the full
+Anything else (report export/download, expense/report create, updates,
+reconciliation) goes through the raw `request` escape hatch. Pass the full
 `requestJobDescription` body **without** `credentials` (Helio adds them):
 
 ```bash
@@ -65,5 +65,5 @@ reconciliation`. See the Integration Server docs
 - Rate limit: 5 requests / 10 s and 20 requests / 60 s (HTTP 429). Batch and
   pace calls.
 - The report exporter needs a Freemarker `template`; that path is not wired
-  into `request` yet — for templated exports, prefer a policy/report read plus
+  into `request` yet: for templated exports, prefer a policy/report read plus
   your own formatting.

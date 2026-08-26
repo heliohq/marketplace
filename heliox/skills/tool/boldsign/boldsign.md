@@ -22,7 +22,7 @@ poll `document get --id <documentId>` (or `document list`) to see the real
 status.
 
 Sending files with signers but **no fields, text tags, or auto-detect** is
-rejected by BoldSign — the signer would have nowhere to sign. Pass one of
+rejected by BoldSign: the signer would have nowhere to sign. Pass one of
 `--auto-detect-fields` (BoldSign finds signature fields) or `--text-tags`
 (you embedded BoldSign text tags in the document), or send from a template
 whose roles already carry fields.
@@ -57,7 +57,7 @@ heliox tool boldsign -- document audit-log --id <documentId> --out ./audit.pdf
 heliox tool boldsign -- document remind --id <documentId> \
   --email alice@example.com --message "gentle reminder" --json
 
-# Cancel a request — a reason is required
+# Cancel a request: a reason is required
 heliox tool boldsign -- document revoke --id <documentId> --message "superseded by v2" --json
 ```
 

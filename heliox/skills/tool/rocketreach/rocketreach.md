@@ -2,7 +2,7 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. RocketReach is
 a **flat provider** (not grouped): everything after `--` is the rocketreach
-tool's own CLI. It is a contact-enrichment / prospecting database — find people
+tool's own CLI. It is a contact-enrichment / prospecting database: find people
 and companies, and enrich a known person into verified emails and phone numbers.
 
 ```bash
@@ -11,7 +11,7 @@ heliox tool rocketreach [--account <key>] -- <resource> <verb> [flags...]
 
 Auth is an API key (connect once via the portal). Every command prints the
 provider JSON on stdout; add `--json` for a structured error envelope on
-failure. Lookups spend a finite **credit balance** — check it before big runs.
+failure. Lookups spend a finite **credit balance**: check it before big runs.
 
 ## The mental model (read this first)
 
@@ -79,7 +79,7 @@ heliox tool rocketreach -- person status --ids 807344
 ## Footguns
 
 - **Do not treat a `person lookup` response as final.** If `status` is not
-  `complete`, the emails/phones are not populated yet — poll `person status`.
+  `complete`, the emails/phones are not populated yet: poll `person status`.
 - **`person search` never returns contact info.** It returns profile ids to
   enrich; the emails/phones come only from `person lookup`.
 - **Credits are finite.** A `429` means you hit a rate or credit limit, not a

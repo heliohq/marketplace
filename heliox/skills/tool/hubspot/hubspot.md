@@ -16,8 +16,8 @@ prints the provider's own JSON on stdout.
 ## The mental model (read this first)
 
 - **Portals are heavily customized.** Deal stages, pipelines, and custom
-  properties differ per account. **Do not hardcode property or stage names** —
-  discover them with `property list` and `pipeline list` before writing.
+  properties differ per account. **Do not hardcode property or stage names**.
+  Discover them with `property list` and `pipeline list` before writing.
 - **Reads return only default properties** unless you ask for more: pass
   `--properties a,b,c` to project the fields you need.
 - **Records are linked by associations**, not foreign keys. To see a contact's
@@ -87,10 +87,10 @@ heliox tool hubspot -- account --json
 
 - **`--filter` value order is `property:operator:value`.** `HAS_PROPERTY` /
   `NOT_HAS_PROPERTY` take no value (`amount:HAS_PROPERTY`). The value itself may
-  contain `:` — only the first two `:` split the triple.
-- **Search returns default properties only** — add `--properties` to see the
+  contain `:`; only the first two `:` split the triple.
+- **Search returns default properties only**. Add `--properties` to see the
   fields you filtered on.
 - **Creating/updating an unknown property fails** with a validation error. Run
   `property list <objectType>` first if unsure of the exact internal name.
-- **Sending outward-facing work** (a note or task the customer's rep will see) —
+- **Sending outward-facing work** (a note or task the customer's rep will see):
   confirm content the way `../SKILL.md` describes before creating it.

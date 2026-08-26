@@ -18,13 +18,13 @@ https://www.jotform.com/myaccount/api). Two things to know:
 - A key is **Read Only** or **Full Access**, chosen when it is created. Read
   verbs work with either; **write verbs (`submission create/edit/delete`) need a
   Full Access key**. A read-only key returns Jotform's `401 "You're not
-  authorized to use ..."` on a write — surfaced verbatim. If you hit it, tell
+  authorized to use ..."` on a write, surfaced verbatim. If you hit it, tell
   the user to create a Full Access key and reconnect.
 - Keys are **US-account only** here. An EU- or HIPAA-residency account's key
   will fail to connect (it authenticates only against its own region's base).
 
 Every command prints Jotform's native envelope
-(`{"responseCode":200,"message":"success","content":{...}}`) — read `content`.
+(`{"responseCode":200,"message":"success","content":{...}}`). Read `content`.
 
 ## The qid recipe (read this first)
 
@@ -65,7 +65,7 @@ heliox tool jotform -- folder list
 `--filter '{"status":"ENABLED"}'`. `--limit`/`--offset` page results (Jotform
 caps at 1000 per page).
 
-### Submissions (write — Full Access key)
+### Submissions (write: Full Access key)
 
 Answers are passed as repeatable `--field qid=value`. For **composite** fields
 (name, address, …) address a subfield with `qid:subfield=value`:
@@ -87,17 +87,17 @@ Get the qids from `form questions <formID>` before writing.
 ## Footguns
 
 - **A submission created via the API does not fire the form's email
-  notifications or integrations** — it lands in the submission list silently.
+  notifications or integrations**: it lands in the submission list silently.
   Set expectations if the user is relying on a notification.
 - **Read-only key on a write** → Jotform `401 not authorized`, surfaced
   verbatim. It is a key-permission problem, not a bad key: the user needs a Full
   Access key. It does **not** disconnect the account.
-- **Guessing field keys** — never write `--field <label>=...`; Jotform ignores
+- **Guessing field keys**: never write `--field <label>=...`; Jotform ignores
   anything that is not a real qid. Always read `form questions` first.
 
 ## Safety
 
-Creating, editing, or deleting a submission changes the user's Jotform data —
+Creating, editing, or deleting a submission changes the user's Jotform data,
 an outward-facing action. Follow the sensitive-operation rule in
 [../SKILL.md](../SKILL.md): confirm before writing, and
 never delete a submission without explicit user intent.

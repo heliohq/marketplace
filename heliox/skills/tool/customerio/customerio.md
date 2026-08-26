@@ -2,7 +2,7 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. Customer.io is
 a **flat provider** (not grouped like `google`): everything after `--` is the
-customerio tool's own CLI. It wraps the Customer.io **App API** — the
+customerio tool's own CLI. It wraps the Customer.io **App API**: the
 read-and-manage surface a messaging-automation teammate uses.
 
 ```bash
@@ -19,7 +19,7 @@ key**:
 2. The user creates the key in **Account Settings → API Credentials** (or
    **Workspace Settings → API and webhook credentials**),
    https://fly.customer.io/settings/api_credentials?keyType=app. The key is
-   **scoped to one workspace** and its **permissions are fixed at creation** —
+   **scoped to one workspace** and its **permissions are fixed at creation**:
    an under-scoped key must be re-created. Ask for read access to people,
    campaigns, segments, newsletters, broadcasts, messages, and exports, plus
    send permission for transactional email and broadcast triggering.
@@ -32,7 +32,7 @@ connect-time verification is US-only today, so EU accounts are a known
 limitation for the connect step.
 
 **The Track API is not wrapped** (identify/track events, attribute writes). This
-tool is the App API only — reporting, people lookup, segments, transactional
+tool is the App API only: reporting, people lookup, segments, transactional
 send, broadcasts, and exports.
 
 ## Core flows
@@ -98,7 +98,7 @@ heliox tool customerio -- broadcast status --id <broadcast_id> --trigger <trigge
 Audience is at most one of `--emails`, `--ids`, `--per-user-data`, or
 `--data-file-url`; omit all to use the broadcast's own configured audience.
 **Rate limit: one trigger request per 10 seconds per broadcast** (the general
-App API limit is 10 req/s) — do not retry a trigger in a tight loop.
+App API limit is 10 req/s). Do not retry a trigger in a tight loop.
 
 ### Bulk exports (for analysis)
 
@@ -114,14 +114,14 @@ heliox tool customerio -- export get --id <export_id> --download --out ./deliver
 `export get --id <id>` returns the export's metadata (including its `status`);
 poll it until the export is finished. `export get --download` then fetches a
 signed link from `GET /v1/exports/{id}/download` (the export object itself has no
-link — only a `downloads` counter), follows it, and writes the file, emitting
+link, only a `downloads` counter), follows it, and writes the file, emitting
 `{"ok":true,"path":...,"bytes":N}`. The signed link expires 15 minutes after it
 is issued. If it errors with "no download url yet", the export is still
-processing — poll `export get --id <id>` first.
+processing. Poll `export get --id <id>` first.
 
 ## Notes
 
-- Every JSON-returning command prints the provider's JSON verbatim — the shapes
+- Every JSON-returning command prints the provider's JSON verbatim: the shapes
   are Customer.io's documented App API responses.
 - `workspace list` doubles as a connectivity check.
 - For any command, `--help` after `--` is the full flag reference.

@@ -15,7 +15,7 @@ Resources: `envelope` (send / list / get / recipients / void / download) and
 
 ## The loop: send → track → retrieve
 
-**Send a document out for signature.** Two ways — a reusable template (clean,
+**Send a document out for signature.** Two ways; a reusable template (clean,
 preferred when one exists) or a local file:
 
 ```bash
@@ -32,7 +32,7 @@ heliox tool docusign -- envelope send \
 Add `--draft` to create the envelope without sending it. List templates first
 to get an id: `heliox tool docusign -- template list`.
 
-**Track status** — "has it been signed yet?"
+**Track status**: "has it been signed yet?"
 
 ```bash
 heliox tool docusign -- envelope list --status sent            # what's out for signature

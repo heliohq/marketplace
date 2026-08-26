@@ -23,13 +23,13 @@ connect drawer. The key is shown **once** and is scoped at creation:
 - The connection is verified against `GET /workspaces/current`, so the key
   **must carry `workspaces:read`** (or a wildcard like `all:read` / `all:all`)
   or the connect step fails.
-- For real work, the key also needs the scopes for what you do —
+- For real work, the key also needs the scopes for what you do:
   `campaigns:read`, `leads:all`, `emails:all`, `accounts:read`, etc. Ask the
   user to grant `all:read`+`all:write` (or `all:all`) unless they want to
   restrict you. Tell them which scopes when you send the connect link.
 - **API v2 requires a paid plan** (commonly Hypergrowth or higher). A `402`
   ("Workspace does not have an active paid plan") means the key is valid but
-  the plan does not include API access — relay that to the user; do not retry.
+  the plan does not include API access. Relay that to the user; do not retry.
 
 ## Command groups
 
@@ -37,7 +37,7 @@ Run `-- <group> --help` or `-- <group> <verb> --help` for exact flags rather
 than guessing. List commands accept `--limit` and `--starting-after` (pass the
 prior response's `next_starting_after` back to page).
 
-### campaign — the core object (reporting + start/stop are the top asks)
+### campaign: the core object (reporting + start/stop are the top asks)
 
 ```bash
 heliox tool instantly -- campaign list --status <code> --limit 50 --json
@@ -54,7 +54,7 @@ heliox tool instantly -- campaign create --data '{"name":"Q1 outbound", ...}' --
 heliox tool instantly -- campaign update --id <id> --data '{"name":"Renamed"}' --json
 ```
 
-### lead — pipeline upkeep after replies
+### lead: pipeline upkeep after replies
 
 ```bash
 # list/search is a POST (complex filter body); pagination rides the body
@@ -72,7 +72,7 @@ heliox tool instantly -- lead move --to-campaign-id <id> --data '{"ids":["l1","l
 heliox tool instantly -- lead update-interest --lead-email a@b.com --interest-value 1 --json
 ```
 
-### lead-list — staging leads before campaign assignment
+### lead-list: staging leads before campaign assignment
 
 ```bash
 heliox tool instantly -- lead-list list --json
@@ -81,7 +81,7 @@ heliox tool instantly -- lead-list create --name "Prospects" --json
 heliox tool instantly -- lead-list verification-stats --id <id> --json
 ```
 
-### email — Unibox triage + reply (the human-inbox half of the loop)
+### email: Unibox triage + reply (the human-inbox half of the loop)
 
 ```bash
 heliox tool instantly -- email list --is-unread true --campaign-id <id> --json   # 20 req/min cap
@@ -92,7 +92,7 @@ heliox tool instantly -- email reply --eaccount you@you.com --reply-to-uuid <ema
 heliox tool instantly -- email mark-read --thread-id <thread-id>
 ```
 
-### account — sender health / warmup / deliverability
+### account: sender health / warmup / deliverability
 
 ```bash
 heliox tool instantly -- account list --status <code> --json
@@ -103,23 +103,23 @@ heliox tool instantly -- account warmup-analytics --emails "a@you.com,b@you.com"
 heliox tool instantly -- account analytics-daily --start-date 2026-01-01 --json
 ```
 
-### verify — hygiene before adding leads (async: submit → poll)
+### verify: hygiene before adding leads (async: submit → poll)
 
 ```bash
 heliox tool instantly -- verify create --email lead@corp.com --json     # may return status "pending"
 heliox tool instantly -- verify get --email lead@corp.com --json        # poll until not pending
 ```
 
-### job — poll bulk-operation completion
+### job: poll bulk-operation completion
 
 ```bash
 heliox tool instantly -- job list --status running --json
 heliox tool instantly -- job get --id <job-id> --json
 ```
 
-### api — raw escape hatch for the long tail
+### api: raw escape hatch for the long tail
 
-Subsequences, custom tags, block lists, webhooks, inbox placement — anything
+Subsequences, custom tags, block lists, webhooks, inbox placement. Anything
 without a first-class command:
 
 ```bash
@@ -143,8 +143,8 @@ Authorization header is injected and cannot be overridden.
 - **`email list` is rate-limited to 20 req/min** (tighter than the workspace
   budget of 100 req/s · 6,000 req/min). Don't poll it in a tight loop.
 - **`402` = plan gate, not a bad key.** API v2 needs a paid plan; a `402` means
-  relay to the user, not retry. A `401` means the key was revoked — ask them to
-  reconnect. A `429` means you hit the rate limit — back off.
+  relay to the user, not retry. A `401` means the key was revoked; ask them to
+  reconnect. A `429` means you hit the rate limit; back off.
 - **`--account` when more than one Instantly workspace is connected.** A `409`
   lists candidate account keys; re-run with `--account <key>` before the `--`.
 - **This tool does not spend money or manage the workspace.** No DFY
@@ -155,7 +155,7 @@ Authorization header is injected and cannot be overridden.
 ## Safety
 
 - **Replies leave the user's account.** `email reply` sends a real email to a
-  real prospect — an outward-facing action. Follow the sensitive-operation rule
+  real prospect, an outward-facing action. Follow the sensitive-operation rule
   in [../SKILL.md](../SKILL.md): draft the reply and confirm with the user
   before sending unless they've pre-authorized the thread.
 - **Activating a campaign starts live outreach** to real recipients.

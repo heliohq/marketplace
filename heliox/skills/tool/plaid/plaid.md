@@ -8,17 +8,17 @@ plaid tool's own CLI.
 heliox tool plaid [--account <key>] -- <resource> <verb> [flags...]
 ```
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 Plaid has **two separate credential kinds**, and Helio only stores one of them:
 
-- **App credentials** — the `client_id` + `secret` for one environment. These
+- **App credentials**: the `client_id` + `secret` for one environment. These
   are what the user connected; Helio injects them automatically on every call.
   A connection is **one Plaid app in one environment** (sandbox or production),
   never one bank account.
-- **An Item `access_token`** — per **linked bank** (one "Item"). This is **not**
+- **An Item `access_token`**: per **linked bank** (one "Item"). This is **not**
   stored by Helio. You supply it **per call** with `--access-token`. It comes
-  from the user's own Plaid **Link** integration, or — in sandbox — from the
+  from the user's own Plaid **Link** integration, or (in sandbox) from the
   `item exchange-public-token` command below.
 
 So: **institution lookups need no `--access-token`**; anything that reads a
@@ -36,7 +36,7 @@ heliox tool plaid -- institutions get-by-id --institution-id ins_109508 --countr
 ```
 
 Use these to resolve an institution id, list supported banks, or check product
-support. They work the moment the app is approved — the safest surface.
+support. They work the moment the app is approved, the safest surface.
 
 ## Reading a linked bank Item (needs --access-token)
 
@@ -73,7 +73,7 @@ heliox tool plaid -- item exchange-public-token --public-token <public_token>
 heliox tool plaid -- transactions sync --access-token <access_token>
 ```
 
-`sandbox public-token-create` **refuses when the connection is production** —
+`sandbox public-token-create` **refuses when the connection is production**:
 the endpoint does not exist there.
 
 ## Footguns
@@ -81,11 +81,11 @@ the endpoint does not exist there.
 - **No `--access-token`?** Only the two `institutions` commands will work.
   Everything else needs a per-Item token you must obtain first.
 - **Production Item reads** require an `access_token` minted by the user's own
-  Link widget — Helio's connect flow does not host Link. Institution lookups are
+  Link widget. Helio's connect flow does not host Link. Institution lookups are
   the only always-on production surface without a token.
 - **Errors carry Plaid's own codes.** A failure surfaces `error_type` /
   `error_code` / `error_message` (e.g. `INVALID_ACCESS_TOKEN`,
-  `ITEM_LOGIN_REQUIRED`, `PRODUCT_NOT_READY`) — read `error_code` and act on it
+  `ITEM_LOGIN_REQUIRED`, `PRODUCT_NOT_READY`). Read `error_code` and act on it
   (re-link the Item, wait for the product, fix the token) rather than retrying
   blindly. `INVALID_ACCESS_TOKEN` is an Item-token problem, not the connection.
 - **`--json`** is accepted for uniformity; Plaid responses are already JSON and

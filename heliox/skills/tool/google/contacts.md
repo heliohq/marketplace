@@ -9,7 +9,7 @@ Its reason to exist is resolving a name to an email/phone so you can act on it
 
 ## Resolve first
 
-For "email/message/invite <person>", always start with `resolve` — one call that
+For "email/message/invite <person>", always start with `resolve`: one call that
 covers **both** My Contacts and Gmail's auto-collected Other Contacts. Do not
 call the two searches yourself.
 
@@ -20,7 +20,7 @@ heliox tool google contacts -- resolve "Zhang San" --json
 - `.matches[]` carries `name`, `emails`, `phones`, `organization`, and `source`
   (`my_contact` | `other_contact`, My Contacts listed first).
 - **Zero matches** exits with a distinct non-zero code and prints "no contacts
-  matched …" — it is an empty result, not an error. Try a shorter prefix
+  matched …": it is an empty result, not an error. Try a shorter prefix
   (surname or first name), then fall back (see below). Do not retry the same
   query.
 - **Multiple candidates: never silently pick one.** List them and let the user
@@ -42,15 +42,15 @@ heliox tool google contacts -- groups get contactGroups/family
 ## Search semantics (prefix phrase)
 
 - Search matches **prefix phrases**, not substrings: "foo name" is found by
-  "f", "foo", "foo n", "nam" — but **not** "oo n". If a search misses, retry
+  "f", "foo", "foo n", "nam", but **not** "oo n". If a search misses, retry
   with a shorter prefix, not a middle fragment.
 - `--max` is capped at **30** (People API hard limit); higher values are
   silently clamped.
 - `search` (My Contacts) matches names / nicknames / emails / phones /
   organizations. `other search` (Other Contacts) matches only names / emails /
-  phones — searching Other Contacts by organization returns nothing.
+  phones: searching Other Contacts by organization returns nothing.
 - Freshness: search runs off a cache with a minute-scale propagation delay. A
-  just-added contact may not be searchable yet — that is expected. Use
+  just-added contact may not be searchable yet: that is expected. Use
   `list --sort last-modified` or try again shortly rather than insisting the
   contact is missing.
 
@@ -70,13 +70,13 @@ Contacts and Gmail are **two separate connections with two separate consents**.
 - **Contacts not connected** → fall back to Gmail's own search
   (`gmail -- messages list --query 'from:Zhang San'`) to dig an address out of
   past mail, and at a natural moment suggest connecting Google Contacts
-  (`heliox tool google auth contacts`) for more reliable resolution — without
+  (`heliox tool google auth contacts`) for more reliable resolution, without
   blocking the current task.
-- Actually sending is approval-gated — see gmail.md's "Sending email goes
+- Actually sending is approval-gated: see gmail.md's "Sending email goes
   through the approval gate".
 
 ## Read-only
 
 This tool cannot change the address book. If the user asks you to "save Zhang
 San to my contacts", add a note, or apply a label, say plainly that it is not
-supported yet — do not reach for another write path to work around it.
+supported yet. Do not reach for another write path to work around it.

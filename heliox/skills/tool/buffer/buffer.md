@@ -27,7 +27,7 @@ heliox tool buffer -- org list               # just the organizations
 heliox tool buffer -- channel list --org <org-id>   # channels you can post to
 ```
 
-`channel list` returns each channel's `id`, `name`, and `service` — the
+`channel list` returns each channel's `id`, `name`, and `service`: the
 `id` is what `post create --channel` takes.
 
 ## Reading posts
@@ -41,7 +41,7 @@ heliox tool buffer -- post list --org <org-id> \
 result is a Relay page: `{"posts":[{id,text,createdAt,channelId}], "pageInfo":{
 startCursor,endCursor,hasNextPage}}`. To page, pass the returned
 `pageInfo.endCursor` as the next `--after`. `--status` (e.g. `sent`, `draft`)
-passes straight through to Buffer's `PostStatus` filter — Buffer validates the
+passes straight through to Buffer's `PostStatus` filter: Buffer validates the
 value, so an unknown status surfaces as an API error rather than a silent empty
 page.
 
@@ -66,12 +66,12 @@ heliox tool buffer -- post delete --id <post-id>
 **requires** `--due-at`. Media and rich attachments are passed as raw Buffer
 JSON via `--assets-json` / `--metadata-json` (validated as JSON before send).
 Buffer rejects a post that carries both uploaded videos (`assets.videos`) and a
-per-service link attachment (`metadata.<service>.linkAttachment`) — supply only
+per-service link attachment (`metadata.<service>.linkAttachment`): supply only
 one, or the command fails with a usage error before any API call.
 
 ## Ideas
 
-Ideas live on an **organization**, not a channel — they are the Buffer content
+Ideas live on an **organization**, not a channel; they are the Buffer content
 backlog, not scheduled posts:
 
 ```bash

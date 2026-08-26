@@ -17,7 +17,7 @@ Resources: `me`, `org`, `profile`, `message`, `media`. Run `-- <resource>
 ## The mental model (profiles first, then messages)
 
 A **message** is one post scheduled to one or more **social profiles**. You
-never post to a network directly — you post to a `socialProfileId`, which is a
+never post to a network directly. You post to a `socialProfileId`, which is a
 specific connected account (a particular X handle, a particular LinkedIn page).
 So the first job is always discovering the profile ids you may post to:
 
@@ -41,7 +41,7 @@ heliox tool hootsuite -- message schedule \
   `profile list`. The post fans out to all of them.
 - `--send-time` **must** be UTC ISO-8601 ending in `Z` (e.g.
   `2029-03-01T14:00:00Z`). Offset timestamps like `+02:00` are rejected before
-  the request — convert to UTC yourself. **Omit `--send-time` entirely** to send
+  the request. Convert to UTC yourself. **Omit `--send-time` entirely** to send
   as soon as possible.
 - Optional: `--tag <s>` (repeatable), `--email-notification` (email the author
   on send), `--media-id <id>` (repeatable; attach uploaded media, see below).
@@ -64,12 +64,12 @@ heliox tool hootsuite -- message reject <message-id> --reason "off-brand"
 
 ## Attaching media
 
-Media is a two-step handshake — request an upload URL, PUT the bytes to it
+Media is a two-step handshake: request an upload URL, PUT the bytes to it
 yourself, poll until `READY`, then reference the id on a schedule:
 
 ```bash
 heliox tool hootsuite -- media create --size-bytes 10240 --mime-type image/png
-#   → { id, uploadUrl, expiresAt }  — PUT your bytes to uploadUrl (outside heliox)
+#   → { id, uploadUrl, expiresAt }. PUT your bytes to uploadUrl (outside heliox)
 heliox tool hootsuite -- media get <media-id>   # poll until state READY
 heliox tool hootsuite -- message schedule --text "..." --profile <id> --media-id <media-id>
 ```
@@ -88,7 +88,7 @@ heliox tool hootsuite -- message schedule --text "Pin it" \
 ```
 
 `--board-id` and `--destination-url` must be given together. Retrieve the board
-id from Pinterest directly — Hootsuite does not return it.
+id from Pinterest directly. Hootsuite does not return it.
 
 ## Footguns
 
@@ -100,4 +100,4 @@ id from Pinterest directly — Hootsuite does not return it.
 - **Soonest-possible vs scheduled.** No `--send-time` = send now; a `--send-time`
   = scheduled. Don't pass a past timestamp expecting "immediately".
 - Output is the provider JSON with Hootsuite's `{"data": …}` envelope already
-  unwrapped — read the inner object/array directly.
+  unwrapped. Read the inner object/array directly.

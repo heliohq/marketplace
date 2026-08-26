@@ -14,7 +14,7 @@ heliox tool sprout-social [--customer-id <id>] -- <group> <verb> [flags...] [--j
 - **Customer id is pre-injected.** Almost every Sprout path is
   `/v1/{customer_id}/...`. The connected account's default customer id is
   already in your environment, so `heliox tool sprout-social -- analytics posts
-  ...` just works — no discovery round-trip. A token that can see multiple
+  ...` just works: no discovery round-trip. A token that can see multiple
   customers: list them with `metadata client`, then target another with the
   global `--customer-id <id>` flag.
 - **The filter endpoints speak Sprout's filter DSL, not flags.** Analytics,
@@ -64,7 +64,7 @@ Shared filter flags on analytics / messages / cases: `--filter` (repeatable),
 - **A bare group shows help, not an error.** `metadata` alone prints help; give
   it a verb (`metadata profiles`).
 - **`analytics`/`messages`/`cases` require `filters`.** Sprout returns a `400`
-  (passed through) if you send none — always give at least one `--filter` or a
+  (passed through) if you send none: always give at least one `--filter` or a
   `--body`.
 - **Rate limits: 60 req/min, 250k/month.** Prefer one wide filtered query with
   paging over many small calls.

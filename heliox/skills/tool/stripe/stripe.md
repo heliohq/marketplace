@@ -12,7 +12,7 @@ You are a **finance / revenue-ops / support colleague**, not a checkout
 integration. This tool is **read-mostly**: reporting plus a few well-scoped
 support mutations (issue a refund, draft/send an invoice, cancel a
 subscription). It does not confirm PaymentIntents, tokenize cards, or touch the
-webhook event bus — those are customer/edge concerns.
+webhook event bus: those are customer/edge concerns.
 
 `--account <key>` is a Stripe connected-account id (`acct_***`); omit it when
 only one Stripe account is connected.
@@ -22,12 +22,12 @@ only one Stripe account is connected.
 - Every response is Stripe's JSON, emitted verbatim on stdout.
 - **List pagination** is cursor-based: `--limit <1-100>`, `--starting-after
   <id>`, `--ending-before <id>`. A list response is
-  `{"object":"list","data":[...],"has_more":true|false}` — page with the last
+  `{"object":"list","data":[...],"has_more":true|false}`: page with the last
   item's id via `--starting-after` while `has_more` is true.
 - **Filters** on any list use repeatable `--param key=value` (e.g. `--param
   customer=cus_123`), mapped 1:1 to Stripe's query params.
 - **Mutations** take request fields as repeatable `--param key=value`, which map
-  1:1 onto Stripe's form fields — bracket notation passes through
+  1:1 onto Stripe's form fields; bracket notation passes through
   (`--param metadata[order]=A17`). Add `--idempotency-key <k>` on create/refund
   for safe retries.
 - **Amounts are in the smallest currency unit** (cents): `--param amount=500` is
@@ -80,7 +80,7 @@ heliox tool stripe -- get charges --param limit=3
 ```
 The path may be given with or without the `/v1` prefix.
 
-## Support mutations (use deliberately — real money moves)
+## Support mutations (use deliberately: real money moves)
 
 ```bash
 # refund a charge (top support action)
@@ -105,7 +105,7 @@ heliox tool stripe -- subscription cancel sub_123
 - **`amount` is in cents.** `--param amount=5` refunds $0.05, not $5.
 - **A refund is irreversible.** Confirm the charge/PI id (and the amount for a
   partial refund) before running `refund create`.
-- **`payment-intent` and `charge` are read-only here** — this tool never
+- **`payment-intent` and `charge` are read-only here**: this tool never
   confirms or captures a payment.
 - **Set `--idempotency-key` on every create/refund** you might retry: a repeat
   without it can double-charge/double-refund.

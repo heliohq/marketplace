@@ -2,7 +2,7 @@
 
 Wise is a **read / monitor + non-committal pricing** tool: check balances, watch
 transfers land, read account activity, and price a hypothetical transfer. It
-**cannot move money** — funding transfers and reading balance *statements* are
+**cannot move money**: funding transfers and reading balance *statements* are
 PSD2/SCA-gated and deliberately out of scope. If a task needs an actual payout,
 that is a human action in the Wise app, not this tool.
 
@@ -38,9 +38,9 @@ heliox tool wise -- currency list
 Notes:
 - `quote create` gives the mid-market rate + fee estimate and moves nothing;
   provide exactly one of `--source-amount` / `--target-amount`. Use it for
-  "what would X→Y cost right now?" — there is no separate rate command.
+  "what would X→Y cost right now?" There is no separate rate command.
 - `activity list` returns `{cursor, activities}`; pass the returned cursor back
   as `--next-cursor` to page.
-- Amounts are exact decimals — read them as returned, do not round.
+- Amounts are exact decimals; read them as returned, do not round.
 - `--base-url` selects a sandbox host (default is production
   `https://api.wise.com`); you normally never set it.

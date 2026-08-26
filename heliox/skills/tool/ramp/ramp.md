@@ -20,7 +20,7 @@ does **not** issue cards, move money, or approve anything.
 |---|---|
 | `transaction list` / `transaction get <id>` | Card transaction ledger (the core "what did we spend"). |
 | `reimbursement list` / `reimbursement get <id>` | Out-of-pocket reimbursements. |
-| `card virtual [id]` / `card physical [id]` | Issued virtual or physical cards — list, or one by id. Ramp has no combined `/cards` list. |
+| `card virtual [id]` / `card physical [id]` | Issued virtual or physical cards: list, or one by id. Ramp has no combined `/cards` list. |
 | `user list` / `user get <id>` | Users and cardholders (who spent). |
 | `department list` / `department get <id>` | Department dimension for grouping spend. |
 | `location list` / `location get <id>` | Location dimension for grouping spend. |

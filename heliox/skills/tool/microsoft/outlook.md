@@ -23,7 +23,7 @@ heliox tool microsoft outlook -- messages move <id>... --folder <id|wellKnownNam
 heliox tool microsoft outlook -- messages mark <id>... --read        # also --unread / --flag / --unflag
 
 # Reply / send / forward
-heliox tool microsoft outlook -- messages reply <id> --body "Got it — results tomorrow."   # threading + quote handled; --all for reply-all
+heliox tool microsoft outlook -- messages reply <id> --body "Got it, results tomorrow."   # threading + quote handled; --all for reply-all
 heliox tool microsoft outlook -- messages send --to a@b.com --subject "..." --body-file ./mail.md
 heliox tool microsoft outlook -- messages forward <id> --to a@b.com --body "FYI"
 ```
@@ -40,13 +40,13 @@ pagination (Graph `@odata.nextLink`).
 Sending leaves the user's own mailbox under their name, so `messages send` /
 `reply` / `forward` and `drafts send` are policy-gated: instead of running,
 heliox exits with `APPROVAL_REQUIRED` and prints the exact request/replay
-commands — follow that output (full flow in the tool skill's "Approval gate"
+commands. Follow that output (full flow in the tool skill's "Approval gate"
 section). The approval card **is** the human check: do not also ask for a chat
-confirmation first — the approver may not even be the person you are talking
+confirmation first. The approver may not even be the person you are talking
 to.
 
-Drafts remain useful as a composition surface — the user can edit the draft in
-Outlook before you request approval on `drafts send <id>` — but they are not a
+Drafts remain useful as a composition surface (the user can edit the draft in
+Outlook before you request approval on `drafts send <id>`), but they are not a
 substitute for the gate and need no separate chat confirmation:
 
 ```bash
@@ -57,7 +57,7 @@ heliox tool microsoft outlook -- drafts create --to boss@x.com --subject 'Weekly
 
 "Archive/move/mark them ALL" style requests can match huge numbers of messages.
 Before any bulk `move`/`mark` affecting more than ~100 messages, report the
-matched count and get the user's confirmation for that NUMBER — "move them all"
+matched count and get the user's confirmation for that NUMBER: "move them all"
 said casually rarely anticipates thousands. (Reversible or not, surprising
 scale erodes trust.)
 
@@ -70,5 +70,5 @@ scale erodes trust.)
   `prompt=select_account` lets them re-pick the account).
 - 401 reconnect required → refresh token revoked (password change / portal
   revoke); same reconnect path.
-- Permanent delete is intentionally not exposed — there is no way to hard-delete
+- Permanent delete is intentionally not exposed: there is no way to hard-delete
   a message; `move` to a folder is the reversible path.

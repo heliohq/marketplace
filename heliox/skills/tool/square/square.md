@@ -17,12 +17,12 @@ you intact. Read verbs never mutate; `create` / `update` / `publish` do.
 
 Square is **location-scoped**: most reads and writes hang off a `location_id`.
 `location list` is the discovery primitive you call first to get the seller's
-locations — feed a returned `location_id` into `invoice list`, order search,
+locations: feed a returned `location_id` into `invoice list`, order search,
 inventory reads, etc.
 
 Square's **search endpoints are POST** (`order search`, `customer search`,
 `catalog search`, `invoice search`) and `inventory get` is a POST
-batch-retrieve, but they are documented **read-only** — they never mutate. You
+batch-retrieve, but they are documented **read-only**: they never mutate. You
 pass their request body as raw JSON via `--body`.
 
 ## Core commands

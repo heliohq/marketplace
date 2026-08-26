@@ -26,7 +26,7 @@ heliox tool gumroad -- sale get --id <sale-id>
 heliox tool gumroad -- subscriber list --product-id <id>
 ```
 
-Sales list is the revenue-reporting surface — filter by `--after` / `--before`
+Sales list is the revenue-reporting surface: filter by `--after` / `--before`
 (YYYY-MM-DD), `--email`, `--product-id`.
 
 ## Pagination (do not lose the cursor)
@@ -39,7 +39,7 @@ heliox tool gumroad -- sale list --page-key <next_page_key-from-the-previous-pag
 ```
 
 The output is Gumroad's response verbatim, so read `next_page_key` off the JSON
-and loop until it is absent. The older numeric `page` parameter is deprecated —
+and loop until it is absent. The older numeric `page` parameter is deprecated:
 always page with `--page-key`.
 
 ## Fulfilment and refunds
@@ -78,7 +78,7 @@ heliox tool gumroad -- license disable --product-id <id> --license-key <key>
 ```
 
 `license verify` does **not** consume a seat unless you pass
-`--increment-uses-count` — leave it off for a plain check.
+`--increment-uses-count`: leave it off for a plain check.
 
 ## Output and errors
 
@@ -87,13 +87,13 @@ Every command prints Gumroad's JSON on stdout. Gumroad wraps success as
 (`products`, `sales`, `subscribers`, …) and the `next_page_key` cursor survive.
 On failure the tool exits non-zero and prints Gumroad's message to stderr
 (`--json` gives `{"error":{...}}`). Note the dialect: Gumroad can return HTTP 200
-with `success:false` (e.g. a not-found product) — the tool treats that as an
+with `success:false` (e.g. a not-found product). The tool treats that as an
 error, not a silent empty result.
 
 ## Safety
 
 Refunds, product enable/disable/delete, offer-code changes, and license
 enable/disable are **real, outward-facing mutations** on the creator's live
-store: follow the sensitive-operation rule from `../SKILL.md` — confirm
+store: follow the sensitive-operation rule from `../SKILL.md`; confirm
 with the user before first-of-kind writes in a session, and never refund,
 retire a product, or disable a license the user has not sanctioned.

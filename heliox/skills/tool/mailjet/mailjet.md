@@ -14,14 +14,14 @@ heliox tool mailjet [--account <key>] -- <group> <verb> [flags...]
 Mailjet uses an **API key pair**, not OAuth. The user creates a public **API
 Key** and private **Secret Key** in Mailjet → Account Settings → API Key
 Management (https://app.mailjet.com/account/apikeys) and pastes them joined by a
-colon — `your-api-key:your-secret-key` — into the connect drawer. Helio verifies
+colon (`your-api-key:your-secret-key`) into the connect drawer. Helio verifies
 the pair (a `GET /v3/REST/apikey` Basic-auth call) before storing it. Relay the
 `heliox tool mailjet auth` link if nothing is connected; you cannot enter the
 key yourself.
 
 ## Output shape
 
-- REST **list** verbs return `{"data":[…],"count":N,"total":T}` — the provider's
+- REST **list** verbs return `{"data":[…],"count":N,"total":T}`. The provider's
   `{Count,Data,Total}` envelope is unwrapped; page with `--limit` / `--offset`.
 - REST **get** verbs return the single record object.
 - `send` returns the Send API v3.1 result verbatim: `Messages[]` with per-message
@@ -29,7 +29,7 @@ key yourself.
 
 ## Commands
 
-### Send email (outward-facing — confirm before sending)
+### Send email (outward-facing: confirm before sending)
 
 ```bash
 # --to is repeatable; each value is "email" or "Name <email>"
@@ -98,5 +98,5 @@ auth failures for a US-provisioned account.
 
 Exit `0` success, `1` API/runtime failure (with `--json`, an
 `{"error":{"message","kind":"api","status"}}` envelope), `2` usage error. A
-`401`/`403` means the key pair was rejected — ask the user to reconnect with a
+`401`/`403` means the key pair was rejected. Ask the user to reconnect with a
 fresh key pair.

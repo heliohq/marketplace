@@ -21,7 +21,7 @@ errors as `{"error":{"message":…,"kind":"usage|api","status":…}}`.
 ## The mental model (audiences, members, campaigns)
 
 - An **audience** (a.k.a. list) holds **members** (subscribers). Almost every
-  member/segment/campaign call needs a `<list_id>` — get it from
+  member/segment/campaign call needs a `<list_id>`. Get it from
   `audience list`.
 - A **member** is addressed by the MD5 of its lowercase email. The CLI does the
   hashing for you: pass `--email you@example.com`. `--hash <md5>` is a
@@ -38,7 +38,7 @@ heliox tool mailchimp -- member list <list_id> [--status subscribed]
 heliox tool mailchimp -- member get <list_id> --email you@example.com
 ```
 
-Add or update a subscriber (upsert — safe to re-run):
+Add or update a subscriber (upsert, safe to re-run):
 
 ```bash
 heliox tool mailchimp -- member upsert <list_id> --email you@example.com \
@@ -91,7 +91,7 @@ heliox tool mailchimp -- search campaigns --query "launch"
 
 ## Footguns
 
-- **Always resolve `<list_id>` first** with `audience list` — member, segment,
+- **Always resolve `<list_id>` first** with `audience list`. Member, segment,
   and campaign-create calls all need it, and it is not the audience *name*.
 - **Send is irreversible.** Prefer `campaign test --emails ...` before
   `campaign send`. `schedule` can be undone with `unschedule`; a real send
@@ -99,6 +99,6 @@ heliox tool mailchimp -- search campaigns --query "launch"
 - **Content before send.** A campaign created with `campaign create` has no
   body until `campaign set-content`; sending an empty campaign fails.
 - **Schedule times are RFC3339 and must be in the future**; Mailchimp also
-  rounds to :00/:15/:30/:45 minutes — pass a quarter-hour boundary.
+  rounds to :00/:15/:30/:45 minutes. Pass a quarter-hour boundary.
 - **Pagination**: list verbs take `--count` / `--offset`; add `--fields` (e.g.
   `--fields lists.id,lists.name`) to trim large responses to what you need.

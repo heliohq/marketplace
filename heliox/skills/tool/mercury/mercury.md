@@ -47,7 +47,7 @@ envelope) and exit non-zero (`1` API/runtime, `2` bad usage).
 mercury -- account list [--limit N] [--order asc|desc] [--start-after <id>] [--end-before <id>]
 mercury -- account get <account-id>
 
-# Transactions (scoped to one bank account — --account is REQUIRED)
+# Transactions (scoped to one bank account; --account is REQUIRED)
 mercury -- transaction list --account <account-id> \
         [--limit N] [--offset N] [--order asc|desc] \
         [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--search <text>] \

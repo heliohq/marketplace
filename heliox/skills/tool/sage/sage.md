@@ -20,10 +20,10 @@ All output is Sage's own JSON, verbatim.
   global `--business <id>` flag; omit it and Sage uses the user's **lead
   business**. Discover the ids with `business list` and pass the one you want on
   every subsequent call.
-- **List responses are Sage's paginated envelope** — `$items`, `$total`,
+- **List responses are Sage's paginated envelope**: `$items`, `$total`,
   `$page`, `$next`. There is no `--all`: page through with `--page` /
   `--items-per-page` and continue while `$next` is present.
-- **Writes take a verbatim `--body` JSON envelope** — you supply the exact Sage
+- **Writes take a verbatim `--body` JSON envelope**: you supply the exact Sage
   resource object (with its root key), because the accounting schema is
   country-variable (UK VAT vs US sales tax vs FR TVA) and high-stakes. There
   are no per-field flags for writes.
@@ -58,15 +58,15 @@ heliox tool sage -- --business <id> service list
 ### Write (each is an explicit verb; the AI builds the envelope)
 
 ```bash
-# create a contact — body wraps a `contact` object
+# create a contact: body wraps a `contact` object
 heliox tool sage -- --business <id> contact create --body \
   '{"contact":{"name":"Acme Ltd","contact_type_ids":["CUSTOMER"],"main_address":{...}}}'
 
-# raise a sales invoice — body wraps a `sales_invoice` object
+# raise a sales invoice: body wraps a `sales_invoice` object
 heliox tool sage -- --business <id> sales-invoice create --body \
   '{"sales_invoice":{"contact_id":"<id>","date":"2026-07-23","invoice_lines":[...]}}'
 
-# record a payment/receipt against an invoice — body wraps a `contact_payment`
+# record a payment/receipt against an invoice: body wraps a `contact_payment`
 # object; allocate against an invoice via allocated_artefacts[].artefact_id
 heliox tool sage -- --business <id> contact-payment create --body \
   '{"contact_payment":{"transaction_type_id":"CUSTOMER_RECEIPT","contact_id":"<id>","bank_account_id":"<id>","date":"2026-07-23","total_amount":240,"allocated_artefacts":[{"artefact_id":"<invoice-id>","amount":240}]}}'
@@ -77,7 +77,7 @@ Payments (both customer receipts and supplier payments) go through
 endpoint. Set `transaction_type_id` to `CUSTOMER_RECEIPT` or the supplier-payment
 type as appropriate.
 
-### Escape hatch — any other v3.1 resource
+### Escape hatch: any other v3.1 resource
 
 ```bash
 heliox tool sage -- --business <id> fetch --method GET --path /journals
@@ -96,12 +96,12 @@ Bearer + `--business` path.
   account; recording the money is a separate `contact-payment create` that
   allocates against the invoice.
 - **Rate limits.** ~100 req/min and ~2,500 req/day per business. A `429` is a
-  retryable runtime error (exit 1), not a loop-forever signal — back off.
+  retryable runtime error (exit 1), not a loop-forever signal. Back off.
 
 ## Approval gate
 
 Creating invoices, recording payments and creating contacts are outward /
-high-impact side effects and may be policy-gated — if a command exits with
+high-impact side effects and may be policy-gated: if a command exits with
 `APPROVAL_REQUIRED`, follow the printed steps (see [../SKILL.md](../SKILL.md)
 "Approval gate"). Do not pre-confirm in chat; the gate routes the decision to
 the human who authorized the Sage account.
