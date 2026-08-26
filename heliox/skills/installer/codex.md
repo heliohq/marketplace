@@ -1,23 +1,23 @@
-# Codex — install / uninstall recipes
+# Codex: install / uninstall recipes
 
 Read [SKILL.md](SKILL.md) first (verb, parse, detect, safety, echo). You are on
 **Codex**. For install, `OWNER_REPO` = `<owner>/<repo>` and `REV` = `<revision>`
 from the parsed source. Pick the section by the key's kind, then run the
 `install` or `uninstall` block per the prompt's verb.
 
-Codex's plugin verbs are **`add`** / **`remove`**, not `install` / `uninstall` —
-do not borrow Claude Code's verbs.
+Codex's plugin verbs are **`add`** / **`remove`**, not `install` / `uninstall`.
+Do not borrow Claude Code's verbs.
 
 ## skill (`skill:…`)
 
-There is no `codex skill` subcommand — a skill is a folder with `SKILL.md` at its
+There is no `codex skill` subcommand: a skill is a folder with `SKILL.md` at its
 root. Install it under the engine's real skills dir: `${CODEX_HOME:-$HOME/.codex}/skills/<name>`.
 Never hardcode `$HOME/.codex` or `$HOME/.agents`: a managed runtime redirects
 `CODEX_HOME` to a per-runtime home, and a guessed absolute path lands where neither
-Codex nor Helio's reporter looks — the skill installs but is invisible (it neither
+Codex nor Helio's reporter looks: the skill installs but is invisible (it neither
 loads nor shows in the read view). Always resolve through `$CODEX_HOME`.
 
-**Install** — idempotent **by revision**: if `${CODEX_HOME:-$HOME/.codex}/skills/<name>` already
+**Install** (idempotent **by revision**): if `${CODEX_HOME:-$HOME/.codex}/skills/<name>` already
 exists, compare its checked-out commit to `$REV`; equal → "already installed",
 stop; different → the pinned catalog revision moved, so replace it (below) rather
 than leaving the old skill active. The clone lands in a temp dir and only the
@@ -38,11 +38,11 @@ git clone --depth 1 "https://github.com/${OWNER_REPO}.git" "$TMP"
 SRC="$TMP"; [ -n "<path>" ] && [ "<path>" != "root" ] && SRC="$TMP/<path>"
 mkdir -p "$DEST" && cp -R "$SRC"/. "$DEST"/ && rm -rf "$TMP"
 printf '%s' "$REV" > "$DEST/.helio-skill-rev"
-test -f "$DEST/SKILL.md" || { echo "SKILL.md not at root — check the source <path>"; exit 1; }
+test -f "$DEST/SKILL.md" || { echo "SKILL.md not at root; check the source <path>"; exit 1; }
 ```
 
-**Uninstall** — remove the folder. Not there → report "not installed" and stop.
-Never remove a skill dir that a plugin owns — remove the plugin instead.
+**Uninstall**: remove the folder. Not there → report "not installed" and stop.
+Never remove a skill dir that a plugin owns; remove the plugin instead.
 
 ```bash
 DEST="${CODEX_HOME:-$HOME/.codex}/skills/<name>"
@@ -51,20 +51,20 @@ rm -rf "$DEST"
 ```
 
 A newly added or removed skills dir may need a session reload before Codex
-notices — say so in your echo.
+notices; say so in your echo.
 
 **Verify:** install → `test -f "$DEST/SKILL.md"`; uninstall → `test ! -e "$DEST"`.
 
 ## plugin (`plugin:…`, or `<name>@<marketplace>`)
 
-**Install** — **check installed state FIRST, then register + add.** If `codex
-plugin list --json` already shows the plugin, **stop** — this is the general
+**Install**: **check installed state FIRST, then register + add.** If `codex
+plugin list --json` already shows the plugin, **stop**. This is the general
 idempotency rule, and it is also how codex's built-in marketplaces are handled:
 `openai-curated` / `openai-bundled` / … ship their plugins **pre-installed**, so a
 curated target is already present and needs nothing. Never `marketplace add` a
-codex-reserved marketplace name — it collides with the built-in. Only when the
+codex-reserved marketplace name: it collides with the built-in. Only when the
 plugin is absent do you register the marketplace (pinned to the revision), read
-its NAME back — do not guess — then `add`:
+its NAME back (do not guess), then `add`:
 
 ```bash
 codex plugin list --json                                 # already present (incl. built-ins)? → stop
@@ -75,10 +75,10 @@ codex plugin add "<name>@<marketplace>"
 
 Codex loads only `skills / mcpServers / hooks / apps` from a plugin. A
 Claude-authored plugin still adds under Codex, but its commands / subagents / lsp
-are silently inert — expected, not an error.
+are silently inert: expected, not an error.
 
-**Uninstall** — remove the plugin by its `<name>@<marketplace>` ref. This
-**cascades**: the plugin's bundled skills / MCP servers / hooks go with it — say
+**Uninstall**: remove the plugin by its `<name>@<marketplace>` ref. This
+**cascades**: the plugin's bundled skills / MCP servers / hooks go with it; say
 so before running. Leave the marketplace registered. Not installed → report and
 stop.
 
@@ -87,7 +87,7 @@ codex plugin list --json                  # confirm the exact <name>@<marketplac
 codex plugin remove "<name>@<marketplace>"
 ```
 
-**Verify:** `codex plugin list --json` — install → present; uninstall → gone.
+**Verify:** `codex plugin list --json`. Install → present; uninstall → gone.
 
 ## mcp_server
 
@@ -98,11 +98,11 @@ codex plugin remove "<name>@<marketplace>"
   ```bash
   # install / connect
   codex mcp add <name> --url <URL> [--bearer-token-env-var <ENV>]            # HTTP
-  codex mcp add <name> --env KEY=VALUE -- <command> [args...]                # stdio subprocess — confirm first, §Safety
+  codex mcp add <name> --env KEY=VALUE -- <command> [args...]                # stdio subprocess; confirm first, §Safety
   codex mcp login <name>     # OAuth streamable-HTTP servers
   # uninstall / remove
   codex mcp remove <name>
   ```
 
-**Verify:** `codex mcp get <name> --json` — install → shows server + status;
+**Verify:** `codex mcp get <name> --json`. Install → shows server + status;
 uninstall → not found.

@@ -12,18 +12,18 @@ heliox tool freshdesk [--account <domain>] -- <resource> <verb> [flags...]
 ## Connect requires TWO things: domain + API key
 
 Freshdesk's API lives at a **per-account base URL**
-`https://<domain>.freshdesk.com/api/v2` — the `<domain>` subdomain is not
+`https://<domain>.freshdesk.com/api/v2`. The `<domain>` subdomain is not
 derivable from the key, so connecting Freshdesk asks for **both**:
 
-- **Domain** — e.g. `acme.freshdesk.com` (the account subdomain). This is the
+- **Domain**: e.g. `acme.freshdesk.com` (the account subdomain). This is the
   connection's account key; when a user has more than one Freshdesk connected,
   select with `--account <domain>` before the `--`.
-- **API key** — from Freshdesk **Profile Settings -> View API key**. Long-lived,
+- **API key**: from Freshdesk **Profile Settings -> View API key**. Long-lived,
   non-expiring; resetting it in Freshdesk revokes the connection (a later call
   returns a rejected-credential error → ask the user to reconnect).
 
 If the tool isn't connected yet, run `heliox tool freshdesk auth` and give the
-user the connect link. The key is injected per call — it never passes through you.
+user the connect link. The key is injected per call; it never passes through you.
 
 ## The core loop: triage and answer tickets
 
@@ -39,7 +39,7 @@ heliox tool freshdesk -- ticket search --query "requester_id:123 AND status:2"
 heliox tool freshdesk -- ticket get --id 4021 --include conversations,requester
 
 # reply to the CUSTOMER (public, emailed to the requester)
-heliox tool freshdesk -- ticket reply --id 4021 --body "<p>Thanks — shipping a fix today.</p>"
+heliox tool freshdesk -- ticket reply --id 4021 --body "<p>Thanks, shipping a fix today.</p>"
 
 # add an INTERNAL note (private by default; not visible to the requester)
 heliox tool freshdesk -- ticket note --id 4021 --body "<p>Root-caused to the webhook retry.</p>"
@@ -52,7 +52,7 @@ heliox tool freshdesk -- ticket update --id 4021 --status 4 --responder-id 55
 Status codes: `2` Open, `3` Pending, `4` Resolved, `5` Closed.
 Priority codes: `1` Low, `2` Medium, `3` High, `4` Urgent.
 
-`reply` and `note` bodies are **HTML** (`<p>...</p>`), not plain text — the API
+`reply` and `note` bodies are **HTML** (`<p>...</p>`), not plain text: the API
 renders them as rich content.
 
 ## Contacts, companies, agents
@@ -77,7 +77,7 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
 ## Footguns
 
 - **`ticket create` only requires a requester (`--email` OR `--requester-id`).**
-  `--subject`, `--description`, `--status`, and `--priority` are all optional —
+  `--subject`, `--description`, `--status`, and `--priority` are all optional:
   Freshdesk defaults status to `2` (Open) and priority to `1` (Low) when they
   are omitted, so a create with just a requester succeeds (it does NOT return a
   `400`). Still, pass explicit `--status`/`--priority` (and a `--subject`) as
@@ -90,12 +90,12 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
   ```
 
 - **`ticket update --tags` REPLACES the whole tag set.** It is the full desired
-  set, not an add — there is no client-side merge. Read the current tags first
+  set, not an add: there is no client-side merge. Read the current tags first
   (`ticket get`) if you need to preserve existing ones.
 
 - **Notes are PRIVATE by default.** `ticket note` writes an internal note; pass
   `--public` only when you intend the requester to see it. `ticket reply` is
-  always customer-visible (it emails them) — use it deliberately.
+  always customer-visible (it emails them). Use it deliberately.
 
 - **Search is quoted Freshdesk query syntax, and string values need inner
   quotes**: `--query "email:'jane@acme.com'"`, `--query "status:2 AND
@@ -111,6 +111,6 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
 ## Safety
 
 - `ticket reply` emails the customer and `ticket note --public` is
-  requester-visible — both are outward-facing. Follow the sensitive-operation
+  requester-visible. Both are outward-facing. Follow the sensitive-operation
   rule in [../SKILL.md](../SKILL.md) before writing into a real support queue,
   especially on tickets you did not open.

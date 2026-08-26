@@ -18,7 +18,7 @@ heliox tool snov auth --json
 
 Relay the link. In the connect drawer the user pastes two values from
 **Snov.io → Settings → API**: their **API user ID** (client_id) and **API
-secret key**. API access requires a **paid Snov plan** — the free trial
+secret key**. API access requires a **paid Snov plan**: the free trial
 excludes the API. You are woken when the connection lands; do not poll.
 
 ## Commands
@@ -26,7 +26,7 @@ excludes the API. You are woken when the connection lands; do not poll.
 Everything after `--` goes to the tool. Every command emits JSON.
 
 ```bash
-# Account credits — also the connectivity / credential check (free).
+# Account credits: also the connectivity / credential check (free).
 heliox tool snov -- account balance
 
 # How many emails Snov has for a domain (free pre-check).
@@ -46,7 +46,7 @@ heliox tool snov -- enrich by-email --email jane@example.com
 ```
 
 The finder and verifier are asynchronous on Snov's side; the tool waits for the
-task to finish and returns only the completed result — you never handle a raw
+task to finish and returns only the completed result: you never handle a raw
 task hash. If a task is slow, raise the wait with `--timeout` (e.g.
 `--timeout 90s`).
 
@@ -57,6 +57,6 @@ task hash. If a task is slow, raise the wait with `--timeout` (e.g.
   as a cheap pre-check before a domain search, and check `account balance` if
   you are unsure the user has credits left.
 - A `401` / credential-rejected error means the stored API user ID / secret is
-  wrong or the plan lapsed — ask the user to reconnect via a fresh `auth` link.
+  wrong or the plan lapsed: ask the user to reconnect via a fresh `auth` link.
 - Contact data is personal information: use found emails only for the task the
   user asked for; do not bulk-scrape or repurpose them.

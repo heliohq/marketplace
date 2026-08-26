@@ -9,16 +9,16 @@ lists, tags, deals, pipelines/stages, campaigns, automations and custom fields.
 ActiveCampaign has no OAuth. The user connects by pasting **two** values, both
 found in ActiveCampaign under **Settings → Developer**:
 
-- **Account URL** — the per-account API base, e.g. `https://youraccount.api-us1.com`
+- **Account URL**: the per-account API base, e.g. `https://youraccount.api-us1.com`
   (the `api-usN` data-center segment is shown there; it is not the app URL).
-- **API key** — the `Api-Token` secret.
+- **API key**: the `Api-Token` secret.
 
 ```bash
 heliox tool activecampaign auth --json
 ```
 
 Relay the link; the user pastes the account URL + API key through the connect
-form. You are woken when the connection lands — do not poll. There is no consent
+form. You are woken when the connection lands. Do not poll. There is no consent
 screen and no scopes. A wrong key is not caught at connect time; it surfaces as a
 `401 reconnect required` on the first command (ask the user to reconnect).
 
@@ -59,13 +59,13 @@ heliox tool activecampaign -- account list         # B2B accounts
 ## Notes
 
 - **Pagination** is `--limit` (default 20, max 100) + `--offset`; the body's
-  `meta.total` is the count. List commands do not auto-paginate — ask for the
+  `meta.total` is the count. List commands do not auto-paginate. Ask for the
   next page explicitly.
 - **`--query key=value`** (repeatable) passes ActiveCampaign filters through
   verbatim, e.g. `--query 'filters[status]=1'`, `--query search=jane`.
 - **`--data '<json>'`** on create/update supplies arbitrary v3 fields; the tool
   wraps it under the resource key (`{"contact":…}`, `{"deal":…}`) for you.
-- Sending or changing contact data is outward-facing — follow the
+- Sending or changing contact data is outward-facing. Follow the
   sensitive-operation rule in `../SKILL.md` before writes.
 - Rate limit is 5 requests/second per account; a `429` surfaces as a plain
-  command error — back off and retry, don't treat it as a connection problem.
+  command error. Back off and retry, don't treat it as a connection problem.

@@ -25,7 +25,7 @@ Helio stores it encrypted and checks it on first use.
 ## `--website` is required on every command
 
 Every Crisp route is scoped to a `website_id`, and a website token cannot list
-websites — so **you must pass `--website <id>` on every call**. There is no
+websites, so **you must pass `--website <id>` on every call**. There is no
 auto-resolve. Find the `website_id` in the Crisp dashboard URL (the UUID after
 `website/`) or in workspace settings; ask the user once, then **carry the same
 `website_id` across the whole session**.
@@ -70,7 +70,7 @@ Notes:
 ## Safety
 
 `conversation reply`, `conversation state`, `conversation route`, and
-`people create` change or send data in the user's live support workspace —
+`people create` change or send data in the user's live support workspace:
 outward-facing actions. Follow the sensitive-operation rule in
 `../SKILL.md`: confirm the target conversation and the message text
 before sending a reply, and confirm before resolving or reassigning a thread.

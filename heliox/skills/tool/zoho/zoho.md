@@ -1,7 +1,7 @@
 # Zoho tools (`heliox tool zoho ...`)
 
 Read [../SKILL.md](../SKILL.md) first for the general connect/use model. Zoho
-products are connected **per app** — each app is its own connection with its
+products are connected **per app**: each app is its own connection with its
 own consent and its own OAuth scopes. Per-app details live in this directory;
 run `heliox tool zoho --help` for the current app list.
 
@@ -12,7 +12,7 @@ heliox tool zoho auth books --json    # mint the authorize link, relay to the us
 heliox tool zoho auth crm --json
 ```
 
-Connecting one app grants nothing for the others — Books and CRM are separate
+Connecting one app grants nothing for the others: Books and CRM are separate
 scope families / client registrations, so each needs its own auth link and
 user consent.
 

@@ -10,7 +10,7 @@ heliox tool quickbooks [--account <realmId>] -- <resource> <verb> [flags...]
 
 The tool wraps Intuit's **Accounting API v3** plus the **Reports API**. Every
 call is scoped to one **company** (Intuit's `realmId`), captured at connect
-time and used automatically — you never pass it in commands.
+time and used automatically: you never pass it in commands.
 
 ## The mental model (read this first)
 
@@ -89,7 +89,7 @@ heliox tool quickbooks -- invoice send --id 7 --to cfo@acme.com --json
 - **`realmId` is the account, not a flag.** One connection = one company. To
   work across companies, connect each and select with `--account <realmId>`.
 - **Read a row before you write it.** Field names and reference shapes
-  (`CustomerRef`, `ItemRef`, `AccountRef`) are exact — `get` a similar record
+  (`CustomerRef`, `ItemRef`, `AccountRef`) are exact: `get` a similar record
   first and mirror its structure in `--json-body`.
 - **Errors carry the real reason.** A failed call surfaces QuickBooks' `Fault`
   array (code + detail), e.g. a `ValidationFault` on a bad `Line`. Under

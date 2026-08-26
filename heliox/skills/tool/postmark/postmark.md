@@ -3,7 +3,7 @@
 Postmark is a transactional + broadcast email delivery service. Use it to send
 email on the user's behalf, look up what was sent or received, and diagnose
 deliverability. Read the top-level [../SKILL.md](../SKILL.md) first for the
-connect/list/use model — this page is the command surface.
+connect/list/use model: this page is the command surface.
 
 The connection is scoped to **one Postmark server** (the account key is that
 server's link). A user with multiple servers connects each Server API Token
@@ -61,12 +61,12 @@ heliox tool postmark -- bounce activate <bounce-id>         # reactivate a deact
 ## Server
 
 ```bash
-heliox tool postmark -- server get   # server metadata (name, link, streams) — API tokens are redacted
+heliox tool postmark -- server get   # server metadata (name, link, streams): API tokens are redacted
 ```
 
 ## Safety
 
-- Sending email is an outward-facing action — follow the sensitive-operation
+- Sending email is an outward-facing action: follow the sensitive-operation
   rule in `../SKILL.md`. Confirm the recipient, subject, and body with
   the user before sending anything non-trivial, and prefer the sandbox test
   token for dry runs when the user offers one.

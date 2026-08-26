@@ -11,13 +11,13 @@ heliox tool onesignal [--account <key>] -- <resource> <verb> [flags...]
 OneSignal is a push / email / SMS customer-messaging platform. The connection
 holds two values you never pass by hand: an **App API Key** (the secret) and an
 **App ID** (which app to act on). The App ID is injected into every request
-automatically — you target segments, users and messages, never apps.
+automatically; you target segments, users and messages, never apps.
 
 ## The mental model (read this first)
 
 - One connection = one OneSignal **app**. The account key is the App ID.
 - A **message** goes to exactly **one targeting method**: a segment, specific
-  subscription ids, emails, phone numbers, or a filter expression — never more
+  subscription ids, emails, phone numbers, or a filter expression, never more
   than one. The tool rejects two targeting methods before it calls OneSignal.
 - A **segment** is a saved audience (filters). List segments first to get a
   valid `--segment` name before sending to one.

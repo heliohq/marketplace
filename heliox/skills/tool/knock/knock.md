@@ -11,7 +11,7 @@ heliox tool knock [--account <key>] -- <group> <verb> [flags...]
 Knock is **notification infrastructure**. You model recipients, then trigger a
 **workflow** that fans one event across whatever channels the workflow is
 configured for (email, SMS, push, in-app, Slack…). You do not pick channels or
-write templates from here — a human designs those in the Knock dashboard. Your
+write templates from here. A human designs those in the Knock dashboard. Your
 job is: send a notification to the right person, and check whether it landed.
 
 ## Connect
@@ -24,7 +24,7 @@ heliox tool knock auth --json      # relay the link; user pastes their sk_ key
 ```
 
 Each Knock environment (Development, Production, custom) has its own key. The
-key the user pastes decides which environment you act on — there is no flag to
+key the user pastes decides which environment you act on. There is no flag to
 switch environments. A bad or revoked key surfaces as a `401` on the first
 call (reconnect to fix).
 
@@ -51,7 +51,7 @@ heliox tool knock -- workflow trigger --key new-comment \
   --data '{"comment":"Ship it","url":"https://..."}' --json
 
 # ALWAYS dry-run first when unsure. --sandbox simulates the run without
-# delivering anything — safe to confirm recipients/data before a real fan-out.
+# delivering anything: safe to confirm recipients/data before a real fan-out.
 heliox tool knock -- workflow trigger --key new-comment \
   --recipient user_123 --sandbox --json
 
@@ -64,7 +64,7 @@ heliox tool knock -- workflow trigger --key digest --recipient user_1 --cancella
 heliox tool knock -- workflow cancel  --key digest --cancellation-key d-42 --json
 ```
 
-`--idempotency-key <k>` makes a trigger safe to retry (24h dedup window) — use
+`--idempotency-key <k>` makes a trigger safe to retry (24h dedup window). Use
 it if you might resend the same notification.
 
 ### Know who to notify
@@ -119,16 +119,16 @@ Every command prints Knock's JSON verbatim on stdout (lists are
 `{entries, page_info}`; paginate with `--after <cursor>`). Empty-body
 successes (cancel, some status marks) print `{"ok":true}`. Exit codes: `0` ok,
 `2` for a bad flag / invalid `--data` JSON / missing required id, `1` for a
-Knock API or transport error. A `401` means the key is invalid/revoked — ask
+Knock API or transport error. A `401` means the key is invalid/revoked. Ask
 the user to reconnect.
 
 ## Footguns
 
-- **Trigger needs an explicit recipient** — the tool refuses an empty audience.
+- **Trigger needs an explicit recipient**: the tool refuses an empty audience.
   This is deliberate; never guess a recipient.
-- **`--sandbox` before a real send** — a workflow can fan out to many people
+- **`--sandbox` before a real send**: a workflow can fan out to many people
   across many channels. Dry-run first when the audience or data is uncertain.
 - **The workflow key must exist** in the connected environment. A missing key
   returns a `404`, not a delivery.
-- **`message list` needs a live message** to have been produced — a fresh
+- **`message list` needs a live message** to have been produced: a fresh
   environment with no sends returns empty `entries`.

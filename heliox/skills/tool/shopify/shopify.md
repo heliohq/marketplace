@@ -10,14 +10,14 @@ heliox tool shopify [--account <shop>] -- <resource> <verb> [flags...]
 
 Every subcommand runs against the **GraphQL Admin API** under the hood (a
 single `POST /admin/api/<version>/graphql.json`), so you never hand-write
-GraphQL for the common cases — but a raw `graphql` passthrough is there when you
+GraphQL for the common cases, but a raw `graphql` passthrough is there when you
 need it. The REST Admin API is legacy and unavailable to this app.
 
 ## Connect (instance-scoped)
 
 Shopify is **per-store**: the connection is tied to one `{shop}.myshopify.com`.
 When you run `heliox tool shopify auth`, you must supply the shop domain (the
-`myshopify.com` host, e.g. `acme.myshopify.com` — or just `acme`). The stored
+`myshopify.com` host, e.g. `acme.myshopify.com`, or just `acme`). The stored
 account key IS that shop host, so `--account <shop>` selects it on later calls.
 
 ## Core commands
@@ -51,7 +51,7 @@ heliox tool shopify -- order update <id> --note "..." --tag priority --tag revie
 heliox tool shopify -- inventory adjust --item <id> --location <id> --delta 5
 ```
 
-### Escape hatch — raw GraphQL
+### Escape hatch: raw GraphQL
 
 ```bash
 heliox tool shopify -- graphql --query 'query{ shop { name } }'
@@ -67,7 +67,7 @@ bare numeric id and normalize it.
 
 - **Mutation `userErrors` are failures, not warnings.** Shopify returns HTTP 200
   even when a write is rejected, carrying a `userErrors` array. This tool treats
-  a non-empty `userErrors` as a **non-zero exit with the messages** — it never
+  a non-empty `userErrors` as a **non-zero exit with the messages**: it never
   reports a no-op write as success. Read the error, fix the input, retry.
 - **Protected customer data may be redacted.** Order/customer PII (name, email,
   address) requires Shopify's Protected Customer Data approval on production

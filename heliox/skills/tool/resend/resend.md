@@ -23,12 +23,12 @@ heliox tool resend -- email send \
 
 - **`--from` must be an address on a VERIFIED sending domain.** This is the #1
   failure: a send from an unverified domain returns `403 validation_error`
-  ("the domain is not verified") — that is a plain API error to act on (verify
+  ("the domain is not verified"); that is a plain API error to act on (verify
   the domain / pick a valid `from`), **not** a bad key. Check what you can send
   from first with `domain list`.
 - Provide `--html` and/or `--text`. `--to` is repeatable, max 50 recipients;
   `--cc`, `--bcc`, `--reply-to` are also accepted.
-- **`--idempotency-key <key>`** — pass a unique key per logical send so a
+- **`--idempotency-key <key>`**: pass a unique key per logical send so a
   retried send never double-delivers (24h dedup window). Use it whenever a send
   might be retried.
 - **`--scheduled-at`** takes ISO-8601 (`2026-08-01T09:00:00Z`) or natural
@@ -46,7 +46,7 @@ Check delivery status later with `email get <id>`.
 heliox tool resend -- email batch --emails '[{...}, {...}]'   # up to 100
 ```
 
-**Footgun: `email batch` does NOT support attachments** — the batch endpoint
+**Footgun: `email batch` does NOT support attachments**. The batch endpoint
 rejects them. `scheduled_at` and `tags` per email are fine. For any email with
 an attachment, use single `email send`.
 
@@ -68,7 +68,7 @@ Contacts are addressed by id **or** email under their audience
 ## Domains
 
 `domain list` / `domain get <id>` tell you which sending domains exist and
-their verification state — read these before choosing a `from`. Provisioning
+their verification state: read these before choosing a `from`. Provisioning
 verbs (`domain create --name ... [--region ...]`, `domain verify <id>`,
 `domain update`, `domain delete`) exist but are low-frequency account setup;
 DNS still has to be configured in the user's registrar for `verify` to pass.
@@ -77,6 +77,6 @@ DNS still has to be configured in the user's registrar for `verify` to pass.
 
 Sending email and broadcasts are **outward-facing actions** on the user's real
 Resend account and reach real inboxes: follow the sensitive-operation rule from
-`../SKILL.md` — confirm recipients and content with the user before the
+`../SKILL.md`; confirm recipients and content with the user before the
 first send of a session, and never send anything the user has not sanctioned.
 Use `--idempotency-key` on retriable sends so a re-run cannot double-deliver.

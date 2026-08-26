@@ -8,7 +8,7 @@ speaking the Mastodon REST API with the connected account's access token.
 heliox tool mastodon [--account <key>] -- <command> [flags...]
 ```
 
-Mastodon is **federated** — there is no single server. The connected account is
+Mastodon is **federated**: there is no single server. The connected account is
 one identity on one instance (e.g. `mastodon.social`, `fosstodon.org`, a
 self-hosted server); its `--account` key is that instance's URL. All requests
 go to that instance automatically; you never pass the instance or the token.
@@ -39,7 +39,7 @@ heliox tool mastodon -- post get --id <id>             # status + its thread (an
 Speak **handles**, not numeric ids: `account get`, `account posts`, `follow`,
 and `unfollow` accept a human `@user@instance` handle and resolve it for you.
 Post `content_text` is the HTML content already stripped to plain text, so you
-read posts without parsing markup. List commands return a `cursor` — pass it
+read posts without parsing markup. List commands return a `cursor`. Pass it
 back as `--cursor` to page to older items.
 
 ## Writing
@@ -55,13 +55,13 @@ heliox tool mastodon -- boost --id <id>                # reblog a status
 heliox tool mastodon -- follow <@user@instance | id>   # unfollow: same, `unfollow`
 ```
 
-- **Reply = a full status** (a `--reply-to`) — there is no separate comment
+- **Reply = a full status** (a `--reply-to`): there is no separate comment
   entity; reply to a status id to comment on it, and read a thread with
   `post get --id <id>` (returns ancestors + descendants).
-- **Idempotent posts**: `post create` is safe to retry — identical parameters
+- **Idempotent posts**: `post create` is safe to retry. Identical parameters
   within Mastodon's window return the already-created status instead of
   double-posting.
-- **Images**: up to 4 per post; always pass `--alt` (accessibility — the tool
+- **Images**: up to 4 per post; always pass `--alt` (accessibility; the tool
   warns when it is missing). Uploads that the server processes asynchronously
   are waited out before the post is created.
 
@@ -83,7 +83,7 @@ The `Authorization` header is injected and cannot be overridden.
   the same server collapse to one connection; different instances are naturally
   distinct.
 - **Handles are per-instance**: a numeric id from one instance means nothing on
-  another — always resolve via the `@user@instance` handle.
+  another. Always resolve via the `@user@instance` handle.
 - **Visibility matters**: `direct` is a DM-style post to mentioned accounts;
   `private` is followers-only. Default (omit `--visibility`) uses the account's
   configured default.

@@ -26,7 +26,7 @@ The most common task is **read a form's responses**:
 heliox tool paperform -- form list
 # 2. (optional) understand its questions before reading answers
 heliox tool paperform -- field list --form <slug_or_id>
-# 3. read the responses — this is the payload you summarize/triage
+# 3. read the responses: this is the payload you summarize/triage
 heliox tool paperform -- submission list --form <slug_or_id> --limit 50
 # 4. pull one response in full
 heliox tool paperform -- submission get --id <submission_id> --form <slug_or_id>
@@ -59,7 +59,7 @@ DESC by created_at), `--after-id <id>` / `--before-id <id>`, `--after-date` /
 
 ## Footguns
 
-- **A form is identified by its slug OR its id** — either works for `--form`.
+- **A form is identified by its slug OR its id**: either works for `--form`.
 - **A submission's answers live in the submission object**, keyed by field. Read
   `field list` first when you need to map answers back to their questions.
 - **`partial-submission`** is for responses the user started but did not submit;

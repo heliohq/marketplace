@@ -14,7 +14,7 @@ automation, or for this person?*
 | A team or project fact other people should see | workspace memory, or `heliox memory` |
 
 The first five ride with the automation: hand it to another executor and they
-arrive intact, signed and readable. The sixth does not — your private wiki is
+arrive intact, signed and readable. The sixth does not: your private wiki is
 yours, and the executor who takes over starts with an empty one. That is the
 whole reason an automation-specific observation belongs in the automation's own
 files, and it is the mistake worth watching for in yourself.
@@ -35,7 +35,7 @@ The two prefixes are part of the evidence, not background colour.
 
 A **wiki page you did not open cannot be found wrong.** The refiner's ranking
 puts the wiki last precisely because a fact a run just disproved is only out of
-date — but that is a correction someone has to make, and nobody makes it from a
+date, but that is a correction someone has to make, and nobody makes it from a
 page they skipped. The same read is what surfaces a page that has quietly grown
 an instruction, which is a second authority rather than a stale fact.
 
@@ -52,11 +52,11 @@ promoting anything.
 
 **A wiki page or a script is written with**
 `heliox automation file write <automation-id> <path> --body "<content>"`. An
-existing path is replaced — that is how a page is maintained, and why there is
+existing path is replaced: that is how a page is maintained, and why there is
 no separate create verb.
 
 **A promoted script is a change to prove, not a trace to leave.** It alters what
 every future run executes, so it belongs back in the make-and-prove steps: write
 it, point the procedure at it, and rehearse that path before finishing.
-Promoting a fact into the wiki needs no rehearsal — it changes what the executor
+Promoting a fact into the wiki needs no rehearsal: it changes what the executor
 knows, not what it does.

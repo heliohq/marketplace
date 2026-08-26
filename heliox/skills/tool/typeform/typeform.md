@@ -13,10 +13,10 @@ Commands are grouped by resource: `me`, `form`, `response`, `workspace`,
 `--json` for the structured error envelope on failure. Run
 `-- <resource> <verb> --help` for exact flags rather than guessing.
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 A **response** is a list of `answers`, and each answer identifies its question
-only by a **field `id`/`ref`** — not by the question's visible title. To make
+only by a **field `id`/`ref`**, not by the question's visible title. To make
 sense of responses you almost always need the form's **field dictionary**
 first:
 
@@ -36,7 +36,7 @@ each answer. `response list` does **not** flatten or resolve titles for you.
 # newest first, one page (page size max 1000); the agent drives the cursor
 heliox tool typeform -- response list <form_id> --page-size 200 --sort submitted_at,desc --json
 
-# date window — the timestamp filtered depends on --response-type (see Footguns)
+# date window: the timestamp filtered depends on --response-type (see Footguns)
 heliox tool typeform -- response list <form_id> --since 2026-01-01T00:00:00 --until 2026-02-01T00:00:00 --json
 
 # partial + completed submissions, text search, only specific fields
@@ -59,10 +59,10 @@ heliox tool typeform -- form get <form_id> --json
 # create from a full form-definition JSON (inline or @file)
 heliox tool typeform -- form create --definition @survey.json --json
 
-# PUT full overwrite — the ONLY way to change questions/fields
+# PUT full overwrite: the ONLY way to change questions/fields
 heliox tool typeform -- form update <form_id> --definition @survey.json --json
 
-# PATCH metadata only — JSON-Patch ops on /title, /theme, /workspace, /settings/*
+# PATCH metadata only: JSON-Patch ops on /title, /theme, /workspace, /settings/*
 heliox tool typeform -- form patch <form_id> --patch '[{"op":"replace","path":"/title","value":"New title"}]'
 
 heliox tool typeform -- form delete <form_id>
@@ -92,10 +92,10 @@ heliox tool typeform -- webhook delete <form_id> <tag>
 heliox tool typeform -- me --json     # alias / email / language of the connected account
 ```
 
-## Footguns (the important part — these are where agents go wrong)
+## Footguns (the important part: these are where agents go wrong)
 
 - **Answers are keyed by field id/ref, not title.** `response list` gives you
-  `answers[].field.{id,ref,type}` and a typed value — never the question text.
+  `answers[].field.{id,ref,type}` and a typed value, never the question text.
   Run `form get <form_id>` and join on `field.ref` to label answers. Skipping
   this is the #1 mistake.
 - **`--response-type` changes which timestamp the date window filters.**
@@ -108,16 +108,16 @@ heliox tool typeform -- me --json     # alias / email / language of the connecte
   other.
 - **`form patch` can't touch questions.** PATCH is a JSON-Patch ops array
   restricted to `/title`, `/theme`, `/workspace`, `/settings/*`. To add, remove,
-  or edit fields/questions use **`form update`** (PUT full overwrite) — send the
+  or edit fields/questions use **`form update`** (PUT full overwrite). Send the
   complete definition, not a partial.
 - **Very recent responses may be missing.** Responses from roughly the last
-  30 minutes may not appear yet — an empty window is not proof of "no
+  30 minutes may not appear yet; an empty window is not proof of "no
   responses". For real-time delivery, wire a `webhook set` instead of polling.
 - **Rate limit is ~2 requests/second per token.** A `429`/`RATE_LIMITED` is
   surfaced verbatim; back off and retry rather than looping.
 - **EU-hosted accounts are not supported in v1.** This tool targets the global
   `api.typeform.com` base URL. An account homed in Typeform's EU data center
-  will return no data through it — reconnect is not a fix; EU support is a
+  will return no data through it. Reconnect is not a fix; EU support is a
   planned follow-up.
 - **`--account` when more than one Typeform account is connected.** A `409`
   lists the candidate account keys; re-run with `--account <key>` (before the
@@ -126,7 +126,7 @@ heliox tool typeform -- me --json     # alias / email / language of the connecte
 ## Safety
 
 - `form create/update/patch/delete`, `workspace create`, and `webhook
-  set/delete` mutate the user's Typeform account — follow the
+  set/delete` mutate the user's Typeform account. Follow the
   sensitive-operation rule in [../SKILL.md](../SKILL.md) before running one, and
   prefer confirming a `form delete` / `form update` (full overwrite) against a
   form you did not create.

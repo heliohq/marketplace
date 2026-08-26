@@ -26,7 +26,7 @@ merges **two** SignNow listing surfaces:
 - modified / in-flight documents (fields, texts, or signatures added).
 
 A doc you just uploaded lives only in the first until its first edit, so the
-merged, deduped list is the one you want — there is no need to call two
+merged, deduped list is the one you want. There is no need to call two
 endpoints yourself.
 
 ## Core commands
@@ -102,18 +102,18 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
   free-form invite on it, and the tool surfaces that error rather than guessing.
 - **`document list` already covers freshly-uploaded docs.** If a doc you just
   uploaded seems missing, re-run `document list` (not `document get` on a
-  guessed id) — the merged list includes the un-edited leg.
+  guessed id): the merged list includes the un-edited leg.
 - **`invite cancel` takes the DOCUMENT id; `invite resend` takes the FIELD
-  INVITE id.** They are different ids — read the invite id from `document get`.
+  INVITE id.** They are different ids. Read the invite id from `document get`.
 - **`--account` when more than one SignNow account is connected.** A `409`
   lists candidate account keys; re-run with `--account <key>` before the `--`.
 
 ## Safety
 
 - Sending an invite emails an external signer and starts a legally-binding
-  signature flow — it is an outward-facing action. Follow the sensitive-
+  signature flow: it is an outward-facing action. Follow the sensitive-
   operation rule in [../SKILL.md](../SKILL.md): confirm the recipient list and
   document before sending, and prefer showing the user the prepared document
   (`document get`) first.
-- `link create` mints a signing link anyone with the URL can use — treat it as
+- `link create` mints a signing link anyone with the URL can use: treat it as
   sensitive and share it only as the user intends.

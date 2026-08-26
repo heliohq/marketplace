@@ -19,7 +19,7 @@ subuser.
 | Command | Does |
 | --- | --- |
 | `scopes` | Verify the key and list its granted scopes |
-| `sender list` | Verified sender identities — the valid `from` addresses |
+| `sender list` | Verified sender identities: the valid `from` addresses |
 | `mail send` | Send an email (raw content or a dynamic template) |
 | `template list` / `template get --id <id>` | Dynamic templates and their versions |
 | `contact upsert` / `contact search --email <e>` | Add/update and look up marketing contacts |
@@ -29,10 +29,10 @@ subuser.
 
 `--help` after `--` is the full reference for any command.
 
-## Sending mail — the three things that bite
+## Sending mail: the three things that bite
 
 1. **`from` must be a verified sender.** A send from an unverified address fails
-   with a 403 ("does not match a verified Sender Identity") — that is NOT a bad
+   with a 403 ("does not match a verified Sender Identity"): that is NOT a bad
    key, it is an account-setup gap. Run `sender list` first and use one of those
    addresses; if none exist, the user must verify a sender in the SendGrid UI.
 
@@ -62,7 +62,7 @@ subuser.
 
 ## Contacts are asynchronous
 
-`contact upsert` returns a `job_id` and queues the contact — it is **not stored
+`contact upsert` returns a `job_id` and queues the contact: it is **not stored
 immediately**. Do not claim the contact was created. Confirm with
 `contact search --email <e>` (it may take a moment to appear).
 
@@ -76,13 +76,13 @@ heliox tool sendgrid -- contact search --email lead@example.com
 Beyond the shared table in `../SKILL.md`:
 
 - **403** on a command is usually a scope gap (the key lacks permission for that
-  operation) or an unverified `from` — not a dead key. Reconnecting won't help;
+  operation) or an unverified `from`, not a dead key. Reconnecting won't help;
   the user needs a key with the right scope, or a verified sender.
-- **401** means the key is invalid/revoked — ask the user to reconnect with a
+- **401** means the key is invalid/revoked: ask the user to reconnect with a
   fresh key.
 
 ## Safety
 
-Sending mail is an outward-facing action — follow the sensitive-operation rule
+Sending mail is an outward-facing action. Follow the sensitive-operation rule
 in `../SKILL.md`: confirm the recipient list, subject, and body with the
 user before sending anything that leaves their account.

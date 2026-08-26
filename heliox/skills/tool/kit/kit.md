@@ -62,7 +62,7 @@ heliox tool kit -- subscriber unsubscribe <id> --json
 
 `--status` is one of `active|inactive|bounced|complained|cancelled|all`.
 
-## Tags (audience segmentation — Kit's automation trigger primitive)
+## Tags (audience segmentation: Kit's automation trigger primitive)
 
 ```bash
 heliox tool kit -- tag list --json
@@ -72,7 +72,7 @@ heliox tool kit -- tag add    --tag-id 5 --email a@example.com --json
 heliox tool kit -- tag remove --tag-id 5 --subscriber-id 123 --json
 ```
 
-## Broadcasts (newsletters — the highest-value action)
+## Broadcasts (newsletters: the highest-value action)
 
 ```bash
 heliox tool kit -- broadcast list --json

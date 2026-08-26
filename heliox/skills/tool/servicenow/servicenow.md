@@ -9,19 +9,19 @@ heliox tool servicenow [--account <key>] -- <group> <verb> [flags...]
 ```
 
 ServiceNow is an enterprise ITSM / workflow platform. The tool wraps the
-**Table API** — the single generic REST surface that reads and writes records in
+**Table API**: the single generic REST surface that reads and writes records in
 any table (`incident`, `problem`, `change_request`, `task`, `sys_user`,
 `kb_knowledge`, CMDB `cmdb_ci*`, `sc_request`, …). A thin `incident` convenience
 group and a raw `api` escape hatch cover ergonomics and everything else.
 
-## Connect (two-field credential — instance URL + API key)
+## Connect (two-field credential: instance URL + API key)
 
 ServiceNow credentials are **instance-scoped**: the instance host is part of
 every request URL, so a connection needs **two** inputs, not one:
 
-1. **Instance URL** — e.g. `https://acme.service-now.com` (your company's
+1. **Instance URL**: e.g. `https://acme.service-now.com` (your company's
    ServiceNow instance).
-2. **REST API Key** — sent as the `x-sn-apikey` header.
+2. **REST API Key**: sent as the `x-sn-apikey` header.
 
 There is **no ServiceNow-hosted OAuth** an outside app can use across arbitrary
 customer instances, so this is a key-entry connection, not an OAuth consent.
@@ -32,7 +32,7 @@ The key is created **inside the customer's own instance** by an admin:
 2. System Web Services → **API Access Policies** → create an **Inbound
    Authentication Profile** whose Auth Parameter is the `x-sn-apikey` **Auth
    Header** record.
-3. Create a **REST API Key** linked to a dedicated integration **user** — that
+3. Create a **REST API Key** linked to a dedicated integration **user**: that
    user's roles scope what the key can read/write (`Auth Scope = useraccount`).
 4. Attach the profile to a **REST API Access Policy** targeting `/now/table/`.
 
@@ -43,7 +43,7 @@ existing integrations on that resource can break. Scope the policy to the
 integration's needs.
 
 A bad key or wrong instance URL is not caught at connect time (no verify probe);
-it surfaces on the first command as an auth error — reconnect with corrected
+it surfaces on the first command as an auth error. Reconnect with corrected
 values.
 
 ## Core commands
@@ -51,7 +51,7 @@ values.
 ### Generic Table API (works on any table)
 
 ```bash
-# list/query — sysparm encoded query; ^ = AND, ^OR = OR, field=value / field!=value / fieldLIKEx
+# list/query: sysparm encoded query; ^ = AND, ^OR = OR, field=value / field!=value / fieldLIKEx
 heliox tool servicenow -- table query incident --query "active=true^priority=1" --limit 20 --fields number,short_description,state --json
 heliox tool servicenow -- table get   incident <sys_id> --fields number,state --json
 heliox tool servicenow -- table create change_request --data '{"short_description":"Patch db","type":"normal"}' --json
@@ -77,7 +77,7 @@ heliox tool servicenow -- incident resolve INC0010001 --close-notes "Rebooted th
 ```
 
 `incident get/update/resolve` accept the **human INC number** (INC0010001) and
-resolve it to `sys_id` for you via a lookup — you and humans speak incident
+resolve it to `sys_id` for you via a lookup: you and humans speak incident
 numbers, not sys_ids. A 32-hex sys_id is used directly. `resolve` sets
 `state=6` (Resolved) with the close notes/code.
 
@@ -104,13 +104,13 @@ than guessing.
 - **sys_id vs number.** Most tables key on the opaque `sys_id`. Incidents (and
   other task records) also carry a human `number` (INC…/CHG…/PRB…). The
   `incident` group accepts either; the generic `table get/update/delete` needs a
-  **sys_id** — query by number first (`table query incident --query
+  **sys_id**: query by number first (`table query incident --query
   "number=INC0010001" --fields sys_id`) if you only have the number.
 - **Reference fields are sys_ids.** `assigned_to`, `assignment_group`,
   `caller_id` etc. store sys_ids. Write them as sys_ids in `--data`; read them
   human-readable with `--display-value all`.
 - **The `api` verb cannot override auth.** `--header x-sn-apikey:...` is
-  rejected — the credential is injected and fixed.
+  rejected; the credential is injected and fixed.
 - **`--account` when more than one ServiceNow instance is connected.** Dev/test/
   prod are separate connections; select with `--account <key>` (the instance
   base URL) before the `--`.
@@ -118,7 +118,7 @@ than guessing.
 ## Safety
 
 - ServiceNow records (incidents, changes, work notes) are operational records
-  others act on — follow the sensitive-operation rule in
+  others act on. Follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md) before creating, resolving, or reassigning
   anything. Confirm scope before a `table delete` or an `incident resolve`.
 - Prefer `work_notes` (internal) vs `comments` (customer-visible) deliberately;

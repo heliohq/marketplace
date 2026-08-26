@@ -18,8 +18,8 @@ An agent works Apollo in this order:
 
 1. **Find** prospects (`people search`) or target accounts (`org search`).
 2. **Enrich** a known person or company to verified email/phone/firmographics
-   (`people enrich` / `org enrich`) — this is the credit-consuming step.
-3. **Save** a prospect as a contact (`contacts create`) — the prerequisite for
+   (`people enrich` / `org enrich`): this is the credit-consuming step.
+3. **Save** a prospect as a contact (`contacts create`), the prerequisite for
    sequencing.
 4. **Engage**: enroll contacts into an outbound sequence (`sequences add`),
    create follow-up tasks (`tasks create`), and read/advance deals (`deals`).
@@ -57,7 +57,7 @@ heliox tool apollo -- deals search --json
 heliox tool apollo -- deals create --name "Acme expansion" --account-id <id> --amount 5000 --json
 ```
 
-Every command accepts `--body '<json>'` — a raw JSON object merged as the
+Every command accepts `--body '<json>'`: a raw JSON object merged as the
 request body base, so you can pass any Apollo filter/field the typed flags do
 not name (typed flags override). Run `-- <resource> <verb> --help` for the
 exact flags rather than guessing.
@@ -67,12 +67,12 @@ exact flags rather than guessing.
 - **Search returns people WITHOUT contact details.** `people search` gives you
   matches and Apollo ids; the verified email/phone only comes from
   `people enrich` (which spends credits). Don't report "no email found" from a
-  search result — enrich the person first.
+  search result. Enrich the person first.
 - **Some endpoints require an Apollo master API key and reject your OAuth
   token with a 403.** Apollo documents `people search`, `sequences add`,
   `sequences stop`, `deals search`, and `deals update` as master-key-only. If
   you hit a 403 with a "may require an Apollo master API key" hint, that
-  capability is not reachable with the connected OAuth account — do not retry in
+  capability is not reachable with the connected OAuth account. Do not retry in
   a loop; use the enrich/contacts/tasks path or tell the user.
 - **Enrolling into a sequence needs a sending mailbox.** `sequences add` wants
   `--email-account-id`; get it from `email-accounts list` first. Without it the
@@ -85,7 +85,7 @@ exact flags rather than guessing.
 
 ## Safety
 
-- Sequencing and outbound tasks send email to real prospects — follow the
+- Sequencing and outbound tasks send email to real prospects. Follow the
   sensitive-operation rule in [../SKILL.md](../SKILL.md) before enrolling
   contacts or creating outbound tasks.
 - Enrichment and search consume the user's paid Apollo credits; don't run

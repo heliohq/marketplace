@@ -143,7 +143,7 @@ heliox vault delete <credential_id> --yes --json
 
 When passing `--metadata`, include every metadata key that should remain. The metadata map is replaced when set.
 
-- `--requestable-name` + `--requestable-description` must come **together** — they publish the credential to the request catalog, or rewrite the preview if it's already published (the existing request ref stays valid).
+- `--requestable-name` + `--requestable-description` must come **together**: they publish the credential to the request catalog, or rewrite the preview if it's already published (the existing request ref stays valid).
 - `--clear-requestable` unpublishes it and can't be combined with the preview flags.
 - An update passing none of these flags leaves the published state untouched.
 
@@ -179,8 +179,8 @@ heliox approval get <approval_id> --json
 Approvals also carry **tool-execution** requests (the tool approval gate):
 
 - A policy-gated `heliox tool` command exits `APPROVAL_REQUIRED`; you create the request with `heliox approval request`, then replay the identical command with `--approval <id>` once approved.
-- `approval get <id>` reports a derived `Status` (pending / approved / denied / cancelled / expired / consumed — approved credentials expire when the execution window lapses).
-- `--json` exposes the frozen command under the top-level `extends` object (`tool`, `account`, `argv`) — recover the exact command to replay when it has fallen out of context.
+- `approval get <id>` reports a derived `Status` (pending / approved / denied / cancelled / expired / consumed; approved credentials expire when the execution window lapses).
+- `--json` exposes the frozen command under the top-level `extends` object (`tool`, `account`, `argv`): recover the exact command to replay when it has fallen out of context.
 
 Full gate flow: the `heliox:tool` skill.
 
@@ -209,7 +209,7 @@ request → resolve → get plaintext). Beyond that Flow:
 - **Signup blocks** (CAPTCHA, a missing invite permission, verification
   trouble, an unclear provider form) → ask a human in DM/channel.
 - **Acting with the credential** → outward-facing actions on connected tools
-  are gated automatically by `heliox tool` (`APPROVAL_REQUIRED` — see
+  are gated automatically by `heliox tool` (`APPROVAL_REQUIRED`; see
   `heliox:tool`); for destructive provider actions outside that gate (e.g.
   raw-credential calls), ask a human first.
 

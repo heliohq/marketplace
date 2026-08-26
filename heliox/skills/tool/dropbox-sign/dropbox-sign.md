@@ -10,11 +10,11 @@ heliox tool dropbox-sign [--account <key>] -- <resource> <verb> [flags...]
 
 Dropbox Sign is an e-signature service. Your real job is the **send → track →
 download** loop: send a document out for signature, watch whether it's signed,
-chase signers, and pull the completed signed PDF back — plus reuse of saved
+chase signers, and pull the completed signed PDF back, plus reuse of saved
 templates. Commands hang under three resource groups: `signature-request`,
 `template`, and `account`. Every command supports `--json`.
 
-> Not to be confused with **Dropbox** (file storage, `heliox tool dropbox`) —
+> Not to be confused with **Dropbox** (file storage, `heliox tool dropbox`):
 > separate product and account. This tool signs documents; it does not browse
 > Dropbox files.
 
@@ -82,7 +82,7 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
 ## Footguns (where agents go wrong)
 
 - **Provide exactly one document source.** `send` requires `--file` **or**
-  `--file-url`, never both and never neither — otherwise it's a usage error
+  `--file-url`, never both and never neither: otherwise it's a usage error
   (exit 2) before any API call.
 - **`list` is scoped to this connection.** It reflects requests created *through
   this connected account*, not the user's entire Dropbox Sign history. Don't

@@ -11,7 +11,7 @@ heliox tool surveymonkey [--account <key>] -- <resource> <verb> [flags...]
 The tool is **read-only**: it discovers surveys, reads their structure, reads
 responses, lists collectors, and returns the connected user's identity. Output
 is SurveyMonkey's own JSON, passed through verbatim (list endpoints return the
-`{ "data": [...], "page", "per_page", "total", "links": {...} }` envelope — page
+`{ "data": [...], "page", "per_page", "total", "links": {...} }` envelope: page
 with `--page`/`--per-page`).
 
 ## The mental model (read this first)
@@ -20,10 +20,10 @@ Analyzing a survey is a chain: **find the survey → read its structure → read
 responses → interpret answers against the structure.**
 
 - `survey list` / `survey get` find a survey and its `response_count`.
-- `survey details` returns the **question + answer-option ids** — the map you
+- `survey details` returns the **question + answer-option ids**: the map you
   need to make sense of answer ids in responses.
 - `response list` returns response **metadata only** (ids/hrefs, filterable by
-  status/date) — enough to *count* completed vs partial, but **no answers**.
+  status/date): enough to *count* completed vs partial, but **no answers**.
 - `response bulk` / `response get` return the actual **answers** (selected
   choice ids), which you interpret using `survey details`.
 
@@ -62,7 +62,7 @@ overquota, disqualified) and date filters (`--start-modified-at`,
   require the paid `responses_read_detail` permission. On a free-plan connection
   they fail with a clear **"reading survey answers requires a paid SurveyMonkey
   plan"** message (SurveyMonkey codes 1014/1015). This is a plan limitation, not
-  a bug — do not retry, and do not try to reach answers another way. Tell the
+  a bug: do not retry, and do not try to reach answers another way. Tell the
   user their SurveyMonkey account must be on a paid plan to read answers.
 - **Counts and structure work on a free plan.** If answers are paywalled you can
   still deliver a lot: `survey get` gives `response_count`; `response list`
@@ -87,7 +87,7 @@ overquota, disqualified) and date filters (`--start-modified-at`,
 
 ## Safety
 
-- This tool is read-only — it cannot create, edit, or delete surveys or
+- This tool is read-only: it cannot create, edit, or delete surveys or
   responses. Survey response data is often personal/sensitive; handle it per the
   sensitive-data guidance in [../SKILL.md](../SKILL.md) and don't echo raw
   respondent contents into shared channels without the user's intent.

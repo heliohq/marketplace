@@ -50,7 +50,7 @@ your `--count` until `items` comes back short.
 
 ## Amounts
 
-Amounts are in the **smallest currency unit** (paise for INR — ₹100 is
+Amounts are in the **smallest currency unit** (paise for INR, ₹100 is
 `amount: 10000`). The tool passes them through unchanged; never assume rupees.
 
 ## Scope of this tool (read before you try a write)
@@ -64,7 +64,7 @@ fund accounts) is a separate, higher-risk scope family and is out of scope here.
 
 ## Errors & exit codes
 
-- Exit **0** — success (JSON on stdout).
-- Exit **1** — Razorpay API/runtime failure; stderr carries the provider error
+- Exit **0**: success (JSON on stdout).
+- Exit **1**. Razorpay API/runtime failure; stderr carries the provider error
   (`CODE: description`). A `401` means the connection needs reconnecting.
-- Exit **2** — usage error (bad flag, missing id).
+- Exit **2**: usage error (bad flag, missing id).

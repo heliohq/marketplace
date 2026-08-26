@@ -13,19 +13,19 @@ content as Markdown, not Notion block JSON. Two top-level verbs are
 cross-resource (`fetch`, `search`); everything else hangs under a resource
 group (`page`, `db`, `data-source`, `view`, `comment`, `user`, `task`).
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 A Notion **page** has two separate halves, and they are read by different
 commands:
 
-- **Body** — the free-form Markdown area under the title. Read/written as
+- **Body**: the free-form Markdown area under the title. Read/written as
   markdown.
-- **Properties** — for a **database row**, its column values (Status, Priority,
+- **Properties**: for a **database row**, its column values (Status, Priority,
   Owner, dates…). These live in `properties`, **not** in the body.
 
 `fetch <id>` switches output by id type: **page → Markdown body**, **database /
-data-source → JSON**. So `fetch` on a database *row* returns only its body —
-which is usually empty — and **will not show you the row's field values**. To
+data-source → JSON**. So `fetch` on a database *row* returns only its body
+(which is usually empty) and **will not show you the row's field values**. To
 read a row's fields, query its data source. (See Footguns.)
 
 ## Core commands
@@ -102,10 +102,10 @@ heliox tool notion -- task get <task-id> --json
 Run `-- <resource> --help` (or `-- <resource> <verb> --help`) for the exact
 flags rather than guessing.
 
-## Footguns (the important part — these are where agents go wrong)
+## Footguns (the important part: these are where agents go wrong)
 
 - **A database row's fields are NOT in `fetch`.** `fetch <row-id>` returns the
-  row's *body* (usually empty) — its Status/Priority/Owner/etc. live in
+  row's *body* (usually empty): its Status/Priority/Owner/etc. live in
   `properties`. Reading a record and seeing "empty" almost always means you
   used `fetch`; use **`db query <data-source-id>`** to get rows *with* their
   field values. The tool prints a stderr hint when a fetched body is empty and
@@ -120,24 +120,24 @@ flags rather than guessing.
   (`> [!NOTE]`) do **not** render as callouts.
 - **Comments take Markdown, not plaintext** (via the endpoint's `markdown`
   field): inline bold/italic/strike/code/links, inline equations, and
-  `@mention` work. `comment list` returns **unresolved comments only** — a
+  `@mention` work. `comment list` returns **unresolved comments only**: a
   resolved discussion won't appear.
 - **`properties` must be REST value shape**, not shorthand: a title is
   `{"title":[{"text":{"content":"Hello"}}]}`, not `{"title":"Hello"}`. The CLI
   passes properties through verbatim.
 - **`view create` needs `--data-source-id` and `--name` on every parent mode**
-  (including `--create-database`) — a view without a data source is a `400`.
+  (including `--create-database`): a view without a data source is a `400`.
 - **Moving a database ≠ moving a page.** `page move` routes by id type: a page
   id → move endpoint; a **database id → re-parent** (databases have no move
   endpoint); a data-source id is rejected (move the database that owns it).
-- **There is no delete/archive command** — by design. The tool cannot remove
+- **There is no delete/archive command**: by design. The tool cannot remove
   pages, databases, or comments; clean up test artifacts in the Notion UI.
 - **`--account` when more than one Notion account is connected.** A `409` lists
   the candidate account keys; re-run with `--account <key>` (before the `--`).
 
 ## Safety
 
-- Comments and page edits are team-internal collaboration — routine, not
+- Comments and page edits are team-internal collaboration: routine, not
   approval-gated, and no pre-confirmation needed (see the tool skill's
   "Approval gate" section for what is gated).
 - Content edits with `--allow-deleting-content` can drop existing blocks;

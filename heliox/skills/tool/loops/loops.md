@@ -10,7 +10,7 @@ heliox tool loops [--account <team>] -- <group> <verb> [flags...]
 ```
 
 Loops is a transactional-email + audience platform. This tool wraps the CRM +
-messaging core you actually drive from chat — contacts, custom properties,
+messaging core you actually drive from chat: contacts, custom properties,
 events (which trigger Loops workflows), transactional email, and mailing lists.
 The heavy campaign/workflow *authoring* surface is intentionally not exposed;
 that is human configuration in the Loops UI. Every command prints the
@@ -37,10 +37,10 @@ heliox tool loops -- contact create --email a@e.com \
 # escape hatch merged into the body.
 heliox tool loops -- contact create --email a@e.com --property plan=pro --property seats=5
 
-# update / upsert — needs email OR userId (both allowed, e.g. attach a userId)
+# update / upsert: needs email OR userId (both allowed, e.g. attach a userId)
 heliox tool loops -- contact update --user-id u1 --first-name Grace
 
-# find / delete / suppression — exactly ONE of --email / --user-id
+# find / delete / suppression: exactly ONE of --email / --user-id
 heliox tool loops -- contact find --email a@e.com --json
 heliox tool loops -- contact delete --user-id u1
 heliox tool loops -- contact suppression get --email a@e.com --json
@@ -80,7 +80,7 @@ Send a templated transactional email by its Loops template id.
 # list templates (and their data-variable names); deprecated by Loops but functional
 heliox tool loops -- email list --json
 
-# send — email + transactional-id required; data variables fill the template
+# send: email + transactional-id required; data variables fill the template
 heliox tool loops -- email send --email a@e.com --transactional-id tmpl_123 \
   --data-variable name=Chris --data-variable resetLink=https://example.com/r
 ```
@@ -104,7 +104,7 @@ heliox tool loops -- list ls --json     # ids feed --mailing-list on contact/eve
 - **Custom properties must pre-exist.** Setting `--property foo=bar` on a
   contact fails unless `foo` was created via `contact-property create`.
 - **`subscribed` is only sent when you pass `--subscribed`.** Omit it on updates
-  unless you specifically intend to (un)subscribe — Loops leaves it untouched.
+  unless you specifically intend to (un)subscribe: Loops leaves it untouched.
 
 ## Exit codes
 

@@ -81,7 +81,7 @@ its keys override the named flags for full request fidelity:
 heliox tool salesloft -- person update --id 5 --body '{"custom_fields":{"Region":"EU"}}'
 ```
 
-Salesloft ids are integers — pass them bare (e.g. `--account-id 77`), not
+Salesloft ids are integers: pass them bare (e.g. `--account-id 77`), not
 quoted.
 
 ## Footguns
@@ -90,7 +90,7 @@ quoted.
   share the 600 cost/min. Prefer `--updated-since` polling over re-walking
   large lists, and keep `--per-page` at or below 100.
 - **Find before you write**: `person list --email` to resolve a prospect before
-  emailing or enrolling — creating a person on a duplicate email is a common
+  emailing or enrolling. Creating a person on a duplicate email is a common
   mistake.
 - **Updates are PUT and partial**: only the fields you pass (named or via
   `--body`) are sent; unset fields are left untouched.
@@ -102,6 +102,6 @@ Enrolling a person into a cadence, creating or updating people/accounts,
 creating tasks, and adding notes all change the rep's live Salesloft workspace
 and can trigger outreach to prospects. Treat cadence enrollment and any
 record write as outward-facing actions: follow the sensitive-operation rule in
-[../SKILL.md](../SKILL.md) — confirm with the user before the
+[../SKILL.md](../SKILL.md); confirm with the user before the
 first cadence enrollment or record write in a session, and never enroll a
 prospect the user has not sanctioned.

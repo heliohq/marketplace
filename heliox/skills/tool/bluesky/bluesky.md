@@ -16,19 +16,19 @@ Every leaf takes `--json`. Run `-- <command> --help` for the full flag surface.
 Three kinds of handle flow through Bluesky; pass them back verbatim, never
 invent them:
 
-- A **handle** is `alice.bsky.social` — human-readable, can change.
-- A **DID** is `did:plc:...` — the stable account key. Anywhere a command takes
+- A **handle** is `alice.bsky.social`: human-readable, can change.
+- A **DID** is `did:plc:...`: the stable account key. Anywhere a command takes
   `--actor`, either a handle or a DID works.
 - An **`at://` URI** (`at://<did>/app.bsky.feed.post/<rkey>`) plus a **`cid`**
   identify a specific post/record. `post create`, `like`, and `repost` echo the
-  `uri`/`cid` they produce — keep them to reply to, delete, like, or repost that
+  `uri`/`cid` they produce. Keep them to reply to, delete, like, or repost that
   item later.
 
 ## Writing posts
 
 Rich text is automatic: pass plain `--text` and the tool detects links and
 `#hashtags` and computes the byte-offset facets for you. `@mentions` are
-resolved best-effort (an unresolvable handle is left as plain text — a post
+resolved best-effort (an unresolvable handle is left as plain text; a post
 never fails over a mention).
 
 ```bash
@@ -39,7 +39,7 @@ heliox tool bluesky -- post create --text "look" --image ./cat.png --alt "a cat 
 ```
 
 Images: up to 4 per post via repeated `--image`; give each a matching `--alt`
-in the same order (alt text is an accessibility requirement — an empty alt
+in the same order (alt text is an accessibility requirement; an empty alt
 warns). `--lang en` tags the post language.
 
 ```bash
@@ -60,7 +60,7 @@ heliox tool bluesky -- notifications list [--limit N]            # mentions, rep
 
 Reads are one page; pass the returned `cursor` back as `--cursor` for the next
 page. Prefer `notifications list` over repeated searches for "what engagement
-did I get" — it is the lowest-cost path.
+did I get": it is the lowest-cost path.
 
 ## Engaging
 
@@ -72,7 +72,7 @@ heliox tool bluesky -- unfollow --uri at://<you>/app.bsky.graph.follow/<rkey>
 ```
 
 `like`/`repost` need both the target post's `uri` and `cid` (from a read
-result). `unfollow` deletes the follow **record** — pass the `uri` that
+result). `unfollow` deletes the follow **record**: pass the `uri` that
 `follow` returned, not the followed actor's handle.
 
 ## Connecting

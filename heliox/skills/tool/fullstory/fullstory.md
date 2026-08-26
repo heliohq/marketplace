@@ -21,7 +21,7 @@ upsert a user's properties.
 
 ## Commands
 
-### Sessions — the investigation entry point
+### Sessions: the investigation entry point
 
 ```bash
 # Most recent session replay URLs for a user (results[].{id, fs_url, created_time})
@@ -81,7 +81,7 @@ heliox tool fullstory -- me
   with a **Standard** key.
 - **Reading user data** (`user get`, `user list`) generally needs an
   **Architect** (Enterprise) key; on a Standard key these return a permission
-  error — run `me` to check the key's role.
+  error: run `me` to check the key's role.
 - Session-event capture, AI session summaries, and bulk import/export are part
   of separate FullStory products and are **not** wrapped here.
 
@@ -90,5 +90,5 @@ heliox tool fullstory -- me
 Every command prints provider JSON to stdout; list-style calls keep FullStory's
 `{"results":[...]}` envelope. Add `--json` for a structured error envelope.
 Exit codes: `0` success, `1` API/runtime failure (the FullStory message is
-surfaced — including a `429` monthly server-event quota reason), `2` a usage
+surfaced, including a `429` monthly server-event quota reason), `2` a usage
 error (bad flag combination) before any request is made.

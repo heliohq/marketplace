@@ -9,7 +9,7 @@ the provider's JSON envelope verbatim.
 heliox tool beehiiv [--account <key>] -- <resource> <verb> [flags...]
 ```
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 **Almost everything is publication-scoped.** A beehiiv workspace can hold
 several publications, and posts / subscribers / segments / tiers all live under
@@ -48,7 +48,7 @@ heliox tool beehiiv -- post list --publication-id pub_… \
 heliox tool beehiiv -- post get post_… --publication-id pub_… --expand stats --json
 ```
 
-The tool does **not** create or send posts — authoring/sending is an app-only
+The tool does **not** create or send posts: authoring/sending is an app-only
 flow, so `post` is read-only here.
 
 ### Subscribers (the primary write path)
@@ -89,18 +89,18 @@ rather than guessing.
   fields you want to change: `{"tier":"premium"}`, `{"unsubscribe":true}`,
   `{"email":"new@addr"}`, `{"custom_fields":[{"name":"Plan","value":"pro","delete":false}]}`.
 - **Reference names/ids before writing.** `tier`/`custom-field`/`automation`
-  `list` give the valid values `subscription create`/`update` reference — a
+  `list` give the valid values `subscription create`/`update` reference: a
   wrong tier or custom-field name is rejected by the API.
 - **`--expand` is repeatable** (`--expand stats --expand custom_fields`), and
-  only some values are valid per resource (posts vs subscriptions differ) —
-  check `--help`.
+  only some values are valid per resource (posts vs subscriptions differ).
+  Check `--help`.
 - **`--account` when more than one beehiiv account is connected.** A `409`
   lists the candidate account keys; re-run with `--account <key>` before `--`.
 
 ## Safety
 
 - Adding, re-activating, or unsubscribing a reader, and sending a welcome
-  email, are outward-facing actions against the user's audience — follow the
+  email, are outward-facing actions against the user's audience. Follow the
   sensitive-operation rule in [../SKILL.md](../SKILL.md) and confirm scope
   (especially bulk changes or `send_welcome_email`) before running one.
 - Never echo tokens or credential payloads; the CLI never shows them to you.

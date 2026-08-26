@@ -10,7 +10,7 @@ heliox tool chargebee [--account <site>] -- <resource> <verb> [flags...]
 
 One connected account is one Chargebee **site** (e.g. `acme-test`). The account
 key shown in `heliox tool list` is the site subdomain. Credentials (the site
-API key) are injected automatically — you never see or pass them.
+API key) are injected automatically: you never see or pass them.
 
 ## The mental model
 
@@ -49,7 +49,7 @@ heliox tool chargebee -- usage list --json          # metered usage (top-level)
 
 ### Invoice PDF
 
-`invoice pdf` is a **POST** that returns a JSON `download` object — a transient
+`invoice pdf` is a **POST** that returns a JSON `download` object: a transient
 `download_url` plus `valid_till`, not raw PDF bytes. Fetch the URL before it
 expires.
 
@@ -64,14 +64,14 @@ heliox tool chargebee -- invoice pdf <invoice-id> --json
 heliox tool chargebee -- customer create --param first_name=Ada --param email=ada@example.com --json
 heliox tool chargebee -- customer update <customer-id> --param company="Acme Inc" --json
 
-# subscriptions — --item-price is repeatable; append :qty for a quantity
+# subscriptions: --item-price is repeatable; append :qty for a quantity
 heliox tool chargebee -- subscription create --customer-id <id> \
   --item-price basic-USD:1 --item-price addon-USD --param auto_collection=on --json
 heliox tool chargebee -- subscription change <subscription-id> --item-price pro-USD --json
 heliox tool chargebee -- subscription cancel <subscription-id> --param end_of_term=true --json
 heliox tool chargebee -- subscription reactivate <subscription-id> --json
 
-# metered usage — creation is ALWAYS subscription-scoped (no flat POST /usages)
+# metered usage: creation is ALWAYS subscription-scoped (no flat POST /usages)
 heliox tool chargebee -- usage create --subscription-id <id> \
   --param item_price_id=metered-USD --param quantity=5 --json
 ```
@@ -90,7 +90,7 @@ heliox tool chargebee -- get --path /quotes --query limit=5 --json
 - **`usage create` needs `--subscription-id`.** There is no flat
   `POST /usages`; usage is always recorded against a subscription.
 - **`invoice pdf` returns a link, not bytes.** Use the `download_url` from the
-  response, and note `valid_till` — it expires.
+  response, and note `valid_till`: it expires.
 - **Item prices, not plans, for PC 2.0.** New subscriptions use
   `--item-price` (`item_prices`); `plan list` is the legacy PC 1.0 surface.
 - **Paging is opaque cursors.** Pass the response's `next_offset` back as

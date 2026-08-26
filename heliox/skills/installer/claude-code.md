@@ -1,4 +1,4 @@
-# Claude Code — install / uninstall recipes
+# Claude Code: install / uninstall recipes
 
 Read [SKILL.md](SKILL.md) first (verb, parse, detect, safety, echo). You are on
 **Claude Code**. For install, `OWNER_REPO` = `<owner>/<repo>` and `REV` =
@@ -7,10 +7,10 @@ the `install` or `uninstall` block per the prompt's verb.
 
 ## skill (`skill:…`)
 
-There is no `claude skill` subcommand — a skill is just a folder with `SKILL.md`
+There is no `claude skill` subcommand: a skill is just a folder with `SKILL.md`
 at its root under `${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills/<name>`.
 
-**Install** — idempotent **by revision**: if the skill dir already exists,
+**Install** (idempotent **by revision**): if the skill dir already exists,
 compare its revision marker to `$REV`; equal → "already installed", stop;
 different → replace it so a bumped catalog revision actually lands. The clone
 goes to a temp dir and only the requested `<path>` subtree (root ⇒ whole repo) is
@@ -31,11 +31,11 @@ git clone --depth 1 "https://github.com/${OWNER_REPO}.git" "$TMP"
 SRC="$TMP"; [ -n "<path>" ] && [ "<path>" != "root" ] && SRC="$TMP/<path>"
 mkdir -p "$DEST" && cp -R "$SRC"/. "$DEST"/ && rm -rf "$TMP"
 printf '%s' "$REV" > "$DEST/.helio-skill-rev"
-test -f "$DEST/SKILL.md" || { echo "SKILL.md not at root — check the source <path>"; exit 1; }
+test -f "$DEST/SKILL.md" || { echo "SKILL.md not at root; check the source <path>"; exit 1; }
 ```
 
-**Uninstall** — remove the folder. Not there → report "not installed" and stop.
-Never remove a skill dir that belongs to a plugin (path under `.../plugins/…`) —
+**Uninstall**: remove the folder. Not there → report "not installed" and stop.
+Never remove a skill dir that belongs to a plugin (path under `.../plugins/…`);
 uninstall the plugin instead.
 
 ```bash
@@ -45,18 +45,18 @@ rm -rf "$DEST"
 ```
 
 A newly added or removed skills dir may need a session reload before Claude Code
-notices — say so in your echo.
+notices; say so in your echo.
 
 **Verify:** install → `test -f "$DEST/SKILL.md"`; uninstall → `test ! -e "$DEST"`.
 
 ## plugin (`plugin:…`, or `<name>@<marketplace>`)
 
-**Install** — the repo ships `.claude-plugin/marketplace.json`. Register the
-marketplace, then install. Read the marketplace NAME back — do not guess it.
+**Install**: the repo ships `.claude-plugin/marketplace.json`. Register the
+marketplace, then install. Read the marketplace NAME back; do not guess it.
 Idempotent: `claude plugin list --json` already shows it → stop.
 
 ```bash
-claude plugin marketplace add "$OWNER_REPO"   # clones the repo's DEFAULT BRANCH — no --ref
+claude plugin marketplace add "$OWNER_REPO"   # clones the repo's DEFAULT BRANCH, no --ref
 claude plugin marketplace list                # read the registered <marketplace> name
 claude plugin install "<name>@<marketplace>" --scope user
 ```
@@ -65,14 +65,14 @@ claude plugin install "<name>@<marketplace>" --scope user
 `marketplace list` first to reuse the existing name).
 
 **No revision pinning for claude plugins.** `claude plugin marketplace add` takes
-no commit/ref — it clones the default branch HEAD, so the plugin **tracks that
+no commit/ref: it clones the default branch HEAD, so the plugin **tracks that
 branch** and a later `marketplace update` floats to new HEAD. `$REV` cannot pin
 it. Use `$REV` only to *verify* what you got (`git -C ~/.claude/marketplaces/<mkt>
-rev-parse HEAD` and compare), and **tell the user the plugin is not pinned** — it
+rev-parse HEAD` and compare), and **tell the user the plugin is not pinned**: it
 follows the branch, unlike a git-cloned skill or a codex plugin (`--ref`).
 
-**Uninstall** — remove the plugin by its `<name>@<marketplace>` ref. This
-**cascades**: the plugin's bundled skills / MCP servers / subagents go with it —
+**Uninstall**: remove the plugin by its `<name>@<marketplace>` ref. This
+**cascades**: the plugin's bundled skills / MCP servers / subagents go with it;
 say so before running. Leave the marketplace registered (other plugins may use
 it). Not installed → report and stop.
 
@@ -81,7 +81,7 @@ claude plugin list --json                 # confirm the exact <name>@<marketplac
 claude plugin uninstall "<name>@<marketplace>"
 ```
 
-**Verify:** `claude plugin list --json` — install → present; uninstall → gone.
+**Verify:** `claude plugin list --json`. Install → present; uninstall → gone.
 
 ## mcp_server
 
@@ -92,11 +92,11 @@ claude plugin uninstall "<name>@<marketplace>"
   ```bash
   # install / connect
   claude mcp add --transport http --scope user <name> <URL>        # HTTP (OAuth-capable)
-  claude mcp add --scope user [-e KEY=v ...] <name> -- <command> [args...]   # stdio subprocess — confirm first, §Safety
+  claude mcp add --scope user [-e KEY=v ...] <name> -- <command> [args...]   # stdio subprocess; confirm first, §Safety
   claude mcp login <name>     # if OAuth is required
   # uninstall / remove
   claude mcp remove --scope user <name>
   ```
 
-**Verify:** `claude mcp get <name>` — install → shows server + auth/health;
+**Verify:** `claude mcp get <name>`. Install → shows server + auth/health;
 uninstall → not found.

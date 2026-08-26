@@ -3,7 +3,7 @@
 Braintree payments operations over the Braintree GraphQL API: search and
 inspect transactions, refund / void / reverse them, look up customers and
 disputes, and check subscription status. This is an **operational** surface for
-a merchant's existing payments — it does **not** create charges (that needs a
+a merchant's existing payments: it does **not** create charges (that needs a
 client-collected payment method Helio does not hold).
 
 Read `../SKILL.md` first for the connect model and the tool approval gate.
@@ -16,7 +16,7 @@ their Braintree **Control Panel → Settings → API → API Keys**:
 - `merchant_id`
 - `public_key`
 - `private_key` (secret)
-- `environment` — `sandbox` or `production`
+- `environment`: `sandbox` or `production`
 
 ```bash
 heliox tool braintree auth --json   # mints the connect link; user pastes the four fields
@@ -30,8 +30,8 @@ them in the Braintree Control Panel (disconnect in Helio is local-only).
 ## Commands
 
 All output is JSON with `--json`; list verbs return
-`{ "items": [...], "page_info": { "has_next_page": bool, "end_cursor": "..." } }`
-— pass `--after <end_cursor>` to page.
+`{ "items": [...], "page_info": { "has_next_page": bool, "end_cursor": "..." } }`;
+pass `--after <end_cursor>` to page.
 
 ```bash
 # Health / credential check
@@ -53,20 +53,20 @@ heliox tool braintree -- subscription get <subscription_id>
 heliox tool braintree -- query 'query { ping }'
 ```
 
-## Money movement — read this before refunding
+## Money movement: read this before refunding
 
 Three separate verbs move money. The approval gate prompts before each one:
 
-- `transaction refund <id> [--amount X] [--order-id O]` — refunds a **settled**
+- `transaction refund <id> [--amount X] [--order-id O]`: refunds a **settled**
   transaction (full, or partial with `--amount`).
-- `transaction void <id>` — cancels an **unsettled** transaction. It **errors**
+- `transaction void <id>`: cancels an **unsettled** transaction. It **errors**
   once the transaction has settled and never moves money that already left.
-- `transaction reverse <id>` — the universal reversal: it **voids** an unsettled
+- `transaction reverse <id>` (the universal reversal): it **voids** an unsettled
   transaction but issues a **FULL REFUND** on an already-**settled** one. Reach
   for `reverse` only when you want that behavior; use `void` when you specifically
   mean "cancel only if still unsettled."
 
-`void` and `reverse` are distinct on purpose — `void` never silently refunds a
+`void` and `reverse` are distinct on purpose: `void` never silently refunds a
 settled transaction.
 
 ## Notes

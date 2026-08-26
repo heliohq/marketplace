@@ -9,7 +9,7 @@ heliox tool salesforce [--account <key>] -- <command> [flags...]
 ```
 
 The tool speaks the **Salesforce Platform REST API** against the connected
-org's `instance_url` (its My Domain host — captured for you at connect time).
+org's `instance_url` (its My Domain host, captured for you at connect time).
 Every command prints the provider's JSON to stdout. Work in this order:
 **describe → query → write**, so you build valid SOQL and record payloads from
 the org's real object/field names instead of guessing.
@@ -21,7 +21,7 @@ the org's real object/field names instead of guessing.
 - You read data two ways: **SOQL** (`query`, precise, when you know the object
   and fields) and **search** (fuzzy, cross-object, when you have a name/term).
 - Custom fields and picklist values differ per org. **Never assume field
-  names** — run `sobject describe <Object>` first.
+  names**: run `sobject describe <Object>` first.
 - Errors come back as a JSON **array**: `[{"errorCode":"...","message":"..."}]`.
 
 ## Discover the schema first
@@ -42,11 +42,11 @@ Add `--raw` to `sobject list`/`describe` for the full untrimmed body (large).
 ## Read
 
 ```bash
-# SOQL — the primary read path (auto-follows pagination up to --max-records)
+# SOQL: the primary read path (auto-follows pagination up to --max-records)
 heliox tool salesforce -- query "SELECT Id, Name, StageName, Amount FROM Opportunity WHERE IsClosed = false ORDER BY CloseDate" --json
 heliox tool salesforce -- query "SELECT Id FROM Lead WHERE Email = 'a@b.com'" --all --json   # queryAll = includes deleted/archived
 
-# fuzzy cross-object search (SOSL) — use when you have a name, not an id
+# fuzzy cross-object search (SOSL): use when you have a name, not an id
 heliox tool salesforce -- search "Acme" --objects Account,Contact --fields Id,Name --limit 20 --json
 
 # one record by id (optionally trim fields)
@@ -82,14 +82,14 @@ error (exit 2), caught before any request.
 
 - **Field names are org-specific.** A create/update that 400s with
   `INVALID_FIELD` or `REQUIRED_FIELD_MISSING` means describe the object and fix
-  the payload — do not retry the same body.
+  the payload. Do not retry the same body.
 - **`INVALID_SESSION_ID`** = the connection needs re-auth; surface it, don't
   loop.
 - **`REQUEST_LIMIT_EXCEEDED`** = the org's daily API budget is spent; check
   `limits` and back off.
 - **Ids are 15- or 18-char, case-sensitive.** Prefer the 18-char id SOQL
   returns.
-- **`update`/`delete` return no body on success** (HTTP 204) — the tool
+- **`update`/`delete` return no body on success** (HTTP 204): the tool
   synthesizes `{"success":true,...}` so a caller reading stdout still gets a
   result.
 

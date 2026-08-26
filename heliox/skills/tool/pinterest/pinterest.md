@@ -9,7 +9,7 @@ heliox tool pinterest [--account <key>] -- <resource> <verb> [flags...]
 ```
 
 Resources: `account`, `board`, `pin`. Run `-- <resource> --help` for the full
-flag surface. One connection is one Pinterest account — the token is scoped to
+flag surface. One connection is one Pinterest account. The token is scoped to
 the single account that authorized it, so there is no account selector inside
 the commands.
 
@@ -47,7 +47,7 @@ supported by this tool yet.
 List endpoints (`board list`, `board pins`, `pin list`, `board sections`) accept
 `--page-size N` and `--bookmark <cursor>`, and the JSON response carries a
 `bookmark` for the next page. To page, read the returned `bookmark` and pass it
-back as `--bookmark` — there is no automatic follow, so you decide how far to
+back as `--bookmark`. There is no automatic follow, so you decide how far to
 walk.
 
 ```bash
@@ -60,10 +60,10 @@ heliox tool pinterest -- board list --page-size 25 --bookmark "<that value>"
 
 - **A `--image-url` that Pinterest can't fetch is a 400** ("valid image url").
   The URL must be publicly reachable and a real image.
-- **401 means reconnect** — the tool surfaces a distinct "token expired or
-  revoked — reconnect the Pinterest connection" message. Don't retry the same
+- **401 means reconnect**: the tool surfaces a distinct "token expired or
+  revoked; reconnect the Pinterest connection" message. Don't retry the same
   call; re-auth the connection.
-- **429 means back off** — the tool surfaces the rate-limit message. Wait and
+- **429 means back off**: the tool surfaces the rate-limit message. Wait and
   retry later rather than hammering; repeated writes to one object in a short
   window also trip this.
 - **`board delete` / `pin delete` are irreversible** and return a

@@ -17,12 +17,12 @@ provider's `data` payload (the `{status,data}` envelope is already unwrapped).
 
 Booking a meeting is a two-step flow, and the two ids are different:
 
-1. **`event-type`** — the bookable meeting *type* the user offers (e.g. "30-min
+1. **`event-type`**: the bookable meeting *type* the user offers (e.g. "30-min
    intro"). List them to get an `eventTypeId` (an integer). This is the entry
    point: a booking needs an `eventTypeId`.
-2. **`slot`** — open times for a given event type inside a bounded date range.
+2. **`slot`**: open times for a given event type inside a bounded date range.
    Propose or confirm a slot's `start` before booking.
-3. **`booking`** — a scheduled meeting, addressed by its **`bookingUid`** (a
+3. **`booking`**: a scheduled meeting, addressed by its **`bookingUid`** (a
    string, not the numeric event-type id). Read, create, cancel, reschedule.
 
 Time is always explicit: every `booking create` / `reschedule` takes an ISO-8601
@@ -42,7 +42,7 @@ heliox tool calcom -- me --json                              # the connected Cal
 ### Find open time
 
 ```bash
-# bounded range (keep it tight — a few days, not months)
+# bounded range (keep it tight: a few days, not months)
 heliox tool calcom -- slot list --event-type-id <id> \
   --start 2026-02-01T00:00:00Z --end 2026-02-08T00:00:00Z --json
 ```

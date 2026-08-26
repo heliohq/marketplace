@@ -25,12 +25,12 @@ heliox tool tiktok -- video query --ids id1,id2       # specific videos by id
 
 `user info` defaults to basic-scope fields (`open_id,union_id,avatar_url,
 display_name`); request `follower_count`, `likes_count`, `bio_description`,
-etc. via `--fields` — those need the profile/stats scopes granted at connect.
+etc. via `--fields`. Those need the profile/stats scopes granted at connect.
 
 ## Posting a video (do the prerequisite first)
 
 Direct Post publishes straight to the profile. **Always call `creator info`
-first** — it returns the account's allowed `privacy_level_options` and limits,
+first**. It returns the account's allowed `privacy_level_options` and limits,
 and the privacy level you post with must be one of them:
 
 ```bash
@@ -44,7 +44,7 @@ heliox tool tiktok -- post status --publish-id <id>   # poll processing status
 - `--url` hands TikTok a public URL to pull the video from (simplest).
   `--file` uploads a local file (single-chunk PUT after init).
 - Direct post **requires** `--privacy`. Use `--draft` to skip publishing and
-  drop the video into the creator's TikTok inbox to finish in the app — a draft
+  drop the video into the creator's TikTok inbox to finish in the app; a draft
   upload takes no privacy level.
 - `post video` returns a `publish_id`; posting is asynchronous, so poll
   `post status --publish-id <id>` until it reports done.
@@ -58,13 +58,13 @@ heliox tool tiktok -- post status --publish-id <id>   # poll processing status
   work against arbitrary creators once TikTok has audited the app; on an
   unaudited/sandbox app, posts are forced to private and limited to test users.
 - **`--max-count` is 1-20**; the cursor is a UTC unix millisecond timestamp,
-  not an opaque token — pass the `cursor` returned by the previous page.
+  not an opaque token; pass the `cursor` returned by the previous page.
 - **The acting account is the bearer token's**; `user info` has no target flag.
 
 ## Safety
 
 Posting a video (direct post or draft), whether to the public or to the
 creator's own inbox, is an **outward-facing action on the user's real TikTok
-account**: follow the sensitive-operation rule from `../SKILL.md` —
-confirm with the user before the first post in a session, and never publish
+account**: follow the sensitive-operation rule from `../SKILL.md`.
+Confirm with the user before the first post in a session, and never publish
 content the user has not sanctioned.

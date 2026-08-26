@@ -10,9 +10,9 @@ heliox tool savvycal [--account <key>] -- <resource> <verb> [flags...]
 
 SavvyCal is a scheduling-link product. Three resource groups:
 
-- `me` — the connected account's identity.
-- `event` — bookings made through SavvyCal (list / get / create / cancel).
-- `link` — scheduling links (list / get / create / update / toggle /
+- `me`: the connected account's identity.
+- `event`: bookings made through SavvyCal (list / get / create / cancel).
+- `link`: scheduling links (list / get / create / update / toggle /
   duplicate / delete) plus `link slots` for availability.
 
 Every command prints the provider's JSON verbatim. List commands
@@ -81,13 +81,13 @@ Notes:
   filter to one rank (`rank === N`), not `rank <= N`.
 - `--field id=value` (repeatable) answers a link's booking-form questions;
   `--metadata` is a raw JSON object passed through.
-- Conferencing info (e.g. a Zoom link) may attach a moment after creation —
+- Conferencing info (e.g. a Zoom link) may attach a moment after creation:
   re-`event get` if it's missing from the create response.
 
 ## Errors
 
 - A `422` returns SavvyCal's `{"errors": {...}}` validation body verbatim (bad
-  slot, missing field) — read it and fix the inputs; don't retry blindly.
+  slot, missing field). Read it and fix the inputs; don't retry blindly.
 - `401 reconnect required` → relay a fresh `savvycal auth` link (see ../SKILL.md).
 
 ## Safety

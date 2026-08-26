@@ -1,6 +1,6 @@
 # Paddle (`heliox tool paddle`)
 
-Paddle Billing — the merchant-of-record subscription platform. Use it for
+Paddle Billing, the merchant-of-record subscription platform. Use it for
 billing/support and revenue ops on the seller's **own** account: look up a
 customer's plan and payment history, run subscription lifecycle actions, pull an
 invoice, manage the catalog, issue refunds/credits, and export revenue reports.
@@ -10,7 +10,7 @@ Classic vendor API.
 
 Read `../SKILL.md` and the portal model in `../SKILL.md` first. Connect
 is api-key: the user pastes a Paddle Billing API key (Paddle dashboard →
-Developer Tools → Authentication). You never see the key — the CLI injects it
+Developer Tools → Authentication). You never see the key. The CLI injects it
 per call.
 
 ## Environments (no base URL to pick)
@@ -20,7 +20,7 @@ The key prefix decides live vs sandbox automatically:
 - `pdl_live_apikey_…` → live (`api.paddle.com`)
 - `pdl_sdbx_apikey_…` → sandbox (`sandbox-api.paddle.com`)
 
-Live and sandbox are **separate accounts with separate data** — a sandbox key
+Live and sandbox are **separate accounts with separate data**. A sandbox key
 cannot see live customers and vice-versa. Whatever key the user connected is the
 account you operate on.
 
@@ -37,7 +37,7 @@ account you operate on.
 
 ## Preview before you write
 
-Money-moving actions have dry-run twins — run the preview, show the user the
+Money-moving actions have dry-run twins: run the preview, show the user the
 resulting proration/charge, then do the real action:
 
 - `subscription preview-update <id> --data '…'` before `subscription update`
@@ -86,6 +86,6 @@ Paddle request body via `--data '<json>'`. Use `paddle <group> <verb> --help`
 ## Errors
 
 Failures print Paddle's error object (`code`, `detail`, `documentation_url`) and
-exit non-zero. A rejected key (401/403) means the user must paste a fresh key —
-ask them to reconnect. `429` is a rate-limit (per IP, ~240 req/min general);
+exit non-zero. A rejected key (401/403) means the user must paste a fresh key.
+Ask them to reconnect. `429` is a rate-limit (per IP, ~240 req/min general);
 back off and retry.

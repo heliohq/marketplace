@@ -1,6 +1,6 @@
 # Hotjar (`heliox tool hotjar`)
 
-Hotjar (now part of Contentsquare) captures product-experience data — surveys,
+Hotjar (now part of Contentsquare) captures product-experience data: surveys,
 feedback, heatmaps, recordings. This tool wraps its REST API's read surface:
 enumerate a site's surveys and export their responses (voice-of-customer
 feedback), plus a GDPR/ops user lookup. Use it when a task needs survey feedback
@@ -27,7 +27,7 @@ secret**. Two plan-tier facts to relay up front:
   reports a credential/permission error.
 - **API keys auto-expire after one year and cannot be extended.** When a
   previously-working connection starts returning credential-rejected errors, the
-  key has likely expired — ask the user to mint a new one and reconnect.
+  key has likely expired. Ask the user to mint a new one and reconnect.
 
 The tool exchanges the pasted client_id/client_secret for a short-lived bearer
 itself (OAuth client-credentials); you never handle a token.
@@ -68,10 +68,10 @@ heliox tool hotjar -- survey responses --site 12345 --survey 678 --cursor eyJ...
   Hotjar's user-lookup endpoint doubles as its data-deletion endpoint (via a
   `delete_all_hits` flag), so `user lookup` always sends the read-only mode and
   cannot delete. If a user genuinely needs a GDPR deletion, direct them to
-  Hotjar's own UI — this tool will not perform it.
+  Hotjar's own UI. This tool will not perform it.
 - A `403` means the key lacks permission or the account's plan tier does not
   include the feature (survey export needs Ask Scale). A credential-rejected
-  error means the key is wrong or has hit its one-year expiry — ask the user to
+  error means the key is wrong or has hit its one-year expiry. Ask the user to
   reconnect with a fresh key.
 - A `429` is Hotjar's rate limit (3000 requests/minute); retry after a short
   pause rather than reconnecting.

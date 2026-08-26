@@ -18,12 +18,12 @@ otherwise a compact human summary).
 - **`part` shapes every read.** The Data API hydrates only the resource
   sections you ask for (`snippet`, `statistics`, `contentDetails`, `status`,
   `replies`, …). The tool sends a sensible default per verb and lets `--part`
-  override it — pass the API's own part names verbatim.
+  override it; pass the API's own part names verbatim.
 - **Quota is real.** Default project quota is 10,000 units/day. `search` costs
   **100 units**; most reads cost 1; writes ~50. A `403 quotaExceeded` is
-  surfaced verbatim — there is no client-side retry. Prefer `videos mine`
-  (uploads playlist, ~1–2 units) over `search` for "my videos".
-- **Paging.** List verbs take `--max N` (1–50, default 5) and `--page <token>`,
+  surfaced verbatim; there is no client-side retry. Prefer `videos mine`
+  (uploads playlist, ~1-2 units) over `search` for "my videos".
+- **Paging.** List verbs take `--max N` (1-50, default 5) and `--page <token>`,
   and echo `nextPageToken` for the next call.
 
 ## Core commands
@@ -43,14 +43,14 @@ time-series analytics (that is a separate API, out of scope).
 ### Research / discovery
 
 ```bash
-# search (100-unit cost) — ids come back flattened to a top-level id + kind
+# search (100-unit cost): ids come back flattened to a top-level id + kind
 heliox tool youtube -- search --query "launch recap" --type video --max 5 --json
 heliox tool youtube -- search --query "" --channel UCxxxx --order date
 
 # a video's metadata + statistics
 heliox tool youtube -- videos get --id VIDEO_ID,VIDEO_ID2 --json
 
-# your own uploads (uploads-playlist path, complete + cheap — never search)
+# your own uploads (uploads-playlist path, complete + cheap; never search)
 heliox tool youtube -- videos mine --max 20 --json
 ```
 
@@ -105,17 +105,17 @@ heliox tool youtube -- subscriptions list --mine --json
   (`channels.list` → `relatedPlaylists.uploads` → `playlistItems.list`): cheap,
   complete, immediately consistent. `search --forMine` would be 100 units,
   ~500-capped, and eventually-consistent (very recent uploads can be missing).
-- **`playlist-items remove` needs the playlistItem id**, not the video id — the
+- **`playlist-items remove` needs the playlistItem id**, not the video id. The
   same video can appear multiple times, each with its own item id.
 - **`--ban-author` only applies with `--status rejected`.** Any other status is
   rejected before the call (the API returns `400 banWithoutReject`).
 - **No upload / no captions / no live / no Analytics.** This tool does not
   upload video files, manage captions/thumbnails, drive live broadcasts, or
-  return windowed analytics — those are out of scope for v1.
+  return windowed analytics; those are out of scope for v1.
 
 ## Safety
 
 Replying to or moderating comments, and editing video/playlist metadata, are
-outward-facing actions on the user's public channel — follow the
+outward-facing actions on the user's public channel. Follow the
 sensitive-operation rule in `../SKILL.md`: confirm before posting public
 replies, rejecting/​banning commenters, or changing a video's privacy.

@@ -61,7 +61,7 @@ wiki, or you learned something about them worth recording.
   will add it as you work together. Never leave a placeholder line standing,
   never delete a section, and never add a second snapshot footer. The page
   already ends with one.
-- **The whole page is in your owner's language** — title, headings, bodies,
+- **The whole page is in your owner's language**: title, headings, bodies,
   and footer alike. [references/page-template.md](references/page-template.md)
   fixes the sections and their order; you write their headings in your
   owner's language yourself. Never mix languages: an English heading over a
@@ -176,7 +176,7 @@ is for.
 
 [references/page-template.md](references/page-template.md) fixes the sections
 and their order; this table fixes what goes in each. The names below are the
-template's English reference names — the live page carries them in your
+template's English reference names. The live page carries them in your
 owner's language, so when a refresh needs a heading exactly as it must be
 typed, copy it from the `document read` output, never from here.
 

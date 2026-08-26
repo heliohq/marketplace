@@ -13,11 +13,11 @@ rank-checking, keyword-research, competitor-research, and backlink questions
 without a browser. Use it when the user needs real SERP/keyword/backlink data,
 not a general web search.
 
-## Cost — read this first (every call spends real money)
+## Cost: read this first (every call spends real money)
 
 Every command except `account` and `meta` is **charged per request** (fractions
 of a cent to a couple of cents each). Every success prints a `cost` field (USD)
-in its output — check it. Two rules:
+in its output. Check it. Two rules:
 
 - **Check funds before a large job.** `account` is free and shows the balance:
   `heliox tool dataforseo -- account`. If `result[0].money.balance` is low, tell
@@ -97,14 +97,14 @@ heliox tool dataforseo -- account                                          # bal
 ## Connecting
 
 DataForSEO uses an **API login + API password** (HTTP Basic auth, not OAuth),
-both shown at app.dataforseo.com/api-access — note the API password is
+both shown at app.dataforseo.com/api-access. Note the API password is
 auto-generated and differs from the account password. The user pastes them as a
 single `login:password` pair in the connect form. To rotate, they regenerate the
 API password in the dashboard and reconnect.
 
 ## Notes
 
-- The tool wraps **Live** (synchronous) endpoints only — one request, one
+- The tool wraps **Live** (synchronous) endpoints only: one request, one
   response. Task-queue and site-crawl modes are intentionally not exposed.
 - Prefer `meta locations`/`meta languages` over guessing identifiers; a wrong
   location still costs money and returns the wrong market's data.

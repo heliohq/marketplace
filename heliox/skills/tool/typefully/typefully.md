@@ -2,7 +2,7 @@
 
 Read [../SKILL.md](../SKILL.md) first for the connect/use model. Typefully is a
 **flat provider** (not grouped like `google`): everything after `--` is the
-typefully tool's own CLI. It wraps the Typefully **v2** REST API — draft,
+typefully tool's own CLI. It wraps the Typefully **v2** REST API: draft,
 schedule and publish social posts/threads to X, LinkedIn, Threads, Bluesky and
 Mastodon, inspect the queue, tag drafts, and pull basic X analytics.
 
@@ -47,11 +47,11 @@ heliox tool typefully -- draft get --social-set <id> --id <draft>   # repeat unt
 finished, read the draft's `status` (`published` vs `error`) **and** the
 per-platform published URLs (`x_published_url`, `linkedin_published_url`,
 `mastodon_published_url`, …; `null` = that platform did not post) to tell a full
-success from a partial/failed publish. Report **which** platform(s) failed —
+success from a partial/failed publish. Report **which** platform(s) failed;
 never assume a `finished` job published everywhere.
 
 `--publish-at next-free-slot` (queue) and `--publish-at <ISO-8601>` (a future
-datetime with timezone) **schedule** instead — no polling needed. Omit
+datetime with timezone) **schedule** instead; no polling needed. Omit
 `--publish-at` to save a plain draft.
 
 ## Core commands
@@ -83,14 +83,14 @@ heliox tool typefully -- comment threads      --social-set <id> --id <draft>
 ## Creating drafts: typed flags vs `--data`
 
 `draft create` takes **either** the thin convenience flags **or** a raw
-`--data '<json>'` body — they are **mutually exclusive** (usage error, exit 2).
+`--data '<json>'` body. They are **mutually exclusive** (usage error, exit 2).
 
 - Convenience (the 80% path): repeatable `--text` builds a thread (one post per
   flag), `--platform` (repeatable, default `x`) chooses targets, `--publish-at`
   schedules/publishes, `--media-id` (repeatable) attaches media to the first
   post. The tool assembles the verified `platforms` body:
   `{"platforms":{"x":{"enabled":true,"posts":[{"text":"…"}]}}}`.
-- `--data '<raw json>'` — for anything richer (per-platform post overrides,
+- `--data '<raw json>'`: for anything richer (per-platform post overrides,
   titles, tags, `rules`). Send the exact v2 body.
 
 `draft update` and `queue schedule-set` take `--data '<json>'` only.
@@ -99,14 +99,14 @@ heliox tool typefully -- comment threads      --social-set <id> --id <draft>
 
 - `0` success; `2` usage/flag errors (bad flag combo, invalid `--data` JSON,
   missing required flag); `1` runtime/API errors.
-- A `401` (or auth-shaped `403`) means the **key is invalid** — ask the user to
+- A `401` (or auth-shaped `403`) means the **key is invalid**. Ask the user to
   reconnect.
 - A **permission** `403` (e.g. "Insufficient permissions") means the key is
-  valid but lacks the required access level on that social set — creating needs
+  valid but lacks the required access level on that social set: creating needs
   WRITE, scheduling/immediate publish needs PUBLISH, `queue schedule-set` needs
   ADMIN. This is **not** a reconnect; tell the user their key needs a higher
   access level.
-- A `429` is a rate limit — back off, do not auto-retry.
+- A `429` is a rate limit; back off, do not auto-retry.
 
 Every command prints the provider's JSON verbatim on stdout. For anything not
 covered here, `heliox tool typefully -- --help` (and `<group> --help`) is the

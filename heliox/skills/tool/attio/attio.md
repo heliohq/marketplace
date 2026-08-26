@@ -13,7 +13,7 @@ Attio is a **data-model-first CRM**. A workspace holds **objects** (standard:
 each object holds **records**, and **lists** overlay records as pipelines with
 per-list **entries**. Notes, tasks, threads and comments attach to records.
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 Attio schemas are **per-workspace**: object slugs, attribute slugs, and
 select/status options differ between workspaces and can be customised. **Never
@@ -46,7 +46,7 @@ heliox tool attio -- member list --json | member get <member_id> --json   # reso
 ### Find & read records
 
 ```bash
-# fuzzy search — defaults to people,companies (the two always-present objects)
+# fuzzy search: defaults to people,companies (the two always-present objects)
 heliox tool attio -- record search --query "Acme" --json
 # broaden to more/custom objects explicitly (slugs from `object list`)
 heliox tool attio -- record search --query "Acme" --objects people,companies,deals --json
@@ -69,7 +69,7 @@ heliox tool attio -- record update people <record_id> --values '{"job_title":"CT
 # --append switches to PATCH: multiselect values are ADDED, not replaced
 heliox tool attio -- record update people <record_id> --values '{"tags":["vip"]}' --append --json
 
-# upsert (assert) by a unique matching attribute — create if absent, overwrite if present
+# upsert (assert) by a unique matching attribute: create if absent, overwrite if present
 heliox tool attio -- record upsert people --values '{"email_addresses":["ada@x.com"],"name":"Ada"}' --match email_addresses --json
 
 heliox tool attio -- record delete people <record_id> --json
@@ -89,18 +89,18 @@ heliox tool attio -- entry remove <list> <entry_id> --json
 ### Notes, tasks, threads, comments
 
 ```bash
-# notes — exactly one of --markdown / --plaintext
+# notes: exactly one of --markdown / --plaintext
 heliox tool attio -- note create --parent people:<record_id> --title "Call recap" --markdown "# Notes\n..." --json
 heliox tool attio -- note list --record people:<record_id> --json
 heliox tool attio -- note get <note_id> --json  |  note delete <note_id> --json
 
-# tasks — content is plaintext; deadline is ISO 8601; assignee/record optional
+# tasks: content is plaintext; deadline is ISO 8601; assignee/record optional
 heliox tool attio -- task create --content "Send proposal" --deadline 2026-02-01T15:00:00Z --assignee <member_id> --record people:<record_id> --json
 heliox tool attio -- task list --record people:<record_id> --json
 heliox tool attio -- task update <task_id> --completed true --json
 heliox tool attio -- task delete <task_id> --json
 
-# threads (read) and comments (write) — comment target is one of --thread / --record
+# threads (read) and comments (write): comment target is one of --thread / --record
 heliox tool attio -- thread list --record people:<record_id> --json  |  thread get <thread_id> --json
 heliox tool attio -- comment create --record people:<record_id> --content "Following up" --json
 heliox tool attio -- comment create --thread <thread_id> --content "Reply" --json
@@ -108,11 +108,11 @@ heliox tool attio -- comment create --thread <thread_id> --content "Reply" --jso
 
 Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
 
-## Footguns (the important part — these are where agents go wrong)
+## Footguns (the important part: these are where agents go wrong)
 
 - **Discover the schema before any write.** Attribute slugs, select options and
   status stages are per-workspace. Build `--values` from `attribute list` /
-  `attribute options` / `attribute statuses`, not from memory — a wrong slug is
+  `attribute options` / `attribute statuses`, not from memory: a wrong slug is
   a `400`.
 - **`record update` overwrites by default.** The default verb is PUT: the values
   you send **replace** existing ones (multiselect values are removed and reset).
@@ -127,22 +127,22 @@ Run `-- <resource> <verb> --help` for the exact flags rather than guessing.
   author to the connected token's member (`whoami`'s
   `authorized_by_workspace_member_id`) and always sends `format: plaintext`. If
   the token isn't tied to a member it fails fast asking for `--author
-  <member_id>` — resolve one via `member list`.
+  <member_id>`. Resolve one via `member list`.
 - **`--parent` / `--record` are `<object>:<record_id>`.** Notes use `--parent`,
   tasks/threads/comments use `--record`; both take the `object:record_id` shape
   (e.g. `people:abc-123`). A missing colon is a usage error.
 - **Pagination differs by endpoint.** `record query` / `entry query` take
   `--limit` / `--offset` in the request body; list-style reads (`note list`,
   `task list`, `attribute list`, …) take them as query params; `record search`
-  takes `--limit` only (max 25, no offset). The flags are surfaced verbatim —
-  nothing auto-paginates.
+  takes `--limit` only (max 25, no offset). The flags are surfaced verbatim.
+  Nothing auto-paginates.
 - **`--account` when more than one Attio workspace is connected.** A `409` lists
   the candidate account keys; re-run with `--account <key>` (before the `--`).
 
 ## Safety
 
 - Notes, comments and pipeline changes are visible to everyone in the Attio
-  workspace — follow the sensitive-operation rule in [../SKILL.md](../SKILL.md)
+  workspace. Follow the sensitive-operation rule in [../SKILL.md](../SKILL.md)
   before writing into a workspace others read.
 - Schema introspection (`object` / `attribute`) is read-only; the tool cannot
   create or alter objects/attributes, only records, entries, notes, tasks and

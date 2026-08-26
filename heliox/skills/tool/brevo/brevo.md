@@ -15,7 +15,7 @@ command to get errors as a structured envelope
 
 ## The #1 footgun: verify the sender before sending
 
-**Brevo blocks every email-send API call from an unverified sender** — even for
+**Brevo blocks every email-send API call from an unverified sender**, even for
 testing. Before `email send` or `campaign create`, list the account's verified
 senders and pick one, or the send returns a 400.
 
@@ -25,7 +25,7 @@ heliox tool brevo -- account get --json         # account identity, plan, credit
 ```
 
 `email send` (a one-off transactional/event email) and `campaign create` (a
-scheduled bulk marketing campaign) are **distinct** Brevo surfaces — don't use
+scheduled bulk marketing campaign) are **distinct** Brevo surfaces. Don't use
 one for the other.
 
 ## Send a transactional email
@@ -85,9 +85,9 @@ Omit `--scheduled-at` on `campaign create` to leave the campaign as a draft.
 ## Footguns
 
 - **Unverified sender → 400.** Always `sender ls` first (see above).
-- **List ids are integers**, not names — resolve them with `list ls`.
+- **List ids are integers**, not names: resolve them with `list ls`.
 - **`contact create` without `--update-enabled` fails on an existing contact**
   (Brevo force-merges only when upsert is enabled).
-- **Transactional vs campaign** are different endpoints — `email send` is a
+- **Transactional vs campaign** are different endpoints: `email send` is a
   one-off, `campaign create` is a scheduled bulk send.
 - A bad API key surfaces as `401 unauthorized`; ask the user to reconnect.

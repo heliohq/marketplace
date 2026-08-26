@@ -39,7 +39,7 @@ Keep routine completion, healthy checks, unchanged status, investigation
 steps, discarded theories, and supporting evidence in the run or conversation.
 If none of the three conditions is true, do not call `heliox feed`.
 
-First decide whether the result changes what the recipient needs to know. If it changes their plan, deadline, access, cost, risk, or ownership, publish a feed item. Use a suggestion when the recipient must act. Use a note when they only need to know. Use no feed for routine, unchanged, or immaterial results, or when there is evidence that the recipient already received the same fact. Another person owning the action does not remove the recipient’s need to know; the result may still require a note.
+Skip the row when there is evidence the recipient already received the same fact. Another person owning the action does not remove the recipient's need to know; the result may still deserve a note.
 
 ### 2. Can it wait for the next Home visit?
 

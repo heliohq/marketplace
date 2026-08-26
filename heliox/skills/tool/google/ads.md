@@ -3,7 +3,7 @@
 Read [google.md](./google.md) for auth and account selection. Everything after
 `--` is the Google Ads tool's own CLI. This tool is **reporting-first**: it runs
 GAQL (Google Ads Query Language) and a small set of guarded status/budget
-changes — it is a steering wheel, not a campaign builder (no create/delete).
+changes. It is a steering wheel, not a campaign builder (no create/delete).
 
 ## Start by listing accounts
 
@@ -15,7 +15,7 @@ heliox tool google ads -- accounts list --json    # .data... resourceNames: ["cu
 
 Customer ids are digits (hyphens from the UI like `123-456-7890` are accepted and
 stripped). Agency / manager (MCC) users add `--login-customer-id <mcc-id>` to
-operate through their manager account — it is normalized the same way (hyphens
+operate through their manager account. It is normalized the same way (hyphens
 stripped to the digits-only form the API requires), and a non-numeric value is a
 usage error, not a silent provider-side failure.
 
@@ -30,7 +30,7 @@ heliox tool google ads -- report --customer-id 1234567890 --resource campaign --
 heliox tool google ads -- report --customer-id 1234567890 --resource keyword --date-range LAST_7_DAYS \
   --metrics metrics.clicks,metrics.cost_micros,metrics.conversions --json
 
-# Raw GAQL — full power
+# Raw GAQL: full power
 heliox tool google ads -- query --customer-id 1234567890 \
   --gaql "SELECT campaign.name, metrics.impressions, metrics.clicks FROM campaign WHERE segments.date DURING LAST_7_DAYS" --json
 ```
@@ -39,7 +39,7 @@ heliox tool google ads -- query --customer-id 1234567890 \
   DURING literal (`LAST_7_DAYS`, `LAST_30_DAYS`, `THIS_MONTH`, …). For custom
   windows (`BETWEEN '2026-01-01' AND '2026-01-31'`) use `query`.
 - Both `report` and `query --stream` use searchStream and return one flattened
-  `results` array — the streamed-array quirk never reaches you.
+  `results` array: the streamed-array quirk never reaches you.
 - **Money is micros**: `metrics.cost_micros` and budget amounts are millionths
   of the account currency (5_000_000 micros = 5.00). Divide by 1,000,000 before
   showing a currency figure to the user.
@@ -55,21 +55,21 @@ heliox tool google ads -- budget set --customer-id 1234567890 --id 9 --amount-mi
 - Writes are explicit-id only and reversible-ish (`set-status` toggles
   ENABLED/PAUSED; no REMOVED). There is **no create or delete** in this tool.
 - Spending changes real money. Before a `budget set` or pausing/enabling a
-  campaign, confirm the target and the new value with the user — state the human
+  campaign, confirm the target and the new value with the user: state the human
   figure (e.g. "raise the daily budget to $50 / 50,000,000 micros"), not just
   the micros.
 
 ## Failure notes
 
 - Errors surface Google's nested `error.details[].errors[]` verbatim under
-  `--json` (`AuthenticationError`, `QueryError`, `QuotaError`, …) — read the
+  `--json` (`AuthenticationError`, `QueryError`, `QuotaError`, …): read the
   `errorCode` to know whether to fix the GAQL, back off, or ask the user to
   reconnect.
 - A `QUOTA` / daily-limit error usually means the app's developer token is on
-  Explorer/Test access (2,880 ops/day) — a workspace-config limit, not
+  Explorer/Test access (2,880 ops/day): a workspace-config limit, not
   something you can fix from here; tell the user.
 - 401 → reconnect (fresh consent re-grants the `adwords` scope). 403 is usually
-  a customer-id the account can't reach, or a missing manager header — recheck
+  a customer-id the account can't reach, or a missing manager header: recheck
   `accounts list` and `--login-customer-id`.
 - GAQL selects fields; it can't compute arbitrary math. Pull the metrics and do
   the arithmetic yourself.

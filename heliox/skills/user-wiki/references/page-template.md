@@ -1,7 +1,7 @@
 # Page structure
 
 The wiki page's shape: these sections, this order, nothing else. The whole
-page — title, headings, bodies, footer — is written in your owner's
+page (title, headings, bodies, footer) is written in your owner's
 language; the English names below are the reference shape you translate,
 never required text. `{OWNER}` is your owner's name.
 

@@ -17,9 +17,16 @@ between the two cases. The skill that sent you here defines them:
 
 Check these; do not assume them.
 
+Do not use this loop for a new `--start` one-shot. A manual run is a second real
+execution of a job the user asked to happen once. Automation Creator validates
+that path with the approved output produced in the current conversation, source
+and access checks, and the canonical procedure read-back, then lets only the
+scheduled fire execute the stored procedure. The rest of this reference applies
+to recurring, event, catalog, and already-live automations.
+
 The automation must be disabled. `heliox automation create` leaves a `--cron`
-automation that way; a `--start` one-shot is created ENABLED and will fire at
-its start time — treat it as already live.
+automation that way. A new `--start` one-shot is outside this loop and remains
+armed for its one scheduled execution.
 For one that is already live, disable it before a meaningful behavioral change:
 `heliox automation update <id> --enable false`. Disabling is what stops the
 schedule from firing underneath you while you work. Record that it was live:
@@ -35,18 +42,18 @@ A manual run is a real run: it delivers to every subscriber in the snapshot
 taken at fire time, and you cannot call that back. You also cannot trim the
 audience yourself: the subscriber list is owner-only, and the server refuses
 subscriber changes from your executor identity. Keep non-owner subscribers out
-of rehearsal by never attaching them before the loop — create with the
+of rehearsal by never attaching them before the loop: create with the
 owner-only default and have the owner add the real audience at handover, after
 the automation has proven itself. If the automation already carries other
 subscribers, ask the owner to remove them before you fire and restore them
 after, or fall back to the approved output from step 3 as the evidence and
 note the gap in your handover.
 
-The deferred audience changes the arming order for a `--start` one-shot. It
-has exactly one run, and that run delivers to whoever is subscribed when it
-fires — so a one-shot armed before the owner attaches the recipients hits its
-deadline with an owner-only audience and everyone else permanently misses the
-result. Keep it disabled until the owner has added them, then arm it.
+The deferred audience still matters for a `--start` one-shot even though it is
+not rehearsed. It has exactly one run, and that run delivers to whoever is
+subscribed when it fires. When the user named other recipients, keep it disabled
+until the owner has added them, then arm it before the deadline. Do not manually
+run it while waiting.
 
 If even the owner receiving run output is unacceptable, do not fire the
 automation. Fall back to the approved output from step 3 as the evidence, and
@@ -96,7 +103,7 @@ heliox document edit <procedure_doc_id> \
 # 2. fire it and capture the execution id from the JSON output. This returns
 #    as soon as the server posts the run header; the executor wakes afterwards,
 #    in its own thread, and reads the procedure document only once it is awake.
-#    The --json output includes execution_id directly — use it instead of
+#    The --json output includes execution_id directly; use it instead of
 #    guessing from `automation runs`, which is ambiguous when two runs overlap
 heliox automation run <id> --json
 
@@ -300,7 +307,7 @@ executor would otherwise rediscover the hard way goes here.
 **What belongs in it.** Four things, and the pass rate is not one of them:
 
 - **Which paths fired and held, and which are still unproven.** A later reader
-  needs to know that `source-down` was never exercised, not merely that four
+  needs to know that `source-down` was never exercised, not just that four
   scenarios passed. An unproven path someone knows about is a known unknown; an
   unnamed one is a surprise at 3 AM.
 - **What a scenario made you change, and why.** The procedure that shipped is

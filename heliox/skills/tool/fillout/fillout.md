@@ -15,7 +15,7 @@ responses. Output is Fillout's own JSON, passed through verbatim.
 ## Identity: one Fillout account per assistant
 
 Fillout OAuth returns no per-account identifier, so a connection is **one
-Fillout account, single per assistant** — there is no account picker and
+Fillout account, single per assistant**: there is no account picker and
 `--account` is rarely needed. The correct API host (US / EU data-residency /
 self-host) is captured at connect time and injected automatically; you never
 pass a base URL.
@@ -42,7 +42,7 @@ heliox tool fillout -- submission list <formId> \
 # one submission by id
 heliox tool fillout -- submission get <formId> <submissionId> --include-edit-link
 
-# create submission(s) — body is Fillout's own JSON, from --data or --file
+# create submission(s): body is Fillout's own JSON, from --data or --file
 heliox tool fillout -- submission create <formId> \
   --data '{"submissions":[{"questions":[{"id":"<qid>","value":"Hello"}]}]}'
 
@@ -51,7 +51,7 @@ heliox tool fillout -- submission delete <formId> <submissionId>
 ```
 
 `submission list` filters (all optional, pass-through to Fillout): `--limit`
-(1–150, default 50), `--offset`, `--status finished|in_progress`, `--after-date`
+(1-150, default 50), `--offset`, `--status finished|in_progress`, `--after-date`
 / `--before-date` (ISO date-time), `--sort asc|desc`, `--search <text>`,
 `--include-edit-link`, `--include-preview`.
 
@@ -73,5 +73,5 @@ heliox tool fillout -- webhook delete --webhook-id <id>
 - **API-created submissions are quiet.** Fillout does not fire email
   notifications, workflows, or integrations for submissions you create via API.
 - **`submission create` body is verbatim.** The tool validates it is JSON and
-  passes it through — it does not reshape it. The top level is
+  passes it through: it does not reshape it. The top level is
   `{"submissions":[ ... ]}` (max 10), each item requiring a `questions` array.

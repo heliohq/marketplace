@@ -11,11 +11,11 @@ heliox tool tally [--account <key>] -- <resource> <verb> [flags...]
 
 Connect is a **personal API key** (not OAuth): the user creates a key at
 Settings → API keys (tally.so/settings/api-keys) and pastes it into the connect
-link — `heliox tool tally auth --json` mints that link. The key is user-scoped
+link. `heliox tool tally auth --json` mints that link. The key is user-scoped
 (inherits the creating user's access across their workspaces).
 
 Every read command prints Tally's JSON response verbatim. List endpoints return
-`{ "items": [...], "page", "limit", "total", "hasMore" }` — drive paging
+`{ "items": [...], "page", "limit", "total", "hasMore" }`. Drive paging
 yourself with `--page` / `--limit`; commands never auto-follow pagination.
 
 ## Core commands
@@ -31,7 +31,7 @@ heliox tool tally -- form list [--workspace <id>] [--page N] [--limit N]
 heliox tool tally -- form get       --form <id>
 heliox tool tally -- form questions --form <id>
 
-# READ SUBMISSIONS — the main job
+# READ SUBMISSIONS: the main job
 heliox tool tally -- submission list --form <id> \
     [--filter all|completed|partial] [--page N] [--limit N] \
     [--after-id <id>] [--start-date <iso>] [--end-date <iso>]
@@ -50,7 +50,7 @@ heliox tool tally -- workspace list [--page N]
 
 `--period` accepts one of: `today yesterday 24h 7d 30d 3m 6m 12m all`.
 
-### Write (secondary — forms and webhooks)
+### Write (secondary: forms and webhooks)
 
 ```bash
 # create/update take a JSON body via --file <path> or --stdin (raw passthrough)
@@ -89,7 +89,7 @@ flags rather than guessing.
 ## Safety
 
 - Creating or deleting forms and webhooks changes what the user's respondents
-  see and where their data is sent — outward-facing. Follow the
+  see and where their data is sent (outward-facing). Follow the
   sensitive-operation rule in [../SKILL.md](../SKILL.md) and confirm before a
   `form delete` or `webhook create/delete` against anything you did not create.
 - Submission bodies are respondent PII; never echo raw submissions into public

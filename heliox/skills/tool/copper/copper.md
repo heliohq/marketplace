@@ -19,11 +19,11 @@ stdout.
   `list` / `get` / `create` / `update` / `delete`. `person` also has
   `find-email`.
 - **Listing is a search POST, not a GET.** `list` sends `POST
-  /{resource}/search` with a JSON filter body — there is no "get all" GET. Use
+  /{resource}/search` with a JSON filter body: there is no "get all" GET. Use
   the typed filter flags for the common cases and `--json-body` for anything
   else.
 - **`activity`** logs notes / calls / emails: `list` / `get` / `create` /
-  `delete` (no `update` — activities are immutable once logged).
+  `delete` (no `update`: activities are immutable once logged).
 - **`lookup`** returns the id→name tables you need to build valid create/update
   payloads: `pipelines`, `pipeline-stages`, `customer-sources`, `loss-reasons`,
   `activity-types`, `contact-types`.
@@ -50,7 +50,7 @@ heliox tool copper -- company get --id 123 --json
 
 Typed `list` filters: `--name`, `--email`, `--assignee-id`, `--page`,
 `--page-size`. For any filter these don't cover (custom fields, tags, date
-ranges, sort), pass a raw Copper search body with `--json-body` — it is merged
+ranges, sort), pass a raw Copper search body with `--json-body`; it is merged
 over the typed flags:
 
 ```bash
@@ -83,13 +83,13 @@ heliox tool copper -- lookup activity-types --json
 ## Footguns
 
 - **`list` is `POST /search`, not a plain list.** If you expect a GET-all and
-  get nothing, you likely need a filter in the search body — Copper returns a
+  get nothing, you likely need a filter in the search body: Copper returns a
   page of results, paginated by `--page` / `--page-size`.
 - **create/update need `--json-body`.** There are no typed field flags; build
   the payload as JSON, resolving `pipeline_id` / `pipeline_stage_id` /
   `customer_source_id` / activity `type` ids via `lookup`.
 - **Rate limit is 600 requests/minute per token.** A 429 surfaces as a runtime
-  error (exit 1) — back off, don't hammer.
+  error (exit 1): back off, don't hammer.
 - **`--json`** switches the error channel to a structured envelope; command
   output is always Copper's raw JSON regardless.
 

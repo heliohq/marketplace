@@ -13,7 +13,7 @@ The tool wraps the **Zoho Books REST API v3**. On success the provider's JSON
 is printed verbatim (including the `page_context` object on lists, so you can
 page); a failure exits non-zero with Zoho's `code`/`message`.
 
-## The mental model (read this first — it prevents the #1 footgun)
+## The mental model (read this first: it prevents the #1 footgun)
 
 **Every command except `org list` requires `--organization-id`.** A Zoho login
 can own several Books organizations, and the org id is a per-call selector that
@@ -24,12 +24,12 @@ heliox tool zoho books -- org list --json          # NO --organization-id; yield
 ```
 
 Then pass `--organization-id <id>` on every other command. Omitting it is a
-usage error that tells you to run `org list` — there is no "default org"
+usage error that tells you to run `org list`; there is no "default org"
 fallback.
 
 ## Core commands
 
-### Receivables — "did customer X pay? what's outstanding?"
+### Receivables: "did customer X pay? what's outstanding?"
 
 ```bash
 # invoices, filtered by customer and/or status view
@@ -74,7 +74,7 @@ heliox tool zoho books -- expense  create --organization-id O --data '{"account_
 Run `-- <resource> --help` (or `-- <resource> <verb> --help`) for exact flags
 rather than guessing.
 
-## Footguns (the important part — where agents go wrong)
+## Footguns (the important part: where agents go wrong)
 
 - **`--organization-id` is required everywhere except `org list`.** Run
   `org list` first and reuse the id. A missing id is a usage error, never a
@@ -85,13 +85,13 @@ rather than guessing.
   `--page`, `--per-page` map straight to Books query params. `per_page` defaults
   to 200; page with `--page` while `page_context.has_more_page` is true.
 - **Create bodies are flat.** Put `line_items` and every field directly inside
-  `--data` — there is no `{"data":[…]}` envelope (this differs from Zoho CRM).
+  `--data`; there is no `{"data":[…]}` envelope (this differs from Zoho CRM).
 - **Errors carry an integer `code`.** Books returns `{"code":<int>,"message":…}`
   where `code` 0 means success. A wrong value returns a non-zero code (e.g.
-  `code 15` for a bad filter). A `401` means the token is invalid — reconnect.
+  `code 15` for a bad filter). A `401` means the token is invalid; reconnect.
 - **US datacenter only (V1).** The connection and all endpoints are pinned to
   Zoho's US DC (`.com`). A Zoho account homed in another DC (`.eu`, `.in`,
-  `.com.au`, `.jp`, …) fails at the token layer with an explicit error — it is
+  `.com.au`, `.jp`, …) fails at the token layer with an explicit error; it is
   not silently retried. Non-US orgs are not yet supported.
 - **`--account` when more than one Zoho account is connected.** A `409` lists
   the candidate account keys; re-run with `--account <key>` (before the `--`).
@@ -101,6 +101,6 @@ rather than guessing.
 ## Safety
 
 - Creating invoices, estimates, contacts, and expenses mutates shared
-  accounting records others rely on — follow the sensitive-operation rule in
+  accounting records others rely on. Follow the sensitive-operation rule in
   [../SKILL.md](../SKILL.md) before writing, and confirm the target
   organization id first.

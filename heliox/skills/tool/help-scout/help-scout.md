@@ -66,7 +66,7 @@ heliox tool help-scout -- thread note <conversation-id> --text "Escalated to eng
 ### Move conversation state
 
 ```bash
-# status / assignee / subject — flags compile to the API's JSON-Patch ops for you
+# status / assignee / subject: flags compile to the API's JSON-Patch ops for you
 heliox tool help-scout -- conversation update <id> --status pending --json
 heliox tool help-scout -- conversation update <id> --assign-to <user-id> --json
 heliox tool help-scout -- conversation update <id> --unassign --json
@@ -94,7 +94,7 @@ heliox tool help-scout -- conversation create --mailbox <id> --subject "Refund r
 heliox tool help-scout -- customer list --query "email:person@example.com" --json
 heliox tool help-scout -- customer get <id> --json
 heliox tool help-scout -- customer create --first-name Ada --last-name Lovelace --email ada@x.com --json
-# partial update — only the fields you pass change; omitted fields are preserved
+# partial update: only the fields you pass change; omitted fields are preserved
 heliox tool help-scout -- customer update <id> --job-title "VP Sales" --json
 
 heliox tool help-scout -- inbox list --json                 # inbox (mailbox) ids for --mailbox
@@ -111,7 +111,7 @@ rather than guessing.
 
 ## Footguns (where agents go wrong)
 
-- **Reply vs. note.** `thread reply` is outward-facing — it emails the
+- **Reply vs. note.** `thread reply` is outward-facing: it emails the
   customer. `thread note` is team-only. Pick deliberately; when unsure, use a
   note or a `--draft` reply.
 - **`conversation tag` replaces the entire set.** To add one tag you must send
@@ -122,7 +122,7 @@ rather than guessing.
 - **Snooze always sends both fields.** `--until` is required and must be a
   future ISO-8601 timestamp; `--unsnooze-on-customer-reply` defaults to `true`
   (the conversation wakes if the customer writes back). Snooze is its own
-  endpoint — you cannot set it through `conversation update`.
+  endpoint. You cannot set it through `conversation update`.
 - **Create needs a customer and an initial message.** Pass one of
   `--customer-email` / `--customer-id` and a non-empty `--text`.
 - **Writes return a receipt, not the resource.** `create` / `reply` / `note`
@@ -135,7 +135,7 @@ rather than guessing.
 ## Safety
 
 - Replies and newly created conversations leave your account and reach real
-  customers — follow the sensitive-operation rule in [../SKILL.md](../SKILL.md).
+  customers. Follow the sensitive-operation rule in [../SKILL.md](../SKILL.md).
   Prefer `--draft` on a reply when you want a human to review before it sends.
 - `conversation update --status spam` and destructive state changes should be
   confirmed with the user before running against a live inbox.

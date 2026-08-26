@@ -14,7 +14,7 @@ Resources: `pages`, `page`, `post`, `comment`, plus top-level `insights`. Run
 
 ## The mental model (one user, many Pages, one required `--page`)
 
-The connection is a **Facebook user**, not a Page — and a user commonly admins
+The connection is a **Facebook user**, not a Page, and a user commonly admins
 several Pages. So **always discover first**, then target one Page on every
 other command:
 
@@ -52,7 +52,7 @@ heliox tool facebook-pages -- post delete --page <page-id> <post-id>
 ```
 
 `post create` needs at least one of `--message` / `--link` and returns the new
-post id (`{"id":"..."}`). Only text + link publishing is supported — photo,
+post id (`{"id":"..."}`). Only text + link publishing is supported: photo,
 video, scheduled, and Reel publishing are not (yet).
 
 ## Community management (comments)
@@ -82,12 +82,12 @@ Defaults to impressions / engagement / fans over the `day` period when
 - **Publishing needs the Page, not the user, and the right task.** The tool
   derives the Page token automatically, but the connected user must hold
   `CREATE_CONTENT` on that Page (from `pages list` `tasks`) or the publish
-  fails with an "insufficient Page permission" error — reconnect won't fix it;
+  fails with an "insufficient Page permission" error: reconnect won't fix it;
   the Page role must be granted on Facebook.
 - **"Reconnect needed" vs "insufficient permission" are different.** An expired
   or revoked token surfaces as a reconnect-required error (re-run
   `heliox tool facebook-pages auth`). An insufficient-permission error means the
-  token is fine but the Page grant/scope is not — do NOT reconnect blindly.
+  token is fine but the Page grant/scope is not: do NOT reconnect blindly.
 - **A failed Page lookup is reported distinctly** ("resolve Page access token
   for <page-id>: …") so you can tell "wrong Page id / no access to that Page"
   from "the post/read itself failed".

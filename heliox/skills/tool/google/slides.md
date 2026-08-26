@@ -2,14 +2,14 @@
 
 Read [google.md](./google.md) for auth and account selection. Everything after
 `--` is the slides tool's own CLI. This connection covers **Google Slides
-presentations only** — it reads and edits any deck you have a link to, but it
+presentations only**: it reads and edits any deck you have a link to, but it
 cannot search Drive, copy or export decks, or change sharing (see
 [What this connection cannot do](#what-this-connection-cannot-do)).
 
 ## Links are ids
 
 Every `<presentation-id-or-url>` argument accepts the full Slides URL the user
-pastes (`https://docs.google.com/presentation/d/<id>/edit`) — the tool extracts
+pastes (`https://docs.google.com/presentation/d/<id>/edit`). The tool extracts
 the id. Never ask the user to hand-extract an id.
 
 ## Read before you write
@@ -30,7 +30,7 @@ heliox tool google slides -- pages get <pid-or-url> <slide-id>
 Blind-writing an object id you did not read from `presentations get` /
 `pages get` will fail.
 
-## Create and edit (net-new / reversible — no confirmation needed)
+## Create and edit (net-new / reversible: no confirmation needed)
 
 This layer only adds information or reorders; nothing existing is overwritten.
 
@@ -54,7 +54,7 @@ heliox tool google slides -- text insert <pid> --object <element-id> --text "not
 heliox tool google slides -- images insert <pid> --slide <slide-id> --url https://example.com/chart.png --at 100,50 --size 400x300
 ```
 
-## Overwrite / delete (highest risk — confirm first)
+## Overwrite / delete (highest risk: confirm first)
 
 The API has **no undo**. The only recovery is the user's own Slides UI version
 history (File → Version history). For any deck the **assistant did not create**,
@@ -65,7 +65,7 @@ before you overwrite or delete:
 3. After editing, render a `pages thumbnail` and show it so they can verify.
 
 ```bash
-# Template fill — the right path for {{placeholder}} decks. --slide limits scope.
+# Template fill: the right path for {{placeholder}} decks. --slide limits scope.
 heliox tool google slides -- text replace <pid> --find '{{name}}' --replace 'Ada' --match-case --slide <slide-id>
 
 heliox tool google slides -- text delete <pid> --object <element-id> --range 2:5   # empty range = all text
@@ -88,8 +88,8 @@ heliox tool google slides -- pages thumbnail <pid> <slide-id> --save ./out/ --si
 
 ## Escape hatch: `batch-update`
 
-The synthetic verbs above cover the high-frequency edits. For anything else —
-tables, shapes, lines, groups, transforms, z-order — pass raw batchUpdate
+The synthetic verbs above cover the high-frequency edits. For anything else
+(tables, shapes, lines, groups, transforms, z-order), pass raw batchUpdate
 requests through verbatim. `--requests` accepts a Request array, a single
 Request object, or a full `{"requests":[...]}` body.
 
@@ -102,22 +102,22 @@ the error names the failing `requests[N]`. Fix that request and resend.
 
 ## What this connection cannot do
 
-Do not promise these — the `presentations` scope does not cover them. Give the
+Do not promise these: the `presentations` scope does not cover them. Give the
 alternative instead:
 
-- **Search / list decks by name** ("find my Q3 deck") — needs Drive. Ask the
+- **Search / list decks by name** ("find my Q3 deck"): needs Drive. Ask the
   user for the link.
-- **Copy an entire deck** ("duplicate this template") — needs Drive. Rebuild
+- **Copy an entire deck** ("duplicate this template"): needs Drive. Rebuild
   net-new, or have the user copy it in Slides and paste the new link.
-- **Export to PDF / PPTX** — needs Drive. `pages thumbnail` per slide is the
+- **Export to PDF / PPTX**: needs Drive. `pages thumbnail` per slide is the
   low-fidelity stand-in.
-- **Change sharing / permissions** — needs Drive.
-- **Embed a live Sheets-linked chart / refresh chart data** — the
+- **Change sharing / permissions**: needs Drive.
+- **Embed a live Sheets-linked chart / refresh chart data**: the
   `createSheetsChart` / `replaceAllShapesWithSheetsChart` / `refreshSheetsChart`
   requests require a Sheets scope this connection does not carry; calling them
   via `batch-update` returns 403. Generate the chart as an image in the runtime
   and use `images insert --url` instead.
-- **Insert a local (non-public) image file** — `createImage` needs a public
+- **Insert a local (non-public) image file**: `createImage` needs a public
   URL; there is no Drive upload surface in v1.
 
 ## Failure notes

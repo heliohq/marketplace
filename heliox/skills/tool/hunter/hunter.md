@@ -33,8 +33,8 @@ heliox tool hunter -- email-verifier --email jane@stripe.com
 ```
 
 Verification can take ~20 seconds. If Hunter is still working it returns a
-body whose `data.status` is `accepted`/pending rather than a final result —
-**re-run the exact same command to poll** (each poll costs one request). There
+body whose `data.status` is `accepted`/pending rather than a final result.
+**Re-run the exact same command to poll** (each poll costs one request). There
 is no client-side wait loop by design: you decide when to re-check. Read
 `data.result` (`deliverable` / `undeliverable` / `risky`) and `data.status`
 before trusting an address.
@@ -48,8 +48,8 @@ heliox tool hunter -- enrich combined --email jane@stripe.com   # person + compa
 heliox tool hunter -- domain-finder --company "Stripe"          # company name -> domain (free, beta)
 ```
 
-Enrichment returns `404` when Hunter has no record for that person/company —
-that is a normal "not found", not an auth failure.
+Enrichment returns `404` when Hunter has no record for that person/company.
+That is a normal "not found", not an auth failure.
 
 ## Discover companies and build lead lists
 
@@ -59,7 +59,7 @@ heliox tool hunter -- discover --filters '{"headcount":"50-100","industry":["saa
 ```
 
 `discover` takes a natural-language `--query`, a raw-JSON `--filters` object
-(merged into the request body — pass any structured filter Hunter's docs list;
+(merged into the request body: pass any structured filter Hunter's docs list;
 your account's plan gates which premium filters resolve), or both.
 
 Save and manage prospects with the `lead` and `lead-list` CRUD verbs:
@@ -84,18 +84,18 @@ heliox tool hunter -- account
 
 Free. Returns the plan, searches-used-vs-available, verifications-used-vs-
 available, and the monthly `reset_date`. Check this first when a run needs
-many paid calls — free plans are small (e.g. 25 searches/month).
+many paid calls. Free plans are small (e.g. 25 searches/month).
 
 ## Footguns
 
-- **403 = rate limited, 429 = quota exhausted** — inverted from most APIs.
+- **403 = rate limited, 429 = quota exhausted**, inverted from most APIs.
   Neither is a bad key: a 403 means slow down and retry shortly; a 429 means
   the monthly quota is spent (nothing to do until `reset_date` or an upgrade).
-  Only a `401` means the key itself is invalid — reconnect then.
+  Only a `401` means the key itself is invalid; reconnect then.
 - **Prefer the free commands** (`account`, `email-count`, `domain-finder`,
   `lead*`) for exploratory work; spend `domain-search` / `email-finder` /
   `email-verifier` credits deliberately, once each where you can.
-- **Quota is per account, not per key** — two keys from the same Hunter account
+- **Quota is per account, not per key**: two keys from the same Hunter account
   share one pool and resolve to the same connection.
 - **The key rides the `X-API-KEY` header**, never a URL query param, so it
   never appears in logs.

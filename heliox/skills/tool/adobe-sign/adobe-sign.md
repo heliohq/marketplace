@@ -14,7 +14,7 @@ command for a stable, provider-neutral envelope (snake_case fields).
 
 ## The send / track / retrieve / cancel loop
 
-Send a document for signature — either a local file (uploaded automatically) or
+Send a document for signature, either a local file (uploaded automatically) or
 a reusable library document (template):
 
 ```bash
@@ -71,5 +71,5 @@ PDF once the agreement reaches that state.
 - **60-day idle re-auth.** Adobe's refresh token expires after 60 days of
   inactivity. If nobody has used the Adobe Sign connection for two months, the
   connection dies and the user must reconnect (`heliox tool adobe-sign auth`).
-  Nothing to do in-band — just re-send the authorize link if a call reports the
+  Nothing to do in-band. Just re-send the authorize link if a call reports the
   connection needs reconnecting.

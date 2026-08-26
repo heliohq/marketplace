@@ -10,25 +10,25 @@ metadata:
 # Heliox Memory
 
 Look memory up before re-asking, repeating work, or answering from uncertain
-recollection — when injected memory is thin, the user references prior context,
+recollection: when injected memory is thin, the user references prior context,
 or you are about to repeat a decision.
 
 ## Model
 
 Three verbs, one scope choice.
 
-- `recall "<query>"` — search by topic / phrase / person / decision. Your default.
-- `list` — newest entries in a scope (the user wants "latest", or you want to see what's stored before querying).
-- `show <id>` — fetch one memory by id; do this before citing one as evidence.
+- `recall "<query>"`: search by topic / phrase / person / decision. Your default.
+- `list`: newest entries in a scope (the user wants "latest", or you want to see what's stored before querying).
+- `show <id>`: fetch one memory by id; do this before citing one as evidence.
 
 Scope is picked first and applies to both `list` and `recall`:
 
-- **omit `--app-id`** — the backend's default visible scope.
-- **`--app-id self`** — this assistant's own activity lane; use it when the user asks what you recently did, said, checked, or handled elsewhere.
-- **`--app-id "$APP_ID"`** — only when you already know the exact channel / entity / org / agent appId to bound the lookup.
+- **omit `--app-id`**: the backend's default visible scope.
+- **`--app-id self`**: this assistant's own activity lane; use it when the user asks what you recently did, said, checked, or handled elsewhere.
+- **`--app-id "$APP_ID"`**: only when you already know the exact channel / entity / org / agent appId to bound the lookup.
 
 Prefer `--json` (ids, scores, sources, metadata). In `recall`, use the user's
-own phrasing — never prepend synthetic labels like `Message from ...`.
+own phrasing; never prepend synthetic labels like `Message from ...`.
 
 ```bash
 heliox memory recall "Yinuo prefers terse updates" --limit 20 --json

@@ -12,7 +12,7 @@ PostHog is product analytics: events, insights, dashboards, feature flags,
 annotations, persons/cohorts, experiments, and ad-hoc HogQL queries.
 
 The connection is a **personal API key** the user creates at Settings > Personal
-API keys, not an OAuth grant — there is no auth link to relay. PostHog makes
+API keys, not an OAuth grant. There is no auth link to relay. PostHog makes
 them pick the key's scopes, and there is a trap worth stating when you ask for
 one: besides the analytics scopes the commands below need, the key must also
 carry **`user:read`**. Helio verifies the key against `/api/users/@me/` before
@@ -117,10 +117,10 @@ heliox tool posthog -- property-definition list --project 1 --search "plan" --js
 - **No `--project` → usage error (exit 2).** Run `project list` first; the id is
   the numeric/string project id, not its name.
 - **`event-definition` / `property-definition` before writing HogQL.** If a query
-  returns nothing, check the exact event and property names exist — these two
+  returns nothing, check the exact event and property names exist. These two
   lists are the source of truth for what you can `select` and filter on.
 - **Rate limits are org-wide.** A `429` body is passed through verbatim (exit 1);
-  do not retry in a loop — back off or narrow the query.
+  do not retry in a loop. Back off or narrow the query.
 - **Write scope is small by design.** Only feature flags and annotations are
   writable; everything else is read-only. Insight/dashboard creation is not
-  wrapped — use `query run` for ad-hoc analysis.
+  wrapped. Use `query run` for ad-hoc analysis.
