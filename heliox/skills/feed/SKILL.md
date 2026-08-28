@@ -97,12 +97,17 @@ recipient accepts.
 
 | Field | Contract |
 | --- | --- |
-| suggestion `--text` | work that starts after acceptance; 60 characters or fewer |
-| note `--text` | new state or outcome; 70 characters or fewer |
-| `--description` | one decision reason: context plus the blocker, consequence, deadline, or evidence; 120 characters or fewer |
+| suggestion `--text` | work that starts after acceptance |
+| note `--text` | new state or outcome |
+| `--description` | one decision reason: context plus the blocker, consequence, deadline, or evidence |
 | `--source-label` | concrete system, project, account, or event |
 
-The server limits are safety ceilings. They are not writing targets.
+On `note` and `suggest`, the CLI rejects `--text` over 80 characters and
+`--description` over 140. Treat those as ceilings, not writing targets: keep
+`--text` to one subject plus its action or new state, and `--description` to
+one decision reason. `feed update` skips that CLI check and takes the wider
+server caps (120/2000), so it can restate an existing row without forcing a
+truncation.
 
 Read `--text` by itself before writing. It must name the specific project,
 account, system, customer, event, or artifact. A version number, deadline,

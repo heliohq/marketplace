@@ -12,7 +12,7 @@ metadata:
 ## Model
 
 - Tasks are org-scoped. Every verb addresses them by key (`HEL-415`) or 24-hex ObjectID; the key prefix is server-assigned.
-- The channel is set at create (`--channel`, required) and immutable after.
+- Set the channel at create or never: `--channel` is optional (omit it for an org-level task), takes `#name` or `@handle` (files the task into that DM), and is immutable after create.
 - Status: `open | in_progress | blocked | in_review | done | cancelled`. `blocked` means stuck and still needing attention, not closed; `in_review` means the work is finished and awaiting the requester's acceptance (move a task there when you consider it done but someone else should verify; the transition notifies them). Priority (optional): `low | normal | high | urgent`. Deadlines: RFC3339 (`2026-05-20T17:00:00Z`, stored UTC). Labels: comma-separated freeform strings.
 - Reads (`list` / `show`): plain text is the cheap recall mode, a fraction of the JSON tokens; add `--json` when you need `routeUrl`, description structure, or field values to act on. Writes: always `--json`. Helio renders structured task cards from it.
 
@@ -33,13 +33,14 @@ JSON rows carry your vocabulary: `key` (the verb address), `routeUrl` (the `http
 ## Create
 
 ```bash
+heliox task create "<title>" --json                  # org-level task, no channel
 heliox task create "<title>" --channel '#engineering' --json
 heliox task create "<title>" --channel '#engineering' --assignee @alice --priority high --deadline 2026-05-20T17:00:00Z --labels frontend,perf --json
-heliox task create "<title>" --channel '#engineering' -d "<plain-text body>" --json
+heliox task create "<title>" --channel '#engineering' -d "<markdown body>" --json
 heliox task create "Visual bug" --channel '#engineering' -a ./shot1.png -a ./shot2.png --json
 ```
 
-`-d/--description` takes plain text (newlines become paragraphs); the CLI wraps it into the Tiptap wire doc; never pass JSON. `-a/--attachment` (repeatable) uploads files: image refs embed inline in the description (`![name](helio://attachment/...)`, after any `-d` paragraphs), non-image refs ride `attachments[]`; both surface as `attachments[].uri`, fetchable via `heliox blob get` (see `heliox:message` §Attachments).
+Write `-d/--description` as Markdown; the CLI renders headings, lists, code, and links as rich text and wraps the result into the Tiptap wire doc; never pass Tiptap JSON. `-a/--attachment` (repeatable) uploads files: image refs embed inline in the description (`![name](helio://attachment/...)`, after any `-d` paragraphs), non-image refs ride `attachments[]`; both surface as `attachments[].uri`, fetchable via `heliox blob get` (see `heliox:message` §Attachments).
 
 ## Show
 
@@ -54,7 +55,7 @@ The response inlines the full picture: `task.description` (Tiptap; image nodes c
 
 ```bash
 heliox task update <id-or-key> --title "<new>" --status done --assignee @alice --priority urgent --json
-heliox task update <id-or-key> -d "<new plain-text body>" --json
+heliox task update <id-or-key> -d "<new markdown body>" --json
 heliox task update <id-or-key> -a ./new-shot.png --clear-description --json
 ```
 

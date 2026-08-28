@@ -98,7 +98,7 @@ every section has a body, owner's language, and read what they made.
    selection, not sequence. Good shapes: answer something
    specific that is still waiting on them; prepare for a named upcoming
    meeting; a chore that keeps repeating, which you propose automating and
-   never enable yourself; a cleanup with a concrete target; a follow-up on
+   arm only once they say yes; a cleanup with a concrete target; a follow-up on
    something that has gone quiet. Keep `--text` under 60 characters and let
    `--description` carry the evidence.
 

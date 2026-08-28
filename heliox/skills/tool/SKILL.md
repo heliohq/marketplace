@@ -14,9 +14,12 @@ you. Credentials never pass through your hands: the CLI fetches the right token
 per call and injects it. Most providers are **flat**: one app, called as
 `heliox tool <name>`; a few are **grouped** families called as
 `heliox tool <provider> <app>` (see the model below). They all share one fixed
-layout, so there is nothing to enumerate here: a provider's guide is
-`./<name>/<name>.md`, `heliox tool <name> -- --help` is its full command
-reference, and `heliox tool list --json` shows which accounts are connected.
+layout, so there is nothing to enumerate here: a flat provider's guide is
+`./<name>/<name>.md`, a grouped family keeps one guide per app at
+`./<provider>/<app>.md` (for example `./google/gmail.md`) plus a family
+overview at `./<provider>/<provider>.md`, `heliox tool <name> -- --help` is
+the full command reference, and `heliox tool list --json` shows which
+accounts are connected.
 
 One member is not an OAuth account: `heliox tool browser` drives the user's own
 paired local Chrome for web-page work (open / click / fill / snapshot / eval).
@@ -32,6 +35,18 @@ It has its own connect + use model; see [browser/browser.md](./browser/browser.m
 
    Each row is one connected account on one provider. No row for a provider
    means nothing is connected; you cannot use it yet.
+
+   When the tool you need has no row, or you only know what you need done
+   (send an invoice, post a video), discover it in the full catalog:
+
+   ```bash
+   heliox tool list --all        # every addressable tool with its keywords; grep it
+   ```
+
+   `image` is the one row that needs no setup at all. Everything else
+   must be set up before use: `browser` through its one-time Chrome
+   pairing ([browser/browser.md](./browser/browser.md)), OAuth providers
+   through step 2, GitHub and Figma through the special flows below.
 
 2. **Ask the user to connect** (you cannot authorize on their behalf):
 
@@ -164,3 +179,7 @@ Rules that keep the gate safe:
   see [browser/browser.md](./browser/browser.md).
 - GitHub is org-installed (an admin installs the GitHub App once); if `auth`
   points you at an install/grant flow, relay those instructions instead.
+- Figma is the official Figma MCP server, not an OAuth provider:
+  `heliox tool figma` only prints the signpost to its connect flow; follow
+  [figma/figma.md](./figma/figma.md) and call the MCP tools directly once
+  connected.

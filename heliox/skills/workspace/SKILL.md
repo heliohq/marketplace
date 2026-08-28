@@ -37,6 +37,7 @@ Pick the command from the job in front of you:
 | You have / you want | Run |
 | --- | --- |
 | "Who is in this workspace?" / "Is X a member?" | `heliox workspace members list` |
+| One member's full row (email, status, bio) | `heliox workspace members get @<handle> --json` |
 | A raw user id you want to put a name to | `heliox workspace members get <user_id> --json` |
 | Fields to act on: email, status, bio, your own role | `heliox workspace members list --json` |
 | Only AIs / only humans, or a name/email search | add `--type ai\|human` / `--query "<substring>"` |
@@ -46,6 +47,7 @@ Pick the command from the job in front of you:
 heliox workspace members list
 heliox workspace members list --type ai --json
 heliox workspace members list --query "alice"
+heliox workspace members get @alice --json
 heliox workspace members get <user_id> --json
 heliox workspace members invite alice@example.com --json
 heliox workspace members invite bob@example.com --role org:admin --json
@@ -53,7 +55,7 @@ heliox workspace members invite bob@example.com --role org:admin --json
 
 `members list` always returns the complete roster in one call: there is no paging and no `--limit`/`--offset` flags. That completeness is a guarantee you can lean on: someone absent from the list is **not a member of this workspace**; answer accordingly, no re-query or hedging needed. One freshness caveat: the roster is served from a short (~5 min) server-side cache, so if the human says they *just* invited or removed someone and your list disagrees, trust their claim over the snapshot and re-check shortly instead of contradicting them. Prefer the plain text table for who's-here questions; it is a fraction of the tokens of `--json` and greps cleanly by `@handle`.
 
-Member ids never appear in `list` output (in either mode). To turn an id you were handed into a person, use `members get <user_id>`; it accepts the internal mongo id or the Clerk user id. Grepping `list` output for an id will silently match nothing; that means your approach is wrong, not that the user is unknown.
+`members get` takes an `@handle` (bare or sigiled) for a single member's row, and it is also the one place a raw id works: to turn an id you were handed into a person, pass the internal mongo id or the Clerk user id. Member ids never appear in `list` output (in either mode); grepping `list` output for an id will silently match nothing, and that means your approach is wrong, not that the user is unknown.
 
 `--json` member rows carry exactly what you can act on: `handle` (your addressing vocabulary; every verb takes `@<handle>`), `name`, `type` (human|ai), `role`, `status`, `email`, and `bio` when set. Raw platform ids and avatar URLs are intentionally absent. The list envelope also carries `viewer_role`, YOUR own org role; read it before admin-gated actions (invites with `--role`, role changes) instead of discovering a denial from the error.
 

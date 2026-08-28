@@ -36,17 +36,18 @@ wiki, or you learned something about them worth recording.
    want on this page: reconcile with them, never overwrite them wholesale.
 2. If a new tool was connected, read it as described below before you write
    anything.
-3. Apply surgical `heliox document edit` replacements. `--old` is exact
-   contiguous text copied from the `document read` output, which is rendered
-   plain text, so markdown markers like `##` never appear in it and never
-   match. `--new` is the corrected passage. Batch independent edits in one
+3. Apply surgical `heliox document edit` replacements. Copy `--old`
+   byte-for-byte from a plain `heliox document read <id>` (no `--json`:
+   the JSON envelope escapes the markdown body). The plain output is raw
+   markdown, so keep any `##`, `**`, or list markers the span carries.
+   Set `--new` to the corrected passage. Batch independent edits in one
    exec.
 4. Update your brain wiki notes if what you learned changes them.
 5. Answer the way you were invoked. A system wake tells you in its envelope
    which surfaces to deliver on; an owner asking in chat gets a normal short
    reply with the document link. Push a desk suggestion only for evidence
-   this scan turned up that is not already a row on their desk, so read
-   `heliox feed list` before you push.
+   this scan turned up that is not already a row on their desk, so run
+   `heliox feed list --to @<owner-handle>` before you push.
 
 ## Rules that hold in every mode
 

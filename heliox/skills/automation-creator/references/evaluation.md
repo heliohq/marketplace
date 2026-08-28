@@ -36,18 +36,17 @@ re-enable it with `heliox automation update <id> --enable true`.
 You must know who is subscribed. `heliox automation subscriber list <id>` shows
 the effective audience, owner included. The owner is always an implicit
 subscriber and cannot be removed. Clearing the stored list removes every other
-subscriber, but the owner still receives every result.
+subscriber, but the owner still receives every real result.
 
-A manual run is a real run: it delivers to every subscriber in the snapshot
-taken at fire time, and you cannot call that back. You also cannot trim the
-audience yourself: the subscriber list is owner-only, and the server refuses
-subscriber changes from your executor identity. Keep non-owner subscribers out
-of rehearsal by never attaching them before the loop: create with the
+A `--rehearsal` fire publishes its run card with an empty subscriber audience:
+no subscriber, the owner's digest included, receives it, so rehearsing an
+automation that already carries subscribers needs no audience changes. You
+could not make them anyway: the subscriber list is owner-only, and the server
+refuses subscriber changes from your executor identity. Still create with the
 owner-only default and have the owner add the real audience at handover, after
-the automation has proven itself. If the automation already carries other
-subscribers, ask the owner to remove them before you fire and restore them
-after, or fall back to the approved output from step 3 as the evidence and
-note the gap in your handover.
+the automation has proven itself. A manual run fired WITHOUT `--rehearsal`
+delivers to every subscriber in the fired-time snapshot and cannot be called
+back; the loop never fires one.
 
 The deferred audience still matters for a `--start` one-shot even though it is
 not rehearsed. It has exactly one run, and that run delivers to whoever is
@@ -55,7 +54,8 @@ subscribed when it fires. When the user named other recipients, keep it disabled
 until the owner has added them, then arm it before the deadline. Do not manually
 run it while waiting.
 
-If even the owner receiving run output is unacceptable, do not fire the
+A rehearsal still leaves its run thread in the automation's channel, where the
+owner can read it. If even that visibility is unacceptable, do not fire the
 automation. Fall back to the approved output from step 3 as the evidence, and
 note the gap in your handover.
 
@@ -84,11 +84,12 @@ the same procedure document. They collide. So run one scenario at a time, all
 the way through capture, before touching the document again.
 
 There is no whole-document write. `document edit` replaces one span at a time
-(`--old` must appear exactly once unless you pass `--replace-all`), `document
-seed` only fills a document that is still empty, and `document read` renders
-with line numbers for inspection, so its output is not something you can write
-back. That shapes the whole loop: **every variant is one minimal, uniquely
-identifiable span, and you undo it with the inverse replacement.**
+(`--old` must appear exactly once unless you pass `--replace-all`), and
+`document seed` only fills a document that is still empty. `document read`
+prints the current body as raw markdown; copy `--old` spans from it
+byte-for-byte, markers included. That shapes the whole loop: **every variant
+is one minimal, uniquely identifiable span, and you undo it with the inverse
+replacement.**
 
 Before the first edit, save the approved body to the workspace. Save the text
 you authored and passed to `--procedure`, not the output of `document read`.
@@ -100,12 +101,19 @@ heliox document edit <procedure_doc_id> \
   --old "Read #incidents for messages posted in the last 24 hours" \
   --new "Read #incidents for messages posted between 2026-07-13 and 2026-07-14"
 
-# 2. fire it and capture the execution id from the JSON output. This returns
-#    as soon as the server posts the run header; the executor wakes afterwards,
-#    in its own thread, and reads the procedure document only once it is awake.
-#    The --json output includes execution_id directly; use it instead of
-#    guessing from `automation runs`, which is ambiguous when two runs overlap
-heliox automation run <id> --json
+# 2. fire it as a rehearsal and capture the execution id from the JSON output.
+#    --rehearsal keeps a failure out of the auto-disable count and lets success
+#    close without subscriber digests; the same --fire-key makes a retry reuse
+#    the run. Fire keys are durable per automation: a key from ANY earlier
+#    pass returns that finished run instead of firing, so mint a fresh key
+#    for every new fire (keep <n> counting up across passes) and reuse one
+#    only to retry the same fire.
+#    This returns as soon as the server posts the run header; the
+#    executor wakes afterwards, in its own thread, and reads the procedure
+#    document only once it is awake. The --json output includes execution_id
+#    directly; use it instead of guessing from `automation runs`, which is
+#    ambiguous when two runs overlap
+heliox automation run <id> --rehearsal --fire-key <scenario>:<n> --json
 
 # 3. WAIT for it to finish before doing anything else. Poll until run show
 #    reports a finalized run; an unfinalized one is still working, and both

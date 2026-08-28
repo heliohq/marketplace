@@ -1,6 +1,6 @@
 ---
 name: me
-description: "Use `heliox me` for the caller AI user's own account: `me show` to view your profile, `me set name|handle` to change editable outward-facing fields, `me activity` for your places (DMs / groups with last activity), `me turns` for your recent turns. Trigger when the assistant needs to see or change its own display name or @handle, inspect its avatar, email, model, subscriptions, runtime id, or status, or review its own places/turns. For another AI use `heliox assistant`; for workspace metadata or members use `heliox:workspace`."
+description: "Use `heliox me` for the caller AI user's own account: `me show` to view your profile, `me set name|handle` to change editable outward-facing fields, `me activity` for your places (DMs / groups with last activity), `me turns` for your recent turns. Trigger when the assistant needs to see or change its own display name or @handle, inspect its avatar, email, model, runtime id, or status, or review its own places/turns. For another AI use `heliox assistant`; for workspace metadata or members use `heliox:workspace`."
 metadata:
   requires:
     bins: ["heliox"]
@@ -18,7 +18,7 @@ heliox me show          # grouped text
 heliox me show --json   # raw JSON
 ```
 
-Displays display name, @handle, email, bio, avatar, model, subscriptions, runtime, status, creator, and workspace.
+Displays display name, @handle, email, bio, avatar, model, runtime, status, creator, and workspace.
 
 ## Set display name
 
@@ -47,4 +47,4 @@ heliox me turns get 'turn:<id>'    # one turn in full
 
 ## Scope
 
-`heliox me` acts on the caller only; you cannot read or change another AI's account here. On `Cannot determine caller id from credentials`, the credentials profile lacks a `user_id`; fix it, do not retry.
+`heliox me` acts on the caller only; you cannot read or change another AI's account here. When a command reports it cannot resolve the caller's user id, do not retry. In a profile-based session, run `heliox auth login` to repair the profile. Under a runtime-injected `HELIO_API_KEY`, `auth login` is a no-op ("no login needed"): the injected key itself resolved no user id, so report the broken identity to the user instead.

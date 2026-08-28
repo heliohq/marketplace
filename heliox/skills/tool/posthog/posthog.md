@@ -11,15 +11,11 @@ heliox tool posthog [--account <key>] -- <group> <verb> [flags...]
 PostHog is product analytics: events, insights, dashboards, feature flags,
 annotations, persons/cohorts, experiments, and ad-hoc HogQL queries.
 
-The connection is a **personal API key** the user creates at Settings > Personal
-API keys, not an OAuth grant. There is no auth link to relay. PostHog makes
-them pick the key's scopes, and there is a trap worth stating when you ask for
-one: besides the analytics scopes the commands below need, the key must also
-carry **`user:read`**. Helio verifies the key against `/api/users/@me/` before
-storing it, and a key scoped only to analytics is refused at connect with an
-error that does not name the missing scope. Keys can also be limited to
-specific projects or organizations; a key scoped to one project cannot reach
-another.
+The connection is a **PostHog OAuth grant**. If no account is connected, run
+`heliox tool posthog auth --json` and relay its authorize link to the user.
+Helio requests the reviewed analytics scopes plus the two write scopes used by
+feature flags and annotations; the user signs in to PostHog and consents there.
+Do not ask them to create or paste a personal API key.
 
 ## The mental model (read this first)
 
@@ -36,6 +32,10 @@ another.
    ```bash
    heliox tool posthog -- project list --json
    ```
+
+   `--project` selects the API target; it is not a Helio authorization boundary.
+   PostHog remains responsible for enforcing which projects the OAuth token may
+   access.
 
 3. **Passthrough JSON.** List commands return PostHog's
    `{"count","next","previous","results"}` envelope untouched; page with
@@ -124,3 +124,6 @@ heliox tool posthog -- property-definition list --project 1 --search "plan" --js
 - **Write scope is small by design.** Only feature flags and annotations are
   writable; everything else is read-only. Insight/dashboard creation is not
   wrapped. Use `query run` for ad-hoc analysis.
+- **Writes require approval.** `flag create|update|toggle` and
+  `annotation create` stop with `APPROVAL_REQUIRED`; follow the parent tool
+  skill's request-and-replay flow exactly.

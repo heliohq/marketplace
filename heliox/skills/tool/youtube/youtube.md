@@ -93,6 +93,19 @@ heliox tool youtube -- videos update --id VIDEO_ID --privacy unlisted
 heliox tool youtube -- videos rate   --id VIDEO_ID --rating like   # like|dislike|none
 ```
 
+### Upload
+
+```bash
+# Upload a local video. Privacy defaults to private; choose public or unlisted explicitly.
+heliox tool youtube -- videos upload --file ./clip.mp4 --title "Launch recap" --privacy private --json
+heliox tool youtube -- videos upload --file ./clip.mp4 --title "Launch recap" --description "Q3 update" --tags launch,q3 --made-for-kids=false
+```
+
+`--file` and `--title` are required. `--privacy` accepts `private`, `unlisted`,
+or `public`; keep test and OAuth-verification uploads private. The upload sends
+the local file in one resumable-upload session, so rerun the command from the
+start if the transfer fails.
+
 ### Subscriptions
 
 ```bash
@@ -109,13 +122,14 @@ heliox tool youtube -- subscriptions list --mine --json
   same video can appear multiple times, each with its own item id.
 - **`--ban-author` only applies with `--status rejected`.** Any other status is
   rejected before the call (the API returns `400 banWithoutReject`).
-- **No upload / no captions / no live / no Analytics.** This tool does not
-  upload video files, manage captions/thumbnails, drive live broadcasts, or
-  return windowed analytics; those are out of scope for v1.
+- **No captions / thumbnails / live / Analytics.** Upload is supported, but
+  this tool does not manage captions or thumbnails, drive live broadcasts, or
+  return windowed analytics; those remain out of scope.
 
 ## Safety
 
-Replying to or moderating comments, and editing video/playlist metadata, are
-outward-facing actions on the user's public channel. Follow the
-sensitive-operation rule in `../SKILL.md`: confirm before posting public
-replies, rejecting/​banning commenters, or changing a video's privacy.
+Uploading videos, replying to or moderating comments, and editing
+video/playlist metadata are outward-facing actions on the user's channel.
+Follow the sensitive-operation rule in `../SKILL.md`: confirm before uploading,
+posting public replies, rejecting/​banning commenters, or changing a video's
+privacy.
