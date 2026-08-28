@@ -1,6 +1,6 @@
 ---
 name: document
-description: "Use `heliox document ...` for Helio collaborative documents: read a live document as markdown, make exact in-place text edits, or handle `helio://document/<id>` references. Trigger when the user asks to inspect or edit a Helio document, task-description document, or document URI."
+description: "Use `heliox document ...` for Helio collaborative documents: create a document with an initial markdown body, read a live document as markdown, make exact in-place text edits, or handle `helio://document/<id>` references. Trigger when the user asks to create, inspect, or edit a Helio document, task-description document, or document URI."
 metadata:
   requires:
     bins: ["heliox"]
@@ -12,6 +12,26 @@ metadata:
 `heliox document` is the AI-facing surface for Helio collaborative documents.
 It connects to the live Yjs document as a peer, so reads and edits see the same
 state humans see in the editor.
+
+## Create
+
+```bash
+heliox document create "<title>" --content "<markdown body>" --json
+heliox document create "<title>" --content "<markdown body>" --channel '#engineering'
+heliox document seed <id> --content "<markdown body>"     # first body of an existing empty document
+```
+
+Pass `--content` at create time: the server mints every document empty, and
+`edit` cannot write a first body (`--old ""` is rejected, and an empty
+document has no text to anchor on). `document seed` is the same first write
+for a document that already exists empty, including the recovery path when
+`create` reports the document was created but its content failed to seed.
+
+`--channel` binds the document to a channel (`#name`) or a DM (`@handle`);
+omit it for a standalone document. `--json` returns the envelope with the
+`routeUrl` to share. This creates plain documents only: task-description and
+automation documents are created by their parent entity (`task create`,
+`automation create`), not here.
 
 ## Read
 

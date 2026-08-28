@@ -196,7 +196,7 @@ Write `## Failure and no-result behavior` and `## Done when` using the three clo
 A run then ends with exactly one terminal verb, and each has a precondition it will not close without:
 
 ```bash
-heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber has been DM'd a digest
+heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber was reached (a DM digest or a feed push both count)
 heliox automation run failed  <execution_id> --reason "<what broke>"      # the owner has been DM'd what broke; a thread mention does not count
 heliox automation run skip    <execution_id> --reason "<checked what; why quiet>"  # a one-line all-clear in the thread, no digests
 ```
@@ -237,7 +237,8 @@ Post the digest in the run's own thread as a single message titled "Incidents,
 <date>". One section per service, incidents as bullets under it. Keep the whole
 message under 300 words; if there is more than that, summarize the long tail as
 a count. Then DM the same digest to every subscriber. The thread copy is the
-record; the DMs are the delivery, and `run success` will not close without both.
+record; the DMs are this procedure's chosen delivery, and `run success` will
+not close until the thread record exists and every subscriber was reached.
 
 ## Failure and no-result behavior
 If no messages match the filter in the last 24 hours, post one line in the run's
@@ -310,11 +311,11 @@ Step 3 proved that *you* could produce the output, with the whole conversation i
 
 Skip this entire step for a `--start` one-shot. Do not call `heliox automation run` and do not create a baseline run. That command is another real execution, not a preview. Record that the one-shot was validated from the approved step 3 output, the source and access checks, and the canonical procedure read-back, then continue to handover. Steps 7 and 8 apply to cron, event, and catalog automations.
 
-A run you fire here is a real run and closes like one: `success` once the result is in the run's own thread and every subscriber has a digest, `failed --reason` with the owner told what broke, `skip --reason` for a period that was genuinely quiet. Grade against that too. A scenario that produced the right text but left the thread empty, or finalized green while a delivery failed, is a failing scenario however good the output reads.
+Fire every scenario as a rehearsal: `heliox automation run <id> --rehearsal --fire-key <scenario>:<n>`. A rehearsal executes for real and closes with the same terminal verbs, but its failures stay out of the consecutive-failure auto-disable count, `success` closes without requiring subscriber digests, and a retry with the same `--fire-key` reuses the run instead of minting a duplicate. Fire keys are durable per automation, so a reused key returns the prior finished run instead of firing: mint a fresh key for every new fire and reuse one only to retry that same fire. Grade the ending too: a scenario that produced the right text but left the thread empty is a failing scenario however good the output reads.
 
 Read [`references/evaluation.md`](references/evaluation.md) before the first fire. It covers containment, the edit/fire/capture/restore loop, expectations, grading, and results. The choices that remain are below.
 
-Two commands carry this step, and when you describe the work to the user, name them rather than describing the loop in the abstract. `heliox automation run <id>` fires it once while it stays disabled. `heliox automation run show <execution_id> --transcript --json` is how you read what happened, and the `--json` is not a preference: cards, approvals, and attachments have no plain-text form, so a run whose real output was a broken card renders as clean text without it. You would be grading the caption instead of the picture.
+Two commands carry this step, and when you describe the work to the user, name them rather than describing the loop in the abstract. `heliox automation run <id> --rehearsal --fire-key <scenario>:<n>` fires it once while it stays disabled. `heliox automation run show <execution_id> --transcript --json` is how you read what happened, and the `--json` is not a preference: cards, approvals, and attachments have no plain-text form, so a run whose real output was a broken card renders as clean text without it. You would be grading the caption instead of the picture.
 
 ### Your scenarios are the paths from step 4
 
@@ -394,7 +395,11 @@ technical language or ask for the implementation, give the id, exact enable
 command, evidence paths, and trigger details in a separate technical reply.
 
 Do not infer approval from interest or a proposal. When the user has clearly
-asked for future runs, enable the proven automation and say when it starts.
+asked for future runs, enable the proven automation yourself and say when it
+starts. Arming what you execute is your own act:
+`heliox automation update <id> --enable true` on its own, with nothing else in
+the call. [`references/your-authority.md`](references/your-authority.md) has
+the rest of what an executor holds, and what does belong to someone else.
 
 For cron, event, and catalog automations, the experience record already contains the rehearsal entry from step 7. For a one-shot, record only the validation evidence from step 3 and the storage read-back; do not imply that a manual run occurred. The owner can write feedback for future refinements. Keep both records, but do not make a novice learn their filenames. If they later ask to change the result or say it stopped working, use `heliox:automation-refiner` without asking them to choose a skill.
 

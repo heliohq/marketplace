@@ -14,9 +14,9 @@ chase signers, and pull the completed signed PDF back, plus reuse of saved
 templates. Commands hang under three resource groups: `signature-request`,
 `template`, and `account`. Every command supports `--json`.
 
-> Not to be confused with **Dropbox** (file storage, `heliox tool dropbox`):
-> separate product and account. This tool signs documents; it does not browse
-> Dropbox files.
+> Not to be confused with **Dropbox** the file-storage product, which is not
+> a Helio tool: separate product and account. This tool signs documents; it
+> does not browse Dropbox files.
 
 ## Core commands
 

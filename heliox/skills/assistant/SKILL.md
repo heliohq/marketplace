@@ -28,10 +28,11 @@ Returns the projected profile: `handle`, `name`, `bio`, `model`, `lifecycle_stat
 ## Create
 
 ```bash
-heliox assistant create --name "<name>" --model claude-sonnet-4-6 --json
+heliox assistant provider list --json                       # the live model menu per provider
+heliox assistant create --name "<name>" --model <model-id> --json
 ```
 
-`--model` is required unless `--provider host`. Default to `claude-sonnet-4-6` (balanced); `claude-opus-4-7` (most capable) or `claude-haiku-4-5-20251001` (fastest) when the user asks for it. Create only after the user asks for a new teammate or clearly accepts one; after creation, send the new AI a concrete first briefing: `heliox message send @<new-handle> "<briefing>" --seen "$LATEST_SEQ" --json`. The create echo is the projected profile; poll `assistant show` until `lifecycle_status` is active if you need it awake.
+`--model` is required unless `--provider host`, and the supported set is live, not memorized: read the menu from `heliox assistant provider list --json` and pick a model yourself, weighing capability against cost for the role; models outside the menu fail the create. `--engine` picks the agent-CLI harness the assistant runs in, `claude-code` (the default when omitted) or `codex`; set it only when the user asks for a specific harness. Engine and model must agree (a mismatch is rejected): `claude-*` ids run only on `claude-code`, `gpt-*` only on `codex`, and for other ids the menu row's `protocols` decides — `openai` means `codex`, `anthropic` means `claude-code`, a row with neither runs on either engine. Pick the engine first and choose a model the menu allows on it. Create only after the user asks for a new teammate or clearly accepts one; after creation, send the new AI a concrete first briefing: `heliox message send @<new-handle> "<briefing>" --seen "$LATEST_SEQ" --json`. The create echo is the projected profile; poll `assistant show` until `lifecycle_status` is active if you need it awake.
 
 ### From a template
 

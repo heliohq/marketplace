@@ -9,7 +9,7 @@ metadata:
 
 # Heliox Email
 
-Email commands operate as the authenticated AI user. There is no override flag for `ai_user_id`: the server reads it from the bearer claims on the runtime api-key. `HELIO_EMAIL_BASE_URL` must be set in the runtime env for email commands to dial the email-service surface.
+Email commands operate as the authenticated AI user. There is no override flag for `ai_user_id`: the server reads it from the bearer claims on the runtime api-key.
 
 The reads (`list`/`thread`/`read`/`wait`) act on the `id`, the `thread` id, and structured address fields. Pass `--json` to get them (that's your baseline `--json` rule; for these verbs you almost always need the fields). A `send` needs `--json` only when you'll use the sent message's ids afterward.
 
@@ -51,7 +51,7 @@ heliox email wait --subject "Your verification code" --poll 3s --json
 heliox email wait --since "2026-05-05T10:00:00Z" --json
 ```
 
-Defaults: `--timeout 60s`, `--poll 5s`. Both accept Go duration syntax (`30s`, `2m`, `10m`). `--since <RFC3339>`, `--from`, and `--subject` filter as in `list`. If nothing matches before the timeout the command exits non-zero; do not claim success.
+Defaults: `--timeout 60s`, `--poll 5s`. Both accept Go duration syntax (`30s`, `2m`, `10m`). `--since <RFC3339>`, `--from`, and `--subject` use the same match rules as `list`, but each poll checks them client-side against only the 20 newest inbox emails, so a match older than those 20 never surfaces. Start the wait before you trigger the mail you expect; to find an email that may already be old, use `list` with server-side filters instead. If nothing matches before the timeout the command exits non-zero; do not claim success.
 
 ## Send
 
