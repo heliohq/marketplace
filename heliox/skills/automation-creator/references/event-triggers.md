@@ -39,8 +39,7 @@ provider API is observed and uses `--kind poll`. The CLI has no `api` kind.
 Use a current managed provider path only when Helio can bind the requested
 automation to it. A managed flow for one named template does not make that
 provider a generic event source. Today Gmail's managed inbox wake belongs to
-the Inbox Triage template. After the user agrees, generate one stable key for
-that approved installation and run:
+the Inbox Triage template. After the user agrees, install it:
 
 ```bash
 heliox automation catalog install @helio/inbox-triage \
@@ -48,15 +47,10 @@ heliox automation catalog install @helio/inbox-triage \
   --idempotency-key <stable-approved-install-key> --json
 ```
 
-Reuse that exact key on every retry so a lost response cannot create a
-duplicate Automation and first run. This preserves the managed binding.
-The CLI installation remains disabled while the idempotent first run executes.
-Wait for its terminal result, inspect it, and explicitly enable the automation
-only when the result is safe. A failed or incomplete first run leaves the
-automation off.
-`catalog show` followed by a generic `automation create` is not an installation
-and will not receive the managed wake. Do not claim that any arbitrary Gmail
-automation can subscribe to it.
+Reuse the same key on any retry. The install stays disabled while its first
+run executes; enable it only after that run finishes safely. A generic
+`automation create` will not receive the managed wake; do not claim that any
+arbitrary Gmail automation can subscribe to it.
 
 Choose a generic webhook only when all of these are true:
 

@@ -9,6 +9,13 @@ metadata:
 
 # Heliox Automation Creator
 
+First, decide what is in front of you:
+
+- A new automation taking shape in this conversation: this skill, steps 1 to 9 below.
+- Any automation from an earlier conversation, enabled or not: `heliox:automation-refiner`.
+- Work to finish once, now, a human calendar entry, or an SOP with no future AI run: not an automation; do the work or write the document instead.
+- An `automation-rec-*.zip` screen-recording package: `heliox:automation-recorder`.
+
 This skill turns a request into an automation: a trigger, a procedure document, and an AI that executes it. Before handover, run cron, event, and catalog automations against real data. Do not manually run a one-shot because that would do a once-only job twice. Validate it with the output the user approved in this conversation, source and access checks, and the stored procedure read-back. Everything after an automation goes live belongs to `heliox:automation-refiner`, which repairs it when it decays, changes what it produces, and reviews how it has been running.
 
 The user supplies the outcome, not the architecture. A short request such as "keep an eye on our important orders" is normal input. Research the source, choose how to observe it, write any trigger code, and test it yourself. Do not turn implementation choices into a questionnaire for the user.
@@ -19,7 +26,7 @@ Work out where the user already is before you start. Three common openings:
 
 1. Nothing exists yet. Start at step 1. This is the default path.
 2. The user brought an approved example, pasted or described. Step 3 is already done; align on any gaps, then move to step 4.
-3. A built-in template fits. `heliox automation catalog list` / `show <id>` holds proven recurring procedures such as daily priorities, weekly reflection, and inbox triage. Check it before writing from scratch. If you notice a recurring need nobody has named, offer the matching template in one sentence: what would run, when, and what they would receive. Install it only after they agree, with `heliox automation catalog install <id> --timezone <owner IANA timezone> --idempotency-key <stable-approved-install-key> --json`. Generate one stable key for that approved installation and reuse the exact key on every retry; a new key can create a duplicate Automation and first run. The CLI keeps the installed automation disabled while its idempotent first run is inspected. Enable it only after that run reaches a safe terminal result. Do not copy its procedure into a generic `automation create`: installation preserves the template binding that a managed provider flow may require. A person clicking Start in the gallery is the equivalent path outside this skill; the direct Start action supplies its enablement consent.
+3. A built-in template fits. `heliox automation catalog list` / `show <id>` holds proven recurring procedures such as daily priorities, weekly reflection, and inbox triage. Check it before writing from scratch. If you notice a recurring need nobody has named, offer the matching template in one sentence: what would run, when, and what they would receive. Install only after they agree: `heliox automation catalog install <id> --timezone <owner IANA timezone> --idempotency-key <stable-approved-install-key> --json`, and reuse the exact key on every retry. The install leaves the automation disabled while its first run executes; enable it only after that run finishes safely. Do not copy its procedure into a generic `automation create`; installation preserves the template binding a managed provider flow may require.
 
 ## Talking to the user
 
@@ -71,7 +78,7 @@ Four answers drive the rest of the process. Infer them from the conversation, th
 
 Use sensible defaults and ask only about what remains. Results go to the current conversation. The server assigns ownership to your human owner; anyone else who wants to own an automation creates their own. You are the executor. Only the owner receives successful results and failure notices unless they add subscribers. Quiet runs notify nobody.
 
-Do not create anything until all four questions have answers, but remember that an answer can be a safe default rather than another question. A half-understood request becomes a half-correct procedure, and unlike a one-off task, this one will run on its own, repeatedly, without anyone watching.
+Do not create anything until all four questions have answers; an answer can be a safe default rather than another question. This runs unattended and repeatedly, so a half-understood request becomes a half-correct procedure.
 
 ## 2. Check the ground
 
@@ -87,7 +94,7 @@ Does the destination exist? The channel, document, or address the results go to.
 
 Does one of these already run? `heliox automation list --json` before you create a recurring one. A second automation covering the same ground is worse than none: both fire, the owner gets two digests that disagree, and neither is obviously the stale one. If something close already exists, refine it (`heliox:automation-refiner`) instead of adding a rival.
 
-Come to the user with this already done. Every check you skip becomes a question they have to answer or a failure they have to watch.
+Come to the user with this already done; every skipped check becomes their question or their failure.
 
 ## 3. Do the work once, here
 
@@ -111,9 +118,7 @@ If the user brought an approved example or has an existing automation to work fr
 
 ## 4. Write down the paths you did not see
 
-Step 3 exercised exactly one path: the one where everything worked and data was available. But an automation runs unattended, often at odd hours, and the paths you did not see are the ones that will cause problems. Every procedure needs explicit handling for these four situations.
-
-These four are also your test cases. In step 7 you will run them rather than just describe them, so write each one specifically enough that you could check whether a run obeyed it.
+Step 3 exercised one path: everything worked and data was available. Every procedure also needs explicit handling for the four situations below. They double as step 7's test cases, so write each one specifically enough to check whether a run obeyed it.
 
 ### Nothing found
 
@@ -124,8 +129,6 @@ Bad:
 
 Good:
 > "If no messages match the filter in the last 24 hours, post a one-line summary in the run's own thread: 'No new incidents since yesterday's report.' Do not extend the window or loosen the filter. A quiet period is a valid result, so close with `heliox automation run skip <execution_id> --reason \"checked #incidents for the last 24h; no matching messages\"`."
-
-An empty result from the right window is data, not a malfunction. Dropping filters or paging backwards to force a result turns "nothing to report" into stale or misleading output.
 
 ### A step fails
 
@@ -175,9 +178,7 @@ The procedure carries the whole job: the trigger decides *when* something happen
 ## Done when            (required)
 ```
 
-Every section is required. `## Failure and no-result behavior` is the output of step 4: it governs the runs nobody is watching, and a procedure without it improvises at 3 AM.
-
-`## Objective` is one or two sentences on what this produces and who it is for. Not the schedule, not the steps. An executor reads this to know whether it is on the right track.
+Every section is required. `## Objective` is one or two sentences on what this produces and who it is for. Not the schedule, not the steps. An executor reads this to know whether it is on the right track.
 
 `## Inputs and freshness` names the exact sources to read, the filters to apply, and a time window derived from the cadence. A daily scan reads the last day's data, not everything ever written; a weekly digest covers the last week. The window matches the cadence so each run sees exactly its own period and nothing from the previous one. A bounded read that finds nothing within that window is the no-result path, not a malfunction, so never page past the window or drop filters to manufacture a non-empty result.
 
@@ -185,7 +186,7 @@ Every section is required. `## Failure and no-result behavior` is the output of 
 
 `## Output and delivery` gives the format and the destination, concretely enough to be checked. "A summary" is not a format. Name the sections, the ordering, the length, and where it goes.
 
-`## Failure and no-result behavior` holds the four paths from step 4, written as the concrete instructions in that section's Good examples.
+`## Failure and no-result behavior` holds the four paths from step 4, written as the concrete instructions in that section's Good examples. Without it the unwatched runs improvise.
 
 `## Done when` is the finish line, stated so a run can be graded against it. This is the acceptance criterion: the conditions under which the executor should finalize as success. Without it, a run that quietly did half the job finalizes green.
 
@@ -193,7 +194,7 @@ Write `## Failure and no-result behavior` and `## Done when` using the three clo
 
 **Every run leaves its result in the run's own thread.** That thread is the audit record. A result sent only as a DM leaves it blank, and a finished run whose thread shows nothing reads to its owner as a run that never happened. Long output goes in a document; the thread carries the reference. Write the delivery section so this is what the executor does, not something it may do.
 
-A run then ends with exactly one terminal verb, and each has a precondition it will not close without:
+A run ends with exactly one terminal verb, and each has a precondition:
 
 ```bash
 heliox automation run success <execution_id>   # the result is in the run's own thread, and every subscriber was reached (a DM digest or a feed push both count)
@@ -205,11 +206,9 @@ So "if there are no tickets, post 'No urgent tickets'" is the wrong shape for a 
 
 ### How to write it
 
-Prefer the imperative, and explain the why. The reader is a capable model, not an interpreter. A step it understands the purpose of will be executed sensibly in circumstances you never imagined, while a step it can only obey literally will be obeyed literally in exactly the circumstance where that is wrong. Piling on capitalized MUSTs is a symptom of not having explained the reason.
+Prefer the imperative, and explain the why: a step whose purpose the executor understands is handled sensibly in circumstances you never imagined. Capitalized MUSTs are a symptom of a missing reason.
 
-Keep it as short as it can be while remaining unambiguous, because every run reads all of it. A section growing into reference material, like a long field mapping or a large list of source ids, belongs in a document the procedure points to rather than inline.
-
-Keep evaluation cases, grades, and execution ids out of the procedure. The executor should receive only the instructions needed to do the work; the test evidence lives in the workspace from step 7 and is handed over separately in step 9.
+Keep it as short as it can be while remaining unambiguous, because every run reads all of it. A section growing into reference material, like a long field mapping or a large list of source ids, belongs in a document the procedure points to rather than inline. Keep evaluation cases, grades, and execution ids out too: the executor should receive only the instructions needed to do the work, and the test evidence is handed over separately in step 9.
 
 ### A complete example
 
@@ -237,8 +236,7 @@ Post the digest in the run's own thread as a single message titled "Incidents,
 <date>". One section per service, incidents as bullets under it. Keep the whole
 message under 300 words; if there is more than that, summarize the long tail as
 a count. Then DM the same digest to every subscriber. The thread copy is the
-record; the DMs are this procedure's chosen delivery, and `run success` will
-not close until the thread record exists and every subscriber was reached.
+record; the DMs are the delivery.
 
 ## Failure and no-result behavior
 If no messages match the filter in the last 24 hours, post one line in the run's
@@ -251,9 +249,8 @@ If #incidents cannot be read at all (permission error, connection error, 5xx),
 wait 60 seconds and retry once. If the retry fails, post the failure in the run's
 own thread ("Could not read #incidents: {error}"), DM the owner the same line,
 then close with `heliox automation run failed <execution_id> --reason "Source
-unreachable: {error}"`. The verb checks for both the thread record and the DM,
-so a run that only DMs is rejected. Do not post a digest assembled from anything
-but a successful read.
+unreachable: {error}"`. Do not post a digest assembled from anything but a
+successful read.
 
 ## Done when
 The digest is in the run's own thread, every subscriber has received it, every
@@ -273,23 +270,20 @@ Choose from the user's intended experience, not from technical words they may or
 
 **Observed.** Helio must call an external read API to notice change. Create an event-only parent and attach `--kind poll`. Its clock only decides when cheap code checks; a stable source event, revision, or explicit reminder bucket decides whether the AI wakes. Do not call this pushed merely because the API belongs to a connected product.
 
-Use direction to classify API-based requests: source to Helio is Pushed; Helio to source is Observed. "Check every morning" is Scheduled when the user wants a report every morning, and Observed when they only want to hear about a qualifying change. Ask only when that experience is unclear.
+Use direction to classify API-based requests: source to Helio is Pushed; Helio to source is Observed. Watch for time words that hide an event: "check every morning whether a ticket went urgent" is Observed if the user only wants to hear about new urgent tickets, and Scheduled if they want the morning report even when nothing changed. "Remind me before Thursday's review" is a one-shot. Work that can be completed now is not an automation. Ask only when the intended experience is unclear.
 
-Watch for time words that hide an event. "Check every morning whether a ticket went urgent" is Observed if the user only wants to hear about new urgent tickets. It is Scheduled if they want a morning report even when nothing changed. "Remind me before Thursday's review" is a one-shot. Work that can be completed now is not an automation.
-
-Before writing event code, decide the match, beginning, stable identity, repeat behavior, and event context. Use a stable delivery ID as `fire_key` for pushed events. If a business choice remains, translate only that choice into plain language and ask it.
-
-For source research, the trigger contract, code templates, credentials, idempotency, and local fixtures, follow [`references/event-triggers.md`](references/event-triggers.md). Keep all of that work invisible unless the user asks how it was built.
+Before writing event code, decide the match, beginning, stable identity, repeat behavior, and event context. Use a stable delivery ID as `fire_key` for pushed events. If a business choice remains, translate only that choice into plain language and ask it. For source research, the trigger contract, code templates, credentials, idempotency, and local fixtures, follow [`references/event-triggers.md`](references/event-triggers.md). Keep all of that work invisible unless the user asks how it was built.
 
 ### Create
 
-Do not store the automation until the trace contains both an authoritative documentation read and a representative source call for every external source. A documentation link returned by provider help is discovery, not a read. Then build the argument array as JSON and pass it through the args-file transport:
+Do not create until you have read authoritative documentation AND made one representative source call for every external source; a documentation link returned by provider help is discovery, not a read. Then build the argument array as JSON and pass it through the args-file transport:
 
-If a catalog template is the chosen path, use `automation catalog install` after the user's explicit agreement and skip the generic create command below. Capture its returned automation and first-run coordinates. The CLI leaves it disabled while that first run executes. Wait for the run to finalize, inspect it with `automation run show`, and explicitly enable the automation only when the result is safe. A managed provider automation is bound only when the installed automation retains the template identity; `catalog show` plus `automation create` does not bind it. If the first run did not start or its result is unsafe, leave the installed automation disabled and report the concrete blocker.
+If a catalog template is the chosen path, use `automation catalog install` after the user's explicit agreement and skip the generic create command below. Capture the returned automation and first-run coordinates, wait for that run to finalize, inspect it with `automation run show`, and enable the automation only when the result is safe. If the run did not start or its result is unsafe, leave it disabled and report the concrete blocker.
 
 ```json
 ["automation", "create", "<name>", "--cron", "0 9 * * 1-5",
  "--creation-source", "chat",
+ "--idempotency-key", "<stable-key-for-this-approved-create>",
  "--procedure", "# <name>\n\n## Objective\n<approved objective>\n\n## Procedure\n<approved steps>"]
 ```
 
@@ -297,13 +291,20 @@ If a catalog template is the chosen path, use `automation catalog install` after
 heliox --json --args-file /absolute/path/create-automation.json
 ```
 
-Use `--cron` (recurring), `--start` (one-shot), or neither (event automation; attach a `webhook` or `poll` trigger next). These choices are mutually exclusive, and `api` is not a trigger kind. When converting the user's phrasing to a cron expression, an explicit clock time is exact ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset so that loosely timed automations do not all fire at once.
+Mint one `--idempotency-key` per approved create and reuse the exact key on
+every retry of it. A fresh key per retry can create duplicates.
+
+Use `--cron` (recurring), `--start` (one-shot), or neither (event automation; attach a `webhook` or `poll` trigger next). These choices are mutually exclusive, and `api` is not a trigger kind. When converting the user's phrasing to a cron expression, an explicit clock time is exact ("every day at 9 AM" = `0 9 * * *`); vague wording ("every morning") gets a randomized minute offset.
 
 `--procedure` takes the markdown BODY, never a filename. The AI that executes this procedure days or weeks later cannot read a file path that existed on your runtime at creation time. Draft in a local file if it helps, but paste its contents into the argument JSON; the file serves only as `--args-file` transport.
 
 After creating, confirm the procedure landed: `heliox document read <document_id>` should show the approved text, not an empty body or a file path. This is a storage check and nothing more. It proves the bytes arrived, not that they make sense to a stranger. That question is step 7's.
 
-A cron automation is created disabled. An event-only automation also starts disabled. A one-shot is created enabled and will fire at its start time. Never rehearse or manually run a one-shot: a manual run performs the real job once, so rehearsal would turn a single requested execution into two. Its evidence is the approved output from step 3, source and access checks, and the stored procedure read-back. Disable it only when the user named other recipients and its scheduled time leaves enough room: the owner must add them before its only run fires, or they will miss it. For an event automation, finish the contained procedure rehearsal and local handler tests while it is off. After source registration is ready, enable the parent for the contained source-originated proof because an event handler cannot fetch its bound credential or fire while the parent is disabled. Keep it enabled after that proof only when the user authorized ongoing operation and every required path held; otherwise disable it immediately.
+Each shape is created in a different state, and the state decides what you do next:
+
+- **Cron**: created disabled. Rehearse it in step 7; arming happens at handover.
+- **Event-only**: starts disabled too. Finish the contained procedure rehearsal and local handler tests while it is off. Enable the parent only for the source-originated proof, because an event handler cannot fetch its bound credential or fire while the parent is disabled. After that proof, keep it enabled only when the user authorized ongoing operation and every required path held; otherwise disable it immediately.
+- **One-shot**: created enabled, fires once at its start time. Never rehearse or manually run a one-shot: a manual run performs the real job once, so rehearsal would turn a single requested execution into two. Its evidence is the approved output from step 3, source and access checks, and the stored procedure read-back. Disable it only when the user named other recipients and its scheduled time leaves enough room: the owner must add them before its only run fires, or they will miss it.
 
 ## 7. Run the scenarios
 
@@ -311,13 +312,11 @@ Step 3 proved that *you* could produce the output, with the whole conversation i
 
 Skip this entire step for a `--start` one-shot. Do not call `heliox automation run` and do not create a baseline run. That command is another real execution, not a preview. Record that the one-shot was validated from the approved step 3 output, the source and access checks, and the canonical procedure read-back, then continue to handover. Steps 7 and 8 apply to cron, event, and catalog automations.
 
-Fire every scenario as a rehearsal: `heliox automation run <id> --rehearsal --fire-key <scenario>:<n>`. A rehearsal executes for real and closes with the same terminal verbs, but its failures stay out of the consecutive-failure auto-disable count, `success` closes without requiring subscriber digests, and a retry with the same `--fire-key` reuses the run instead of minting a duplicate. Fire keys are durable per automation, so a reused key returns the prior finished run instead of firing: mint a fresh key for every new fire and reuse one only to retry that same fire. Grade the ending too: a scenario that produced the right text but left the thread empty is a failing scenario however good the output reads.
+Fire every scenario as a rehearsal: `heliox automation run <id> --rehearsal --fire-key <scenario>:<n>`. A rehearsal executes for real and closes with the same terminal verbs. Its failures stay out of the consecutive-failure auto-disable count, and `success` closes without requiring subscriber digests. Fire keys are durable per automation: a reused key returns that finished run instead of firing again, so mint a fresh key for every new fire and reuse one only to retry that same fire. Grade the ending too. A scenario that produced the right text but left the thread empty is a failing scenario, however good the output reads.
 
-Read [`references/evaluation.md`](references/evaluation.md) before the first fire. It covers containment, the edit/fire/capture/restore loop, expectations, grading, and results. The choices that remain are below.
+Read [`references/evaluation.md`](references/evaluation.md) before the first fire. It covers containment, the edit/fire/capture/restore loop, expectations, grading, and results. The choices that remain are below. Read each fire back with `heliox automation run show <execution_id> --transcript --json`, where `--json` is required: cards, approvals, and attachments have no plain-text form, so without it a broken card renders as clean text and you grade the caption instead of the picture.
 
-Two commands carry this step, and when you describe the work to the user, name them rather than describing the loop in the abstract. `heliox automation run <id> --rehearsal --fire-key <scenario>:<n>` fires it once while it stays disabled. `heliox automation run show <execution_id> --transcript --json` is how you read what happened, and the `--json` is not a preference: cards, approvals, and attachments have no plain-text form, so a run whose real output was a broken card renders as clean text without it. You would be grading the caption instead of the picture.
-
-### Your scenarios are the paths from step 4
+### Run the paths from step 4
 
 You already wrote them. `representative` is the path you walked in step 3, and the four you only imagined are `no-result`, `step-fails`, `partial`, and `source-down`. Step 4 asked you to write them specifically enough to check. This is the checking.
 
@@ -329,7 +328,7 @@ Firing all five for a Friday reminder is waste; firing only the representative o
 | Reads varying data, silence is meaningful (a digest, a scan) | `representative` + `no-result` |
 | Has an outward or irreversible effect (mail, payment, external write), or reads three-plus sources | the full set + `baseline` |
 
-### Your inputs come from moving the window, not from waiting
+### Move the window instead of waiting
 
 The procedure names a time window, so you change the input by changing the window. You are not waiting for next Monday; you are reading last Monday. Three real windows read today beat one real window read three weeks from now.
 
@@ -339,7 +338,7 @@ For `no-result`, use a real window you have already verified is empty, or the sa
 
 For `step-fails`, `partial`, and `source-down`, inject the fault, because you cannot wait for GitHub to break. Point one source at an unreachable address, or at a channel the executor has no access to.
 
-### Your baseline is the user's original sentence
+### Fire a baseline from the user's original sentence
 
 Fire the automation once with the procedure body replaced by the one-line request the user opened with. Keep every containment substitution in place: retargeted destinations, scratch channels, the audience still unattached. The baseline isolates one variable, the procedure's guidance, and containment is not part of that variable. A baseline that reverts the containment fires at the real destination, which defeats the loop.
 
@@ -367,7 +366,7 @@ Put recurring work somewhere durable. If every run re-derives the same query, ma
 
 ## 9. Hand it over
 
-Restore the real configuration first. Undo each scenario variant with the inverse `heliox document edit`, using the `--old` and `--new` strings you recorded when you made it, and put the real destinations back. Then confirm what is actually stored rather than what you meant to store, with `heliox document read <document_id>` and `heliox automation subscriber list <id>`. A scratch channel left in the delivery step is the single most likely way this automation ships broken, and it will look fine right up until the first real fire. The audience is the one piece you cannot restore yourself: subscriber changes are owner-only, so any recipients beyond the owner are named in the handover below for the owner to add, not attached by you.
+Restore the real configuration first. Undo each scenario variant with the inverse `heliox document edit`, using the `--old` and `--new` strings you recorded when you made it, and put the real destinations back. Then confirm what is actually stored, not what you meant to store: `heliox document read <document_id>` and `heliox automation subscriber list <id>`. A scratch channel left in the delivery step is the single most likely way this automation ships broken, and it looks fine right up until the first real fire. The audience is the one piece you cannot restore yourself: subscriber changes are owner-only, so recipients beyond the owner are named in the handover below for the owner to add.
 
 Then tell the user what now exists:
 
@@ -376,15 +375,19 @@ Then tell the user what now exists:
 - What it may do without asking again. Name outward messages, shared-system
   writes, or money movement plainly.
 - What you proved and any important path that remains unproven.
-- Its real live state. "Send this every day from now on" or another clear request for future runs
-  already approves a proven schedule; do not ask twice. A one-shot stays armed
-  unless it was paused so the owner could add recipients; in that case, arm it
-  only after the audience is complete and before its deadline. An event automation stays off through authoring, local handler tests, and
-  manual procedure rehearsal. Once registration is ready, turn it on for a
-  contained source delivery proof; after that proof, retain or restore the live
-  state the user authorized. Keep it off when the user asked to wait, rehearsal
-  did not establish safe operation, its audience is incomplete, or a high-risk
-  business choice remains unresolved.
+- Its real live state, by shape:
+  - "Send this every day from now on" or another clear request for future runs
+    already approves a proven schedule; do not ask twice.
+  - A one-shot stays armed unless it was paused so the owner could add
+    recipients; arm it again only after the audience is complete and before
+    its deadline.
+  - An event automation stays off through authoring, local handler tests, and
+    manual procedure rehearsal. Once registration is ready, turn it on for a
+    contained source delivery proof, then retain or restore the live state
+    the user authorized.
+  - Keep any automation off when the user asked to wait, rehearsal did not
+    establish safe operation, its audience is incomplete, or a high-risk
+    business choice remains unresolved.
 
 For a non-technical user, fit that handover into five short sentences. Do not
 send the automation id, a CLI command, workspace paths, test counts, trigger
@@ -420,7 +423,7 @@ test tier, historical windows, fixtures, baseline, retry policy, and run-state
 verbs in your private working plan. If the user explicitly asks for the
 technical design or test plan, then show the relevant layer.
 
-Do not describe this situation as a limitation, and do not list the steps you are "unable" to do. You are able to do them; you have been asked to wait. Saying otherwise reads as an excuse for a thinner answer, and it is the most common way this step goes wrong.
+Do not describe this situation as a limitation, and do not list the steps you are "unable" to do. You are able to do them; you have been asked to wait. Saying otherwise reads as an excuse for a thinner answer.
 
 ### You tried and the run is not available
 
