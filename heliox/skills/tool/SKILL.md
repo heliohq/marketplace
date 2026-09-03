@@ -106,14 +106,17 @@ next-step commands; that output is self-contained: follow it. The flow:
    first: the gate routes the decision to the right human (the person who
    authorized this account, who may not be whoever you are talking to); asking
    twice is double friction.
-2. **Wait**: you are normally woken when the approval is decided. Still arm
-   `schedule_wakeup` as a fallback right after requesting: the push can miss
-   if this runtime is gone. Fallback prompt must cover every outcome: approved
-   → replay with `--approval <id>`; denied → tell the user and stop; expired →
-   re-request if the work is still needed (if it was approved but the window
-   lapsed, say so in the new `--message`); cancelled → re-request only if
-   still needed. If the fallback fires after the decision was already handled,
-   do nothing and end the turn.
+2. **Wait**: once the request is created, tell the current conversation who the
+   `approver:` output names and that work will continue after their decision,
+   then end the turn. This is an ordinary status reply on the current surface,
+   never another approval card. Every terminal decision creates a durable
+   approval continuation, including denial, cancellation, and expiry. Do not
+   arm `schedule_wakeup`; that creates a second continuation path. When the
+   continuation arrives, refetch the canonical approval before acting:
+   approved → replay with `--approval <id>` if the action is still needed;
+   denied → tell the user and stop; expired → re-request if the work is still
+   needed (if it was approved but the execution window lapsed, say so in the
+   new `--message`); cancelled → re-request only if still needed.
 3. **Replay**: `heliox tool <provider> ... --approval <id> -- <same args>`
    (`--approval` goes before the first `--`, like `--account`). The approval
    binds the **literal** command: same tool, same `--account` form (omitted ⇔
@@ -124,7 +127,7 @@ next-step commands; that output is self-contained: follow it. The flow:
 
 Rules that keep the gate safe:
 
-- **No-op guard, before any replay** (push wake or fallback): if the
+- **No-op guard, before any replay**: if the
   underlying command already ran (with or without an approval, under any id),
   do nothing and end the turn; if the command was superseded by a newer
   request, do not replay: tell the user the old card is abandoned (the new

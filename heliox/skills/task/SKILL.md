@@ -40,7 +40,7 @@ heliox task create "<title>" --channel '#engineering' -d "<markdown body>" --jso
 heliox task create "Visual bug" --channel '#engineering' -a ./shot1.png -a ./shot2.png --json
 ```
 
-Write `-d/--description` as Markdown; the CLI renders headings, lists, code, and links as rich text and wraps the result into the Tiptap wire doc; never pass Tiptap JSON. `-a/--attachment` (repeatable) uploads files: image refs embed inline in the description (`![name](helio://attachment/...)`, after any `-d` paragraphs), non-image refs ride `attachments[]`; both surface as `attachments[].uri`, fetchable via `heliox blob get` (see `heliox:message` §Attachments).
+Write `-d/--description` as Markdown; never pass Tiptap JSON. `-d` or an image attachment makes the task document-backed: the CLI creates a collaborative description document, seeds your markdown (plus one `![name](helio://attachment/...)` line per image) into it, and links it to the task (`description_document_id` in `--json`). Later description edits go through `heliox document edit <description_document_id>` (see `heliox:document`), NOT `task update -d`. `-a/--attachment` (repeatable) uploads files: image refs live only in the description body (fetch via `heliox blob get helio://attachment/...`); non-image refs ride `attachments[]` and surface as `attachments[].uri` (see `heliox:message` §Attachments).
 
 ## Show
 
@@ -49,7 +49,7 @@ heliox task show <id-or-key> --json
 heliox task show <id-or-key> --activity --json   # + activity log, last 20 changes
 ```
 
-The response inlines the full picture: `task.description` (Tiptap; image nodes carry `attrs.src = "helio://attachment/..."`), `task.attachments[]` and `comments[].attachments[]` (each with a `uri`), and `activities[]` when requested.
+The response inlines the full picture: `task.description` (Tiptap; image nodes carry `attrs.src = "helio://attachment/..."`), `task.attachments[]` and `comments[].attachments[]` (each with a `uri`), and `activities[]` when requested. For a document-backed task (non-empty `description_document_id`) `task.description` is the LIVE document body and text mode prints a `Document <id>` line; edit it with `heliox document edit <description_document_id>`.
 
 ## Update
 
@@ -61,7 +61,9 @@ heliox task update <id-or-key> -a ./new-shot.png --clear-description --json
 
 Flags: `--title`, `--status`, `--assignee`, `-d`, `--priority`, `--deadline`, `--labels`, `-a`, `--clear-attachments`, `--clear-description`. Omitted or empty flags preserve the current value; reassigning needs a real `@handle`.
 
-Attachments are tri-state: omit both flags = unchanged; `-a file...` = upload and REPLACE the whole set; `--clear-attachments` = drop all (the two are mutually exclusive). Because image refs live inside the description, any attachment replacement must also decide the description: pair `-a`/`--clear-attachments` with either `--clear-description` or `-d "<new prose>"`, and keep any `helio://attachment/...` refs in a new `-d` consistent with the new attachment set; mismatches are rejected server-side.
+`-d`/`--clear-description` work only on doc-less tasks. A document-backed task (non-empty `description_document_id`) rejects them — edit the live document instead: `heliox document edit <description_document_id> --old "<text>" --new "<text>"`.
+
+Attachments are tri-state: omit both flags = unchanged; `-a file...` = upload and REPLACE the whole set; `--clear-attachments` = drop all (the two are mutually exclusive). Document-backed tasks take `-a`/`--clear-attachments` alone. On doc-less tasks image refs live inside the row description, so any attachment replacement must also decide the description: pair `-a`/`--clear-attachments` with either `--clear-description` or `-d "<new prose>"`, and keep any `helio://attachment/...` refs in a new `-d` consistent with the new attachment set; mismatches are rejected server-side.
 
 ## Done (close with evidence)
 

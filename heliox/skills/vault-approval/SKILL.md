@@ -59,14 +59,25 @@ Follow this order when a task needs a credential.
    heliox vault request <request_ref> --policy onetime --reason "<reason>" --wait infinite --json
    heliox vault request <request_ref> --policy onetime --reason "<reason>" --expires "<rfc3339>" --json
    ```
-   Without `--wait`, the command returns `status=pending` and an `approval_id`. With `--wait`, exit code `0` means approved; inspect JSON/status before continuing on any nonzero exit.
+   Without `--wait`, the command returns `status=pending` and an `approval_id`.
+   Tell the current conversation that the credential owner has been asked and
+   work will continue after their decision; this is an ordinary status reply,
+   not another approval card. With `--wait`, exit code `0` means approved;
+   inspect JSON/status before continuing on any nonzero exit.
 
 4. **Resolve the credential id after approval.**
    ```bash
    heliox approval get <approval_id> --json
    heliox vault list --role grantee --name <provider-or-purpose> --type token --json
    ```
-   Use `credential.id` directly when an approved wait response includes it. Otherwise poll the approval or list delegated credentials after the owner approves.
+   Owner approval and Vault execution are separate facts. A durable approval
+   continuation for this action arrives only after execution is terminal;
+   refetch the approval and require `execution.status=succeeded` before using
+   `execution.result_ref.credential_id`. `terminal_failure` or `unknown` means
+   report the failure or ambiguity and stop. Do not treat an approved decision,
+   an absent execution object, or the approval card alone as proof that a
+   delegation exists. `vault request --wait` performs this terminal-execution
+   wait for you.
 
 5. **Fetch plaintext only for the immediate operation.**
    ```bash
@@ -183,6 +194,14 @@ Approvals also carry **tool-execution** requests (the tool approval gate):
 - `--json` exposes the frozen command under the top-level `extends` object (`tool`, `account`, `argv`): recover the exact command to replay when it has fallen out of context.
 
 Full gate flow: the `heliox:tool` skill.
+
+For `vault.delegation.create`, `approval get <id> --json` exposes a separate
+top-level `execution` object. The card still shows only waiting, approved, or
+not approved. `pending`/`executing` is backend-owned work; do not replay the
+Vault command or create a second approval. `succeeded` carries safe
+`credential_id` and `delegation_id` references. `terminal_failure` and
+`unknown` require a new judgment after reporting the stored `error_code`; never
+infer success from `decision.outcome=approve`.
 
 Wait outcome codes for `vault request --wait`:
 
