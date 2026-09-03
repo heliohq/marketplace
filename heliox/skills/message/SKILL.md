@@ -68,14 +68,18 @@ heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --in-reply-to "<seq>"
 
 ## Native threads
 
-Thread flags take per-channel seqs, never 24-hex ids. When `message.reply_target.kind == "thread"`, reply with the seqs from the reminder; if no root thread seq is present, use the parent seq as both:
+Thread flags take per-channel seqs, never 24-hex ids. Where the coordinates come from:
+
+- In a thread session, `$THREAD_SEQ` is the `id:` of the entry marked `thread_root: true` at the start of the session, and the same value is the `<root_seq>` half of the `HELIO_CLI_THREAD_ID=<parent_channel_id>:<root_seq>` variable in your turn environment. A reply entry shows `thread: <seq>` only when its root is in the same batch, so do not depend on that field. A send back into this channel must carry `--thread "$THREAD_SEQ"`; one that does not is rejected as an input error.
+- To open a thread on a top-level message in a channel batch, pass that entry's `id:` as `--thread`.
+- `$PARENT_SEQ` is the `id:` of the entry you are answering. When you answer the root itself, use its seq as both:
 
 ```bash
 heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --thread "$THREAD_SEQ" --in-reply-to "$PARENT_SEQ"
 heliox message send '#eng' "<text>" --seen "$LATEST_SEQ" --thread "$PARENT_SEQ" --in-reply-to "$PARENT_SEQ"
 ```
 
-`--in-reply-to` alone is a quote reply in the channel scroll. It does not enter a thread. Never invent a thread seq or pass an empty `--thread`.
+`--in-reply-to` alone is a quote reply in the channel scroll. It does not enter a thread. Never invent a thread seq; a blank `--thread` or `--in-reply-to` is rejected as an input error, so check the variable is set before you send.
 
 ## Mentions & markdown
 

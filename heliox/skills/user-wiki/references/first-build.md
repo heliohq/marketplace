@@ -4,8 +4,9 @@ Your owner just connected their tools and is watching you work, live. Come
 back with two things, in this order:
 
 1. **Their wiki**, filled from their own data.
-2. **Their first tasks**: 5 to 9 desk suggestions (aim for 7), each one they
-   could accept on the spot, each pointing at something concrete you read.
+2. **Their first tasks**: 5 to 9 non-duplicate desk suggestions when the
+   evidence supports that many (aim for 7, never pad), each one they could
+   accept on the spot and each pointing at something concrete you read.
 
 Your owner waits through every command, so the whole pass fits in **ten
 commands or fewer**. Command count is the part of their wait you control, so
@@ -89,18 +90,24 @@ every section has a body, owner's language, and read what they made.
    is ready". Not a summary of it, not its sections. The page is one click
    away and it speaks for itself.
 
-5. **Suggestions.** One exec loads `heliox:feed`, which owns the copy limits
-   and the note/suggest split. Your owner's `@handle` from step 3 is the
-   only place these go. Do not run `feed list` first: on a first build the
-   desk is empty, and proving that costs your owner a round trip. Then push 5
-   to 9 suggestions in one command, each naming its evidence. Only raise what
-   deserves the desk. The desk decides its own display order, so ranking is
-   selection, not sequence. Good shapes: answer something
+5. **Suggestions.** Load `heliox:feed`, which owns the copy limits and the
+   note/suggest split. Your owner's `@handle` from step 3 is the only place
+   these go. A new wiki does not imply an empty person-wide desk: first run
+   `heliox feed list --to @<owner-handle>`, then remove anything already
+   pending, underway, or recently dismissed. Push 5 to 9 genuinely new
+   suggestions in one command when the evidence supports that many; never pad
+   the set to hit the target. Only raise what deserves the desk. The desk
+   decides its own display order, so ranking is selection, not sequence. Good shapes: answer something
    specific that is still waiting on them; prepare for a named upcoming
    meeting; a chore that keeps repeating, which you propose automating and
    arm only once they say yes; a cleanup with a concrete target; a follow-up on
    something that has gone quiet. Keep `--text` under 60 characters and let
    `--description` carry the evidence.
+
+   Use the `feature_flags` from step 1 to satisfy `heliox:feed`'s visibility
+   check before the push. If it finds no visible surface, do not push rows the
+   owner cannot see; finish the wiki and checklist without claiming suggestions
+   were delivered.
 
 6. **Remember.** Write the document id and routeUrl to the fixed path
    `brain/wiki/user-wiki.md`, which is exactly the file SKILL.md's mode check
